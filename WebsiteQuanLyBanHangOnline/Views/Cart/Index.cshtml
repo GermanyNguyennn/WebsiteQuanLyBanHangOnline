@@ -1,0 +1,68 @@
+﻿@using WebsiteQuanLyBanHangOnline.Models.ViewModels
+@model CartViewModel
+
+<section id="cart_items">
+	<div class="container">
+		<div class="breadcrumbs">
+			<ol class="breadcrumb">
+				<li><a href="#">Home</a></li>
+				<li class="active">Shopping Cart</li>
+			</ol>
+		</div>
+		<div class="table-responsive cart_info">
+			<table class="table table-condensed">
+				<thead>
+					<tr class="cart_menu">
+						<td class="image">Item</td>
+						<td class="description"></td>
+						<td class="price">Price</td>
+						<td class="quantity">Quantity</td>
+						<td></td>
+						<td class="total">Total</td>
+						<td></td>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model.Cart.Count > 0)
+					{
+						foreach (var item in Model.Cart)
+						{
+							<tr>
+								<td class="cart_product">
+									<img src="~/media/products/@item.Image" alt="@item.ProductName" width="50%" height="50%" />
+								</td>
+								<td class="cart_description">
+									<h5><a asp-controller="Product" asp-action="Details" asp-route-Id="@item.ProductId">@item.ProductName</a></h5>
+								</td>
+								<td class="cart_total">
+									<h5><p class="cart_total_price">@item.Price</p></h5>
+								</td>
+								<td class="cart_quantity">
+									<input class="cart_quantity_input" type="text" name="quantity" value="@item.Quantity" autocomplete="off" size="2">
+									<td>
+										<a class="btn btn-default btn-sm" asp-controller="Cart" asp-action="Decrease" asp-route-Id="@item.ProductId">-</a>
+										<a class="btn btn-default btn-sm" asp-controller="Cart" asp-action="Increase" asp-route-Id="@item.ProductId">+</a>
+									</td>
+								</td>
+								<td class="cart_total">
+									<h5><p class="cart_total_price">@Model.Cart.Where(x => x.ProductId == item.ProductId).Sum(x => x.Quantity * x.Price).ToString("#,##0 VNĐ")</p></h5>
+								</td>
+								<td class="cart_delete">
+									<a class="cart_quantity_delete" asp-controller="Cart" asp-action="Remove" asp-route-Id="@item.ProductId"><i class="fa fa-times"></i></a>
+								</td>
+							</tr>
+						}
+						<tr>
+							<td colspan="5"></td>
+							<td><h5>Grand Total: <p class="cart_total_price">@Model.GrandTotal.ToString("#,##0 VNĐ")</p></h5></td>
+						</tr>
+						<tr>
+							<td colspan="6"></td>
+							<td><a class="btn btn-primary" asp-controller="Checkout" asp-action="Checkout">Checkout</a></td>
+						</tr>				
+					}							
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section> <!--/#cart_items-->

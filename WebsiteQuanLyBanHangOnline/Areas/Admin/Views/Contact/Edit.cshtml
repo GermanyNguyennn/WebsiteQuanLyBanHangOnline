@@ -1,0 +1,64 @@
+﻿@model ContactModel
+@{
+    ViewData["Title"] = "Edit Contact";
+}
+
+<form asp-action="Edit" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label>Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger" />
+    </div>
+
+    <div class="form-group">
+        <label>LogoImage</label>
+        <input asp-for="ImageUpload" class="form-control" />
+        <span asp-validation-for="ImageUpload" class="text-danger" />
+        <img id="imgpreview" class="pt-2" />
+    </div>
+
+    <div class="form-group">
+        <label>Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Map</label>
+        <textarea asp-for="Map" class="form-control"></textarea>
+        <span asp-validation-for="Map" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Email</label>
+        <textarea asp-for="Email" class="form-control"></textarea>
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Phone</label>
+        <textarea asp-for="Phone" class="form-control"></textarea>
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-primary">Add</button>
+        <a asp-action="Index" class="btn btn-primary">Back</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        CKEDITOR.replace('Description');
+    </script>
+    <script>
+        $("#ImageUpload").change(function(){
+            readURL(this);
+        });
+    </script>
+}

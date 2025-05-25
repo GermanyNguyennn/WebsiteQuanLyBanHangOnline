@@ -1,0 +1,54 @@
+﻿@model IEnumerable<CategoryModel>
+@{
+    ViewData["Title"] = "Category List";
+    Paginate pager = new Paginate();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+
+        pageNo = pager.CurrentPage;
+    }
+}
+<a asp-controller="Category" asp-action="Add" class="btn btn-primary btn-sm">Add Category</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Category Name</th>
+            <th scope="col">Category Description</th>
+            <th scope="col">Category Slug</th>
+            <th scope="col">Category Status</th>
+            <th scope="col">Category Manager</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <th scope="row">@item.Id</th>
+                <td>@item.Name</td>
+                <td>@Html.Raw(@item.Description)</td>
+                <td>@item.Slug</td>
+                @* <td>@item.Status</td> *@
+                <td>
+                    @if (item.Status == 1)
+                    {
+                        <span class="text text-success">Hiển Thị</span>
+                    }
+                    else
+                    {
+                        <span class="text text-danger">Ẩn</span>
+                    }
+                </td>
+                <td>
+                    <a asp-controller="Category" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-primary btn-sm">Edit</a>
+                    <a asp-controller="Category" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-primary btn-sm confirmDeletion">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<partial name="_Paging" model="@pager" />
