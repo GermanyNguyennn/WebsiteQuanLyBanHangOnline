@@ -4,5 +4,6 @@
     {
         public List<CartModel> Cart { get; set; }
         public decimal GrandTotal { get; set; }
+        public decimal ShippingPrice { get; set; }
     }
 }

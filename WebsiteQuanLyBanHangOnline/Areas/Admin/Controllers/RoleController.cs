@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebsiteQuanLyBanHangOnline.Repository;
@@ -6,6 +7,7 @@ using WebsiteQuanLyBanHangOnline.Repository;
 namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize]
     public class RoleController : Controller
     {
         private readonly DataContext _dataContext;

@@ -13,30 +13,34 @@
 
         public Paginate(int totalItems, int page, int pageSize = 10)
         {
-            int totalPages = (int)Math.Ceiling((decimal)totalItems / (decimal)pageSize);
+            int totalPages = (int)Math.Ceiling((decimal)totalItems / pageSize);
             int currentPage = page;
+
+            if (currentPage < 1)
+                currentPage = 1;
+            if (currentPage > totalPages)
+                currentPage = totalPages;
+
             int startPage = currentPage - 5;
             int endPage = currentPage + 4;
-            if (endPage <= 0)
+
+            if (startPage < 1)
             {
-                endPage = endPage + startPage + 1;
+                endPage += (1 - startPage);
                 startPage = 1;
-            }    
+            }
+
             if (endPage > totalPages)
             {
                 endPage = totalPages;
-                if (endPage > 10)
-                {
-                    startPage = endPage - 9;
-                }
             }
+
             TotalItems = totalItems;
             PageSize = pageSize;
             CurrentPage = currentPage;
             TotalPages = totalPages;
             StartPage = startPage;
             EndPage = endPage;
-            
         }
     }
 }

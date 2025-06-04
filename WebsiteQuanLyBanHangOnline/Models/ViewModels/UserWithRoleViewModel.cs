@@ -1,4 +1,4 @@
-﻿namespace WebsiteQuanLyBanHangOnline.Models
+﻿namespace WebsiteQuanLyBanHangOnline.Models.ViewModels
 {
     public class UserWithRoleViewModel
     {

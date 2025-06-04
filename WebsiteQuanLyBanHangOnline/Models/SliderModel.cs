@@ -12,7 +12,6 @@ namespace WebsiteQuanLyBanHangOnline.Models
         [Required]
         public string Name { get; set; }
         public string Image { get; set; }
-        [Required]
         public string Description { get; set; }        
         public int Status { get; set; }
         [NotMapped]

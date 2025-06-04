@@ -78,7 +78,13 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-var context = app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
-SeedData.SeedingData(context);
+//var context = app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
+//SeedData.SeedingData(context);
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.SeedingDataAsync(services);
+}
 
 app.Run();

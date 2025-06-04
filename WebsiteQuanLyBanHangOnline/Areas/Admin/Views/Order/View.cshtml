@@ -1,4 +1,5 @@
-﻿@model IEnumerable<OrderDetailModel>
+﻿@using WebsiteQuanLyBanHangOnline.Models.ViewModels
+@model IEnumerable<OrderDetailViewModel>
 @{
     ViewData["Title"] = "Order Detail List";
     decimal subTotal = 0;
@@ -28,11 +29,10 @@
                 <td>@item.OrderCode</td>
                 <td>@item.UserName</td>
                 <td>@item.ProductId</td>
-                <td>@item.Product?.Name</td>
+                <td>@item.Product.Name</td>
                 <td>@item.Quantity</td>
                 <td>@item.Price</td>   
-                <td>@subTotal</td>
-                
+                <td>@subTotal</td>              
             </tr>
         }
         <tr>

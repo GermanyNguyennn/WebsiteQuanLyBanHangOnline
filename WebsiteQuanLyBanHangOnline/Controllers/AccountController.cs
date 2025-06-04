@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using WebsiteQuanLyBanHangOnline.Areas.Admin.Repository;
 using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Models.ViewModels;
+using WebsiteQuanLyBanHangOnline.Repository;
 
 namespace WebsiteQuanLyBanHangOnline.Controllers
 {
@@ -12,6 +15,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         private UserManager<AppUserModel> _userManager;
         private SignInManager<AppUserModel> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly DataContext _dataContext;
 
         public AccountController(UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, IEmailSender emailSender)
         {           
@@ -64,6 +68,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 IdentityResult identityResult = await _userManager.CreateAsync(appUserModel, userModel.Password);
                 if (identityResult.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(appUserModel, "Customer");
                     TempData["Success"] = "Create Account Successfully!!!";
                     return RedirectToAction("Login");
                 }
@@ -79,6 +84,20 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             await _signInManager.SignOutAsync();
             return Redirect(returnURL);
+        }
+
+        public async Task<IActionResult> History()
+        {
+            if ((bool)!User.Identity?.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            var orders = await _dataContext.Orders.Where(od => od.UserName == userEmail).OrderByDescending(od => od.Id).ToListAsync();
+            ViewBag.UserEmail = userEmail;
+            return View(orders);
         }
     }
 }

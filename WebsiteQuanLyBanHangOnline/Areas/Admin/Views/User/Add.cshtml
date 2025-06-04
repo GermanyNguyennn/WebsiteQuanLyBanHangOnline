@@ -20,22 +20,19 @@
 
     <div class="form-group">
         <label>Email</label>
-        <input asp-for="Email" class="form-control"></input>
+        <input asp-for="Email" class="form-control">< />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label>Phone Number</label>
-        <input asp-for="PhoneNumber" class="form-control"></input>
+        <input asp-for="PhoneNumber" class="form-control">< />
         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label>Role</label>
-        <select asp-for="RoleId" class="form-control" asp-items="ViewBag.Roles">
-
-        </select>
-        <span asp-validation-for="RoleId" class="text-danger" />
+        <select name="selectedRoleId" class="form-control" asp-items="ViewBag.Roles"></select>
     </div>
 
     <div class="form-group">

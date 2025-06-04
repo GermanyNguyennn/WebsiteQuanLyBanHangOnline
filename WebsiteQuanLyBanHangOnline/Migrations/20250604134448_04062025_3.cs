@@ -5,7 +5,7 @@
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     /// <inheritdoc />
-    public partial class Update_25052025 : Migration
+    public partial class _04062025_3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

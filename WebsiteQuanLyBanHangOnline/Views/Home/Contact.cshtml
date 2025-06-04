@@ -1,1 +1,21 @@
-﻿
+﻿@model ContactModel
+<div class="row">
+	<div class="col">
+		<div id="map">
+			<iframe src="@Model.Map"
+					width="100%"	
+					height="450"
+					style="border:0;"
+					allowfullscreen=""
+					loading="lazy"
+					referrerpolicy="no-referrer-when-downgrade">
+			</iframe>
+		</div>
+		@* @Html.Raw(Model.Description) *@
+	</div>
+	<div class="col">
+		<h5><b>Name: @Model.Name</b></h5>
+		<h5>Email: @Model.Email</h5>
+		<h5>Phone: @Model.Phone</h5>
+	</div>
+</div>

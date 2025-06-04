@@ -10,6 +10,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
+    [Authorize(Roles = "Admin")]
     public class ProductController : Controller
     {
         private readonly DataContext _dataContext;
@@ -184,6 +185,38 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             await _dataContext.SaveChangesAsync();
             TempData["Success"] = "Delete Product Successfully!!!";
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddQuantity(int Id)
+        {
+            var productbyquantity = await _dataContext.ProductQuantities.Where(pq => pq.ProductId == Id).ToListAsync();
+            ViewBag.ProductByQuantity = productbyquantity;
+            ViewBag.ProductId = Id;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateQuantity(ProductQuantityModel productQuantityModel)
+        {
+            var product = _dataContext.Products.Find(productQuantityModel.ProductId);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+            product.Quantity += productQuantityModel.Quantity;
+
+            productQuantityModel.Quantity = productQuantityModel.Quantity;
+            productQuantityModel.ProductId = productQuantityModel.ProductId;
+            productQuantityModel.CreatedDate = DateTime.Now;
+
+
+            _dataContext.Add(productQuantityModel);
+            _dataContext.SaveChangesAsync();
+            TempData["Success"] = "Update Quantity Successfully!!!";
+            return RedirectToAction("AddQuantity", "Product", new { Id = productQuantityModel.ProductId });
         }
     }
 }

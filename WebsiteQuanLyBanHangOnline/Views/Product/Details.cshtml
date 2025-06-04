@@ -16,7 +16,7 @@
 					<!-- Wrapper for slides -->
 					@* <div class="carousel-inner"> *@
 					@* 	<div class="item active"> *@
-							
+
 					@* 	</div>					 *@
 					@* </div> *@
 
@@ -36,16 +36,18 @@
 					<h2>@Model.Name</h2>
 					<span>
 						<span>@Model.Price.ToString("#,##0 VNĐ")</span>
-						<label>Quantity:</label>
-						<input type="text" value="3" />
-						
+						<p><b>Category:</b> @Model.Category.Name</p>
+						<p><b>Brand:</b> @Model.Brand.Name</p>
 					</span>
-					<p><b>Availability:</b> In Stock</p>
-					<p><b>Condition:</b> New</p>
-					<p><b>Category:</b> @Model.Category.Name</p>
-					<p><b>Brand:</b> @Model.Brand.Name</p>
-					<a class="btn btn-default add-to-cart" asp-controller="Cart" asp-action="Add" asp-route-Id="@Model.Id"><i class="fa fa-shopping-cart"></i>Add to cart</a>
-					
+					@if (@Model.Quantity > 0)
+					{
+						<a class="btn btn-default add-to-cart" asp-controller="Cart" asp-action="Add" asp-route-Id="@Model.Id"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+					}
+					else
+					{
+						<a class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Sold out</a>
+					}
+
 				</div><!--/product-information-->
 			</div>
 		</div><!--/product-details-->

@@ -22,22 +22,25 @@
 								<p>Danh Mục: @item.Category.Name</p>
 								<p>Thương Hiệu: @item.Brand.Name</p>
 							</a>
-							<a class="btn btn-default add-to-cart" asp-controller="Cart" asp-action="Add" asp-route-Id="@item.Id"><i class="fa fa-shopping-cart"></i>Add to cart</a>
-							</div>
-							@* <div class="product-overlay"> *@
-							@* 	<div class="overlay-content"> *@
-							@* 		<h2>@item.Price</h2> *@
-							@* 		<p>@item.Name</p> *@
-							@* 		<a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a> *@
-							@* 	</div> *@
-							@* </div> *@
-						
+							@if (@item.Quantity > 0)
+							{
+								<a class="btn btn-default add-to-cart" asp-controller="Cart" asp-action="Add" asp-route-Id="@item.Id"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+							}
+							else
+							{
+								<a class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Sold out</a>
+							}
+						</div>							
 					</div>
 					<div class="choose">
-						<ul class="nav nav-pills nav-justified">
-							<li><a href="#"><i class="fa fa-plus-square"></i>Add to wishlist</a></li>
-							<li><a href="#"><i class="fa fa-plus-square"></i>Add to compare</a></li>
-						</ul>
+						@if (User.Identity?.IsAuthenticated ?? false)
+						{
+							<ul class="nav nav-pills nav-justified">
+								<li><a href="#"><i class="fa fa-plus-square"></i>Add To Wishlist</a></li>
+								<li><a href="#"><i class="fa fa-plus-square"></i>Add To Compare</a></li>
+							</ul>
+						}
+						
 					</div>
 				</div>
 			</div>

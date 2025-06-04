@@ -1,0 +1,176 @@
+﻿@model ShippingModel
+@{
+    ViewData["Title"] = "Add Shipping";
+    decimal key = 1;
+}
+
+<style type="text/css">
+    .css_select_div {
+        text-align: center;
+    }
+
+    .css_select {
+        display: inline-table;
+        width: 25%;
+        padding: 5px;
+        margin: 5px 2%;
+        border: solid 1px #686868;
+        border-radius: 5px;
+    }
+</style>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>  
+<div class="form-group">
+    <label>Tỉnh / Thành Phố:</label>
+    <select class="css_select" id="tinh" name="tinh" title="Chọn Tỉnh / Thành">
+        <option value="0">Tỉnh Thành</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label>Quận / Huyện:</label>
+    <select class="css_select" id="quan" name="quan" title="Chọn Quận / Huyện">
+        <option value="0">Quận Huyện</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label>Phường / Xã:</label>
+    <select class="css_select" id="phuong" name="phuong" title="Chọn Phường / Xã">
+        <option value="0">Phường Xã</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label>Giá:</label>
+    <input id="price-shipping" type="number" />
+
+</div>
+
+<div class="form-group">
+    <button class="btn btn-primary btn-add-shipping">Add</button>
+    <a asp-action="Index" asp-controller="Product" class="btn btn-primary">Back</a>
+</div>
+
+<table class="table table-striped" id="myTable">
+    <thead>
+        <tr>
+            <th>City</th>
+            <th>District</th>
+            <th>Ward</th>
+            <th>Price</th>
+            <th>Created Price</th>
+            <th>Manager</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var shippings in ViewBag.Shippings)
+        {
+            <tr>
+                <td>@key</td>
+                <td>@shippings.City</td>
+                <td>@shippings.District</td>
+                <td>@shippings.Ward</td>
+                <td>@shippings.Price.ToString("#,##0 VNĐ")</td>
+                <td>@shippings.CreatedDate</td>
+                <td>
+                    <a asp-controller="Shipping" asp-action="Delete" asp-route-Id="@shippings.Id" class="btn btn-primary btn-sm confirmDeletion">Delete</a>
+                </td>             
+            </tr>
+            key++;
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(".btn-add-shipping").click(function() {
+            var tinh = $("#tinh").find('option:selected').text();
+            var quan = $("#quan").find('option:selected').text();
+            var phuong = $("#phuong").find('option:selected').text();
+            var price = $("#price-shipping").val();
+
+            if (tinh == '' || quan == '' || phuong == '' || price == '')
+            {
+                Swal.fire("Cannot Be Left Blank!!!");
+            }
+            else {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("AddShipping", "Shipping")",
+                    data: { tinh: tinh, quan: quan, phuong: phuong, price: price },
+
+                    success: function (result)
+                    {
+                        if (result.success)
+                        {
+                            Swal.fire({
+                                title: "Add Shipping Successfully!!!",
+                                icon: "success",
+                                showConfirmButton: false,
+                                timer: 3000
+                            }).then(() => {
+                                    location.reload();
+                            });
+                        }
+                        else if (result.duplicate)
+                        {
+                            Swal.fire({
+                                title: "Duplicate Shipping!!!",
+                                icon: "success",
+                                showConfirmButton: false,
+                                timer: 3000
+                            }).then(() => {
+                                location.reload();
+                            });
+                        }
+                    }
+
+                });
+            }
+        })
+
+
+        $(document).ready(function() {
+            //Lấy tỉnh thành
+            $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm',function(data_tinh) {
+                if(data_tinh.error==0){
+                   $.each(data_tinh.data, function (key_tinh,val_tinh) {
+                      $("#tinh").append('<option value="'+val_tinh.id+'">'+val_tinh.full_name+'</option>');
+                   });
+                   $("#tinh").change(function(e){
+                        var idtinh=$(this).val();
+                        //Lấy quận huyện
+                        $.getJSON('https://esgoo.net/api-tinhthanh/2/'+idtinh+'.htm',function(data_quan) {
+                            if(data_quan.error==0){
+                               $("#quan").html('<option value="0">Quận Huyện</option>');
+                               $("#phuong").html('<option value="0">Phường Xã</option>');
+                               $.each(data_quan.data, function (key_quan,val_quan) {
+                                  $("#quan").append('<option value="'+val_quan.id+'">'+val_quan.full_name+'</option>');
+                               });
+                               //Lấy phường xã
+                               $("#quan").change(function(e){
+                                    var idquan=$(this).val();
+                                    $.getJSON('https://esgoo.net/api-tinhthanh/3/'+idquan+'.htm',function(data_phuong){
+                                        if(data_phuong.error==0){
+                                           $("#phuong").html('<option value="0">Phường Xã</option>');
+                                           $.each(data_phuong.data, function (key_phuong,val_phuong) {
+                                              $("#phuong").append('<option value="'+val_phuong.id+'">'+val_phuong.full_name+'</option>');
+                                           });
+                                        }
+                                    });
+                               });
+
+                            }
+                        });
+                   });
+
+                }
+            });
+         });
+    </script>
+}

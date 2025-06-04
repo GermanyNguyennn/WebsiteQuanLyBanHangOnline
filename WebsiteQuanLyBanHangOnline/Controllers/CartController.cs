@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Models.ViewModels;
 using WebsiteQuanLyBanHangOnline.Repository;
@@ -18,10 +20,20 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         public IActionResult Index()
         {
             List<CartModel> cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new List<CartModel>();
+
+            var shippingPriceCookie = Request.Cookies["ShippingPrice"];
+            decimal shippingPrice = 0;
+
+            if (shippingPriceCookie != null)
+            {
+                var shippingPriceJson = shippingPriceCookie;
+                shippingPrice = JsonConvert.DeserializeObject<decimal>(shippingPriceJson);
+            }
             CartViewModel cartViewModel = new()
             {
                 Cart = cart,
-                GrandTotal = cart.Sum(x => x.Quantity * x.Price)
+                GrandTotal = cart.Sum(x => x.Quantity * x.Price),
+                ShippingPrice = shippingPrice
             };
             return View(cartViewModel);
         }
@@ -73,15 +85,17 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
         public async Task<IActionResult> Increase(int Id)
         {
+            ProductModel productModel = await _dataContext.Products.Where(p => p.Id == Id).FirstOrDefaultAsync();
             List<CartModel> cart = HttpContext.Session.GetJson<List<CartModel>>("Cart");
             CartModel cartModel = cart.Where(c => c.ProductId == Id).FirstOrDefault();
-            if (cartModel.Quantity >= 1)
+            if (cartModel.Quantity >= 1 && productModel.Quantity > cartModel.Quantity)
             {
                 ++cartModel.Quantity;
             }
             else
             {
-                cart.RemoveAll(c => c.ProductId == Id);
+                cartModel.Quantity = productModel.Quantity;
+                TempData["Success"] = "Maximum Add Product Quantity To Cart!!! ";
             }
             if (cart.Count == 0)
             {
@@ -94,7 +108,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Remove(int Id)
+        public async Task<IActionResult> Delete(int Id)
         {
             List<CartModel> cart = HttpContext.Session.GetJson<List<CartModel>>("Cart");
             
@@ -114,6 +128,41 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             HttpContext.Session.Remove("Cart");
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddShipping(ShippingModel shippingModel, string tinh, string quan, string phuong)
+        {
+
+            var existingShipping = await _dataContext.Shippings.FirstOrDefaultAsync(x => x.City == tinh && x.District == quan && x.Ward == phuong);
+
+            decimal shippingPrice = 0;
+
+            if (existingShipping != null)
+            {
+                shippingPrice = existingShipping.Price;
+            }
+            else
+            {
+                shippingPrice = 50000;
+            }
+            var shippingPriceJson = JsonConvert.SerializeObject(shippingPrice);
+            try
+            {
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(30),
+                    Secure = true
+                };
+
+                Response.Cookies.Append("ShippingPrice", shippingPriceJson, cookieOptions);
+            }
+            catch (Exception)
+            {
+               return NotFound();
+            }
+            return Json( new { shippingPrice });
         }
     }
 }

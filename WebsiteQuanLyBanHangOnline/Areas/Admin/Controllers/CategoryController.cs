@@ -10,6 +10,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
+    [Authorize(Roles = "Admin")]
     public class CategoryController : Controller
     {
         private readonly DataContext _dataContext;
@@ -33,7 +34,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             int skip = (page - 1) * pageSize;
 
             var data = categories.Skip(skip).Take(pager.PageSize).ToList();
-            ViewBag.Paper = pager;
+            ViewBag.Pager = pager;
             return View(data);
 
             //return View(await _dataContext.Categories.OrderBy(c => c.Id).ToListAsync());

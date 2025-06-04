@@ -1,4 +1,4 @@
-﻿@model WebsiteQuanLyBanHangOnline.Models.Paginate;
+﻿@model WebsiteQuanLyBanHangOnline.Models.Paginate
 
 <div class="container">
     @if (Model.TotalPages > 0)
@@ -9,30 +9,28 @@
             {
                 <li class="page-item">
                     <a class="page-link" asp-action="Index"
-                       asp-route-pg="1">First</a>
+                       asp-route-page="1">First</a>
                 </li>
                 <li class="page-item">
                     <a class="page-link" asp-action="Index"
-                       asp-route-pg="@(Model.CurrentPage - 1)">Previous</a>
+                       asp-route-page="@(Model.CurrentPage - 1)">Previous</a>
                 </li>
             }
-            @for (var pge = Model.StartPage; pge <= Model.EndPage; pge++)
+            @for (var p = Model.StartPage; p <= Model.EndPage; p++)
             {
-                <li class="page-item @(pge==Model.CurrentPage ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-pg="@pge">@pge</a>
+                <li class="page-item @(p == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@p">@p</a>
                 </li>
-
-
             }
             @if (Model.CurrentPage < Model.TotalPages)
             {
                 <li class="page-item">
                     <a class="page-link" asp-action="Index"
-                       asp-route-pg="@(Model.CurrentPage+1)">Next</a>
+                       asp-route-page="@(Model.CurrentPage + 1)">Next</a>
                 </li>
                 <li class="page-item">
                     <a class="page-link" asp-action="Index"
-                       asp-route-pg="@(Model.TotalPages)">Last</a>
+                       asp-route-page="@(Model.TotalPages)">Last</a>
                 </li>
             }
         </ul>

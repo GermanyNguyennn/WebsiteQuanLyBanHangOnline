@@ -7,6 +7,7 @@ using WebsiteQuanLyBanHangOnline.Repository;
 namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize]
     [Authorize(Roles = "Admin")]
     public class ContactController : Controller
     {

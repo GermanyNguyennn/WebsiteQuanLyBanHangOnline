@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebsiteQuanLyBanHangOnline.Models;
+using WebsiteQuanLyBanHangOnline.Models.ViewModels;
 
 namespace WebsiteQuanLyBanHangOnline.Repository
 {
@@ -14,8 +15,13 @@ namespace WebsiteQuanLyBanHangOnline.Repository
         public DbSet<CategoryModel> Categories { get; set; }
         public DbSet<ProductModel> Products { get; set; }
         public DbSet<OrderModel> Orders { get; set; }
-        public DbSet<OrderDetailModel> OrderDetails { get; set; }
+        public DbSet<OrderDetailViewModel> OrderDetails { get; set; }
         public DbSet<SliderModel> Sliders { get; set; }
         public DbSet<ContactModel> Contacts { get; set; }
+        public DbSet<CompareModel> Compares { get; set; }
+        public DbSet<WishlistModel> Wishlists { get; set; }
+        public DbSet<ProductQuantityModel> ProductQuantities { get; set; }
+        public DbSet<ShippingModel> Shippings { get; set; }
+        public DbSet<CouponModel> Coupons { get; set; }
     }
 }

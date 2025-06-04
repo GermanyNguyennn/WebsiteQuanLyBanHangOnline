@@ -1,15 +1,19 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
 using WebsiteQuanLyBanHangOnline.Models;
+using WebsiteQuanLyBanHangOnline.Models.ViewModels;
 using WebsiteQuanLyBanHangOnline.Repository;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class UserController : Controller
     {
         private readonly UserManager<AppUserModel> _userManager;
@@ -26,6 +30,14 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            var currentUserRoles = await (from ur in _dataContext.UserRoles
+                                          join r in _dataContext.Roles on ur.RoleId equals r.Id
+                                          where ur.UserId == currentUserId
+                                          select r.Name).ToListAsync();
+
+
             var usersWithRoles = await (from u in _dataContext.Users
                                         join ur in _dataContext.UserRoles on u.Id equals ur.UserId
                                         join r in _dataContext.Roles on ur.RoleId equals r.Id
@@ -49,27 +61,39 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(AppUserModel appUserModel)
+        public async Task<IActionResult> Add(AppUserModel appUserModel, string selectedRoleId)
         {
             if (ModelState.IsValid)
             {
+                // Tạo user
                 var createUserResult = await _userManager.CreateAsync(appUserModel, appUserModel.PasswordHash);
+
                 if (createUserResult.Succeeded)
                 {
-                    var createUser = await _userManager.FindByEmailAsync(appUserModel.Email);
-                    var userId = createUser.Id;
-                    var role = _roleManager.FindByIdAsync(appUserModel.RoleId);
+                    // Lấy user vừa tạo
+                    var user = await _userManager.FindByEmailAsync(appUserModel.Email);
 
-                    var addToRoleResult = await _userManager.AddToRoleAsync(createUser, role.Result.Name);
-                    if (!addToRoleResult.Succeeded)
+                    // Lấy Role từ Id
+                    var role = await _roleManager.FindByIdAsync(selectedRoleId);
+
+                    if (role != null)
                     {
-                        foreach (var error in createUserResult.Errors)
+                        var addToRoleResult = await _userManager.AddToRoleAsync(user, role.Name);
+                        if (!addToRoleResult.Succeeded)
                         {
-                            ModelState.AddModelError(string.Empty, error.Description);
+                            foreach (var error in addToRoleResult.Errors)
+                            {
+                                ModelState.AddModelError(string.Empty, error.Description);
+                            }
+
+                            // Nếu add role thất bại, vẫn hiện form với danh sách roles
+                            ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Id", "Name", selectedRoleId);
+                            return View(appUserModel);
                         }
                     }
-                    TempData["Success"] = "Create User Successfully!!!";
-                    return RedirectToAction("Index", "User");
+
+                    TempData["Success"] = "Create User Successfully!";
+                    return RedirectToAction("Index");
                 }
                 else
                 {
@@ -77,94 +101,72 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
                     {
                         ModelState.AddModelError(string.Empty, error.Description);
                     }
-                    return View(appUserModel);
                 }
+            }
 
-            }
-            else
-            {
-                TempData["Error"] = "Unable To Create User!!!";
-                List<string> errors = new List<string>();
-                foreach (var value in ModelState.Values)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
-            }
-            var roles = await _roleManager.Roles.ToListAsync();
-            ViewBag.Roles = new SelectList(roles, "Id", "Name");
+            // Nếu ModelState không hợp lệ hoặc tạo user thất bại, quay lại view
+            ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Id", "Name", selectedRoleId);
             return View(appUserModel);
-
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                return NotFound();
-            }
+            if (string.IsNullOrEmpty(id)) return NotFound();
+
             var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            var roles = await _roleManager.Roles.ToListAsync();
-            ViewBag.Roles = new SelectList(roles, "Id", "Name");
+            if (user == null) return NotFound();
+
+            var currentRoleName = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+            var currentRole = await _roleManager.FindByNameAsync(currentRoleName);
+
+            ViewBag.Roles = new SelectList(_roleManager.Roles.ToList(), "Id", "Name", currentRole?.Id);
+            ViewBag.CurrentRoleId = currentRole?.Id;
+
             return View(user);
         }
 
-        //private void AddIdentityErrors(IdentityResult identityResult)
-        //{
-        //    foreach (var error in identityResult.Errors)
-        //    {
-        //        ModelState.AddModelError(string.Empty, error.Description);
-        //    }
-        //}
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, AppUserModel appUserModel)
+        public async Task<IActionResult> Edit(string id, AppUserModel appUserModel, string selectedRoleId)
         {
-            var existingUser = await _userManager.FindByIdAsync(id);
-            if (existingUser == null)
-            {
-                return NotFound();
-            }
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
             if (ModelState.IsValid)
             {
-                existingUser.UserName = appUserModel.UserName;
-                existingUser.Email = appUserModel.Email;
-                existingUser.PhoneNumber = appUserModel.PhoneNumber;
-                existingUser.RoleId = appUserModel.RoleId;
+                user.UserName = appUserModel.UserName;
+                user.Email = appUserModel.Email;
+                user.PhoneNumber = appUserModel.PhoneNumber;
 
-                var updateUserResult = await _userManager.UpdateAsync(existingUser);
-                if (updateUserResult.Succeeded)
+                // Cập nhật Role
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                if (currentRoles.Any())
                 {
-                    TempData["Success"] = "Update User Successfully!!!";
-                    return RedirectToAction("Index", "User");
+                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
                 }
-                else
+
+                var newRole = await _roleManager.FindByIdAsync(selectedRoleId);
+                if (newRole != null)
                 {
-                    foreach (var error in updateUserResult.Errors)
-                    {
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    }
-                    return View(updateUserResult);
+                    await _userManager.AddToRoleAsync(user, newRole.Name);
+                }
+
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    TempData["Success"] = "Update User Successfully!";
+                    return RedirectToAction("Index");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
-            var roles = await _roleManager.Roles.ToListAsync();
-            ViewBag.Roles = new SelectList(roles, "Id", "Name");
-
-            TempData["Error"] = "Unable To Update User!!!";
-            var errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList();
-            string errorMessage = string.Join("\n", errors);
-            return View(existingUser);
+            ViewBag.Roles = new SelectList(_roleManager.Roles.ToList(), "Id", "Name", selectedRoleId);
+            return View(appUserModel);
         }
 
         [HttpGet]

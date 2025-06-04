@@ -15,10 +15,14 @@ namespace WebsiteQuanLyBanHangOnline.Models
         public string Description { get; set; }
         [Required]
         public decimal Price { get; set; }
+        public int Quantity { get; set; }
+        public int Sold { get; set; }
         public string Slug { get; set; }
         public int BrandId { get; set; }
         public int CategoryId { get; set; }
+        [ForeignKey("CategoryId")]
         public CategoryModel Category { get; set; }
+        [ForeignKey("BrandId")]
         public BrandModel Brand { get; set; }
         [NotMapped]
         [FileExtention]
