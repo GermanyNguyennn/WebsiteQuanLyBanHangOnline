@@ -1,0 +1,38 @@
+﻿@model AppUserModel
+@{
+    ViewData["Title"] = "Update Information";
+}
+
+<form asp-action="Information" asp-controller="Account" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label>UserName</label>
+        <input asp-for="UserName" readonly required class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Email</label>
+        <input asp-for="Email" required class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Phone Number</label>
+        <input asp-for="PhoneNumber" required class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-primary">Edit</button>
+        <a asp-action="Index" asp-controller="Account" class="btn btn-primary">Back</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}   

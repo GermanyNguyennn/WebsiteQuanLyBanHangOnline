@@ -26,13 +26,13 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             if (shippingPriceCookie != null)
             {
-                var shippingPriceJson = shippingPriceCookie;
-                shippingPrice = JsonConvert.DeserializeObject<decimal>(shippingPriceJson);
+                shippingPrice = JsonConvert.DeserializeObject<decimal>(shippingPriceCookie);
+                Response.Cookies.Delete("ShippingPrice");
             }
             CartViewModel cartViewModel = new()
             {
                 Cart = cart,
-                GrandTotal = cart.Sum(x => x.Quantity * x.Price),
+                GrandTotal = cart.Sum(x => x.Quantity * x.Price) + shippingPrice,
                 ShippingPrice = shippingPrice
             };
             return View(cartViewModel);

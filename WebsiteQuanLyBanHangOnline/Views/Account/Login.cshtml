@@ -22,9 +22,11 @@
 							<label>Password</label>
 							<input asp-for="Password" class="form-control" />
 							<span asp-validation-for="Password" class="text-danger" />
+							
 						</div>
 
-						<button class="btn btn-primary">Login</button>
+						<button class="btn btn-primary">Login</button><br />
+						<p>Forgot Account? <a asp-controller="Account" asp-action="ForgotPassword">Click Here Recover Password</a>.</p>
 						<p>Don't Have An Account? <a asp-controller="Account" asp-action="Add">Click Here To Sign Up</a>.</p>
 
 					</form>

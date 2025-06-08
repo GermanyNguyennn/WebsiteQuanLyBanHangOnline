@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Brand List";
 }
+
 <a asp-controller="Brand" asp-action="Add" class="btn btn-primary btn-sm">Add Brand</a>
 <table class="table">
     <thead>
@@ -18,7 +19,7 @@
         @foreach (var item in Model)
         {
             <tr>
-                <th scope="row">@item.Id</th>
+                <td scope="row">@item.Id</td>
                 <td>@item.Name</td>
                 <td>@Html.Raw(@item.Description)</td>
                 <td>@item.Slug</td>

@@ -12,8 +12,8 @@ using WebsiteQuanLyBanHangOnline.Repository;
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250604100015_04062025_1")]
-    partial class _04062025_1
+    [Migration("20250606113944_06-06-2025_1")]
+    partial class _06062025_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -203,6 +203,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -327,6 +330,40 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.ToTable("Contacts");
                 });
 
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.CouponModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Coupons");
+                });
+
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderDetailViewModel", b =>
                 {
                     b.Property<int>("Id")
@@ -371,7 +408,7 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Property<string>("OrderCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("ShippingPrice")
+                    b.Property<decimal>("ShippingCost")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Status")

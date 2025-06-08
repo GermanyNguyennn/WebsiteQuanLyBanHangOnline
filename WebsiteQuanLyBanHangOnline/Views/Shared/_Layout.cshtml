@@ -39,18 +39,7 @@
 								<li><a href="#"><i class="fa fa-envelope"></i> manhducnguyen23092003@gmail.com</a></li>
 							</ul>
 						</div>
-					</div>
-					<div class="col-sm-6">
-						@* <div class="social-icons pull-right"> *@
-						@* 	<ul class="nav navbar-nav"> *@
-						@* 		<li><a href="#"><i class="fa fa-facebook"></i></a></li> *@
-						@* 		<li><a href="#"><i class="fa fa-twitter"></i></a></li> *@
-						@* 		<li><a href="#"><i class="fa fa-linkedin"></i></a></li> *@
-						@* 		<li><a href="#"><i class="fa fa-dribbble"></i></a></li> *@
-						@* 		<li><a href="#"><i class="fa fa-google-plus"></i></a></li> *@
-						@* 	</ul> *@
-						@* </div> *@
-					</div>
+					</div>					
 				</div>
 			</div>
 		</div><!--/header_top-->
@@ -59,44 +48,23 @@
 			<!--header-middle-->
 			<div class="container">
 				<div class="row">
-					<div class="col-sm-4">
-						<div class="logo pull-left">
-							<a href="#"><img src="images/home/logo.png" alt="" /></a>
-						</div>
-						@* <div class="btn-group pull-right"> *@
-						@* 	<div class="btn-group"> *@
-						@* 		<button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown"> *@
-						@* 			USA *@
-						@* 			<span class="caret"></span> *@
-						@* 		</button> *@
-						@* 		<ul class="dropdown-menu"> *@
-						@* 			<li><a href="#">Canada</a></li> *@
-						@* 			<li><a href="#">UK</a></li> *@
-						@* 		</ul> *@
-						@* 	</div> *@
-
-						@* 	<div class="btn-group"> *@
-						@* 		<button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown"> *@
-						@* 			DOLLAR *@
-						@* 			<span class="caret"></span> *@
-						@* 		</button> *@
-						@* 		<ul class="dropdown-menu"> *@
-						@* 			<li><a href="#">Canadian Dollar</a></li> *@
-						@* 			<li><a href="#">Pound</a></li> *@
-						@* 		</ul> *@
-						@* 	</div> *@
-						@* </div> *@
+					<div class="col-sm-4">						
 					</div>
 					<div class="col-sm-8">
 						<div class="shop-menu pull-right">
 							<ul class="nav navbar-nav">								
 								@if (User.Identity?.IsAuthenticated ?? false)
 								{
-									<li><a asp-controller="Account" asp-action="History"><i class="fa fa-user"></i>Account</a></li>
-									<li><a><i class="fa fa-star"></i>Wishlist</a></li>
-									<li><a asp-controller="Cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-									
-									<li><a asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Hi, @User.Identity.Name</a></li>
+									if (User.IsInRole("Admin"))
+									{
+										{
+											<li><a asp-area="Admin" asp-controller="Product" asp-action="Index"><i class="fa fa-cogs"></i> Admin Dashboard</a></li>
+										}
+									}
+									<li><a asp-controller="Account" asp-action="History"><i class="fa fa-user"></i>History</a></li>
+									<li><a asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+									<li><a asp-controller="Account" asp-action="Information"><i class="fa fa-user"></i>Information</a></li>
+									<li><a asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Hi, @User.Identity.Name. Logout</a></li>
 								}
 								else
 								{
@@ -125,21 +93,7 @@
 						<div class="mainmenu pull-left">
 							<ul class="nav navbar-nav collapse navbar-collapse">
 								<li><a asp-controller="Home" asp-action="Index" class="active">Home</a></li>
-								<li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
-								@* <li class="dropdown"> *@
-								@* 	<a asp-controller="Product">Shop<i class="fa fa-angle-down"></i></a> *@
-								@* 	<ul role="menu" class="sub-menu"> *@
-
-								@* 	</ul> *@
-								@* </li> *@
-								@* <li class="dropdown"> *@
-								@* 	<a href="#">Blog<i class="fa fa-angle-down"></i></a> *@
-								@* 	<ul role="menu" class="sub-menu"> *@
-								@* 		<li><a>Blog List</a></li> *@
-								@* 		<li><a>Blog Single</a></li> *@
-								@* 	</ul> *@
-								@* </li> *@
-								@* <li><a>404</a></li> *@
+								<li><a asp-controller="Cart" asp-action="Index">Cart</a></li>								
 								<li><a asp-controller="Home" asp-action="Contact">Contact</a></li>
 							</ul>
 						</div>
@@ -243,8 +197,6 @@
 		</div>
 
 	</footer><!--/Footer-->
-
-
 
 	<script src="~/js/jquery.js"></script>
 	<script src="~/js/bootstrap.min.js"></script>

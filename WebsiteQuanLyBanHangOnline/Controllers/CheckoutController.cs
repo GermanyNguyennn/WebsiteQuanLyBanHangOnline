@@ -7,16 +7,22 @@ using WebsiteQuanLyBanHangOnline.Areas.Admin.Repository;
 using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Models.ViewModels;
 using WebsiteQuanLyBanHangOnline.Repository;
+using WebsiteQuanLyBanHangOnline.Services.MoMo;
+using WebsiteQuanLyBanHangOnline.Services.VnPay;
 namespace WebsiteQuanLyBanHangOnline.Controllers
 {
     public class CheckoutController : Controller
     {
         private readonly DataContext _dataContext;
         private readonly IEmailSender _emailSender;
-        public CheckoutController(DataContext context, IEmailSender emailSender)
+        private readonly IMoMoService _moMoService;
+        private readonly IVnPayService _vnPayService;
+        public CheckoutController(DataContext context, IEmailSender emailSender, IMoMoService moMoService, IVnPayService vnPayService)
         {
             _dataContext = context;
             _emailSender = emailSender;
+            _moMoService = moMoService;
+            _vnPayService = vnPayService;
         }
         public IActionResult Index()
         {
@@ -40,13 +46,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
                 var shippingPriceCookie = Request.Cookies["ShippingPrice"];
                 decimal shippingPrice = 0;
-
-                if (shippingPriceCookie != null)
-                {
-                    var shippingPriceJson = shippingPriceCookie;
-                    shippingPrice = JsonConvert.DeserializeObject<decimal>(shippingPriceJson);
-                }
-                orderItem.ShippingCost = shippingPrice;
                 orderItem.Status = 1;
                 _dataContext.Add(orderItem);
                 _dataContext.SaveChanges();
@@ -79,6 +78,20 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 return RedirectToAction("Index", "Home");
             }
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult PaymentCallBackMoMo()
+        {
+            var response = _moMoService.PaymentExecuteAsync(HttpContext.Request.Query);
+            return View(response);
+        }
+
+        [HttpGet]
+        public IActionResult PaymentCallbackVnPay()
+        {
+            var response = _vnPayService.PaymentExecute(Request.Query);
+            return Json(response);
         }
     }
 }

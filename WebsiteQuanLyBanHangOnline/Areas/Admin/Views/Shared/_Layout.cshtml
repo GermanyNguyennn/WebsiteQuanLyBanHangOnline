@@ -35,22 +35,11 @@
 					<div class="col-sm-6">
 						<div class="contactinfo">
 							<ul class="nav nav-pills">
-								<li><a href="#"><i class="fa fa-phone"></i> +2 95 01 88 821</a></li>
-								<li><a href="#"><i class="fa fa-envelope"></i> info@domain.com</a></li>
+								<li><a href="#"><i class="fa fa-phone"></i> 0964429403</a></li>
+								<li><a href="#"><i class="fa fa-envelope"></i> manhducnguyen23092003@gmail.com</a></li>
 							</ul>
 						</div>
-					</div>
-					<div class="col-sm-6">
-						<div class="social-icons pull-right">
-							<ul class="nav navbar-nav">
-								<li><a href="#"><i class="fa fa-facebook"></i></a></li>
-								<li><a href="#"><i class="fa fa-twitter"></i></a></li>
-								<li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-								<li><a href="#"><i class="fa fa-dribbble"></i></a></li>
-								<li><a href="#"><i class="fa fa-google-plus"></i></a></li>
-							</ul>
-						</div>
-					</div>
+					</div>					
 				</div>
 			</div>
 		</div><!--/header_top-->
@@ -60,41 +49,13 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-sm-4">
-						<div class="logo pull-left">
-							<a href="index.html"><img src="images/home/logo.png" alt="" /></a>
-						</div>
-						<div class="btn-group pull-right">
-							<div class="btn-group">
-								<button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown">
-									USA
-									<span class="caret"></span>
-								</button>
-								<ul class="dropdown-menu">
-									<li><a href="#">Canada</a></li>
-									<li><a href="#">UK</a></li>
-								</ul>
-							</div>
-
-							<div class="btn-group">
-								<button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown">
-									DOLLAR
-									<span class="caret"></span>
-								</button>
-								<ul class="dropdown-menu">
-									<li><a href="#">Canadian Dollar</a></li>
-									<li><a href="#">Pound</a></li>
-								</ul>
-							</div>
-						</div>
 					</div>
 					<div class="col-sm-8">
 						<div class="shop-menu pull-right">
 							<ul class="nav navbar-nav">
 								@if (User.Identity?.IsAuthenticated ?? false)
 								{
-									<li><a><i class="fa fa-user"></i>Account</a></li>
-									<li><a><i class="fa fa-star"></i>Wishlist</a></li>
-									<li><a asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Hi, @User.Identity.Name</a></li>
+									<li><a asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Hi, @User.Identity.Name. Logout</a></li>
 								}
 								else
 								{
@@ -134,6 +95,7 @@
 										<li><a asp-controller="Role" asp-action="Index">Roles</a></li>
 										<li><a asp-controller="Slider" asp-action="Index">Sliders</a></li>	
 										<li><a asp-controller="Coupon" asp-action="Index">Coupons</a></li>
+										<li><a asp-controller="Dashboard" asp-action="Index">Dashboards</a></li>
 									</ul>
 								</li>
 								<li class="dropdown">
@@ -143,7 +105,7 @@
 										<li><a href="blog-single.html">Blog Single</a></li>
 									</ul>
 								</li>
-								<li><a href="404.html">404</a></li>
+								@* <li><a href="404.html">404</a></li> *@
 								<li><a asp-controller="Contact" asp-action="Index">Contact</a></li>
 								<li><a asp-controller="Shipping" asp-action="Index">Shipping</a></li>
 							</ul>

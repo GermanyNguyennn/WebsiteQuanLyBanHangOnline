@@ -4,6 +4,15 @@
 	ViewData["Title"] = "Cart";
 }
 
+<style>
+	td {
+		max-width: 250px;
+		word-wrap: break-word;
+		white-space: normal;
+		vertical-align: middle;
+	}
+</style>
+
 <section id="cart_items">
 	<div class="container">
 		<div class="breadcrumbs">
@@ -12,22 +21,23 @@
 				<li class="active">Shopping Cart</li>
 			</ol>
 		</div>
-		<div class="table-responsive cart_info">
-			<table class="table table-condensed">
-				<thead>
-					<tr class="cart_menu">
-						<td class="image">Image</td>
-						<td class="name">Name</td>
-						<td class="price">Price</td>
-						<td class="quantity" colspan="3">Quantity</td>
-						<td class="total">Total</td>
-						<td class="delete">Delete</td>
-					</tr>
-				</thead>
-				<tbody>
-					@if (Model.Cart.Count > 0)
-					{
-						foreach (var item in Model.Cart)
+		@if (Model.Cart.Count > 0)
+		{
+			<div class="table-responsive cart_info">
+				@* <table class=""> *@
+				<table class="table table-condensed">
+					<thead>
+						<tr class="cart_menu">
+							<th scope="col" class="image" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product Image</th>
+							<th scope="col" class="name" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product Name</th>
+							<th scope="col" class="price" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product Price</th>
+							<th scope="col" class="quantity" colspan="3" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product Quantity</th>
+							<th scope="col" class="total" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product Total</th>
+							<th scope="col" class="delete" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product User</th>
+						</tr>
+					</thead>
+					<tbody>					
+						@foreach (var item in Model.Cart)
 						{
 							<tr>
 								<td class="cart_product">
@@ -37,28 +47,28 @@
 									<h5><a asp-controller="Product" asp-action="Details" asp-route-Id="@item.ProductId">@item.ProductName</a></h5>
 								</td>
 								<td class="cart_total">
-									<h5 class="cart_total_price">@item.Price.ToString("#,##0 VNĐ")</h5>
+									<h5 class="">@item.Price.ToString("#,##0 VNĐ")</h5>
 								</td>							
 								<td>
 									<a class="btn btn-default btn-sm" asp-controller="Cart" asp-action="Decrease" asp-route-Id="@item.ProductId">-</a>
 								</td>
 								<td class="cart_quantity">
-									<input class="cart_quantity_input" type="text" name="quantity" value="@item.Quantity" autocomplete="off" size="1">
+									<input class="cart_quantity_input" type="text" name="quantity" value="@item.Quantity" autocomplete="off" size="1" readonly>
 								</td>
 								<td>
 									<a class="btn btn-default btn-sm" asp-controller="Cart" asp-action="Increase" asp-route-Id="@item.ProductId">+</a>
 								</td>
 								<td class="cart_total">
-									<h5 class="cart_total_price">@Model.Cart.Where(x => x.ProductId == item.ProductId).Sum(x => x.Quantity * x.Price).ToString("#,##0 VNĐ")</h5>
+									<h5 class="">@Model.Cart.Where(x => x.ProductId == item.ProductId).Sum(x => x.Quantity * x.Price).ToString("#,##0 VNĐ")</h5>
 								</td>
-								<td class="cart_delete">
-									<a class="cart_quantity_delete" asp-controller="Cart" asp-action="Delete" asp-route-Id="@item.ProductId"><i class="fa fa-times"></i></a>
+								<td class="">
+									<a class="cart_quantity_delete" asp-controller="Cart" asp-action="Delete" asp-route-Id="@item.ProductId" ><i class="fa fa-times"></i></a>									
 								</td>								
 							</tr>
 						}
 
 						<tr>
-							<td>
+							<td>						
 								<div class="form-group">
 									<label>Tỉnh / Thành Phố:</label>
 									<select class="css_select" id="tinh" name="tinh" title="Chọn Tỉnh / Thành">
@@ -81,55 +91,96 @@
 								</div>
 
 								<a class="btn btn-primary btn-add-shipping">Charge Shipping Fee</a>
-								<h5><p class="cart_total_price">@Model.ShippingPrice.ToString("#,##0 VNĐ")</h5>
-
-								@if (@Model.ShippingPrice > 0)
-								{
-									<a class="btn btn-primary btn-delete-shipping">Delete</a>
-								}
+								<h5 class="">@Model.ShippingPrice.ToString("#,##0 VNĐ")</h5>
 							</td>
-
 							<td colspan="5"></td>
-							<td>Grand Total: <h5 class="cart_total_price">@Model.GrandTotal.ToString("#,##0 VNĐ")</h5></td>
-							<td><a class="btn btn-primary" asp-controller="Checkout" asp-action="Checkout">Checkout</a></td>
-						</tr>									
-					}							
-				</tbody>
-			</table>
-		</div>
+							<td>
+								Grand Total: <h5 class="">@Model.GrandTotal.ToString("#,##0 VNĐ")</h5>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="7"></td>
+							<td>
+								<form method="POST" asp-action="CreatePaymentUrlMoMo" asp-controller="Payment">
+									<input type="hidden" name="FullName" value="@User.Identity.Name" />
+									<input type="hidden" name="Amount" value="@Model.GrandTotal" />
+									<input type="hidden" name="OrderInfo" value="Thanh toán qua Momo Payment" />
+
+									<button class="btn btn-primary" name="PayUrl" type="submit">Pay With MoMo</button>
+								</form>
+								
+								<form method="POST" asp-action="CreatePaymentUrlVnPay" asp-controller="Payment">
+
+									<input type="hidden" name="Name" value="@User.Identity.Name" />
+									<input type="hidden" name="Amount" value="@Model.GrandTotal" />
+									<input type="hidden" name="OrderDescription" value="Thanh toán qua VnPay" />
+									<input type="hidden" name="OrderType" value="other" />
+
+									<button class="btn btn-primary" type="submit">Pay With VnPay</button>
+								</form>
+								<a class="btn btn-primary" onclick="handleCheckout(@Model.ShippingPrice)">Checkout</a>
+							</td>
+						</tr>
+						@* <tr> *@
+						@* 	<td colspan="7"></td> *@
+						@* 	<td> *@
+						@* 		<a class="btn btn-primary" onclick="handleCheckout(@Model.ShippingPrice)">Checkout</a> *@
+						@* 	</td> *@
+						@* </tr> *@
+
+					</tbody>
+				</table>
+			</div>
+		}
+		else
+		{
+			
+		}
 	</div>
 </section> <!--/#cart_items-->
 
 @section Scripts {
+
+	<script>
+		function handleCheckout(shippingPrice) {
+			if (shippingPrice <= 0) {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Can Not Checkout',
+					text: 'You Do Not Charge Shipping!!!'
+					});
+			} else {
+				window.location.href = '/Checkout/Checkout';
+			}
+		}
+	</script>
+
 	<script>
 		$(document).ready(function() {
-			$(".btn-add-shipping").click(function() {
-				var tinh = $("#tinh").find('option:selected').text();
-				var quan = $("#quan").find('option:selected').text();
-				var phuong = $("#phuong").find('option:selected').text();
+				$(".btn-add-shipping").click(function () {
+				var tinh = $("#tinh").val();
+				var quan = $("#quan").val();
+				var phuong = $("#phuong").val();
 
-				if (tinh == '' || quan == '' || phuong == '')
-				{
-					Swal.fire("Cannot Be Left Blank!!!");
-				}
-				else {
+				if (tinh === "0" || quan === "0" || phuong === "0") {
+					Swal.fire({
+						icon: 'warning',
+						title: 'Missing Address Info',
+						text: 'Please Select All fields: Province, District, and Ward!!!'
+					});
+				} else {
 					$.ajax({
 						type: "POST",
 						url: "@Url.Action("AddShipping", "Cart")",
-						data: { tinh: tinh, quan: quan, phuong: phuong },
-
-						success: function (result)
-						{
-							if (result)
-							{
+						data: { tinh: $("#tinh option:selected").text(), quan: $("#quan option:selected").text(), phuong: $("#phuong option:selected").text() },
+						success: function (result) {
+							if (result) {
 								location.reload();
-							}						
+							}
 						}
-
 					});
 				}
-			})
-
+			});
 		
 			//Lấy tỉnh thành
 			$.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm',function(data_tinh) {

@@ -1,0 +1,10 @@
+﻿@using WebsiteQuanLyBanHangOnline.Models.MoMo
+@model MoMoExecuteResponseModel
+@{
+    ViewData["Title"] = "Kết Quả Thanh Toán";
+}
+
+<h5>Order Id : @Model.OrderId</h5>
+<h5>Order Info : @Model.OrderInfo</h5>
+<h5>Amount : @Model.Amount</h5>
+<h5><a asp-controller="Account" asp-action="History">Xem Lịch Sử Đơn Hàng</a></h5>

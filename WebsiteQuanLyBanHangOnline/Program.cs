@@ -2,9 +2,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebsiteQuanLyBanHangOnline.Areas.Admin.Repository;
 using WebsiteQuanLyBanHangOnline.Models;
+using WebsiteQuanLyBanHangOnline.Models.MoMo;
 using WebsiteQuanLyBanHangOnline.Repository;
+using WebsiteQuanLyBanHangOnline.Services.MoMo;
+using WebsiteQuanLyBanHangOnline.Services.VnPay;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<MoMoOptionModel>(builder.Configuration.GetSection("MoMoAPI"));
+builder.Services.AddScoped<IMoMoService, MoMoService>();
+
+builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 builder.Services.AddDbContext<DataContext>(options =>
 {

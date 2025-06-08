@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<OrderDetailViewModel>
 @{
-    ViewData["Title"] = "Order Detail List";
+    ViewData["Title"] = "History Order Detail List" + @ViewBag.UserEmail;
     decimal subTotal = 0;
     decimal totalAmount = 0;
 }
@@ -22,7 +22,7 @@
         @foreach (var item in Model)
         {
             subTotal = item.Price * item.Quantity;
-            totalAmount += subTotal; 
+            totalAmount += subTotal;
             <tr>
                 <th scope="row">@item.Id</th>
                 <td>@item.OrderCode</td>
@@ -30,13 +30,13 @@
                 <td>@item.ProductId</td>
                 <td>@item.Product.Name</td>
                 <td>@item.Quantity</td>
-                <td>@item.Price</td>   
-                <td>@subTotal</td>              
+                <td>@item.Price</td>
+                <td>@subTotal</td>
             </tr>
         }
         <tr>
             <td>Total Amount: @totalAmount</td>
-        </tr>       
+        </tr>
         <a asp-controller="Order" asp-action="Index" class="btn btn-primary btn-sm">Back</a>
     </tbody>
 </table>

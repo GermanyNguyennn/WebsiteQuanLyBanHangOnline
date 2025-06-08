@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Product List";
 }
+
 <a asp-controller="Product" asp-action="Add" class="btn btn-primary btn-sm">Add Product</a>
 <table class="table">
     <thead>
@@ -27,7 +28,7 @@
             <tr>
                 <th scope="row">@item.Id</th>
                 <td>@item.Name</td>
-                <td><img src="~/media/products/@item.Image" width="70%" height="70%"/></td>
+                <td><img src="~/media/products/@item.Image" width="100%" height="100%"/></td>
                 <td>@Html.Raw(@item.Description)</td>
                 <td>@item.Price.ToString("#,##0 VNĐ")</td>
                 <td><a asp-action="AddQuantity" asp-controller="Product" asp-route-Id="@item.Id">Add Quantity</a></td>
