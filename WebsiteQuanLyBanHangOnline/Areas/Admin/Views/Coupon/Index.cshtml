@@ -1,4 +1,18 @@
 ﻿@model CouponModel
+@{
+    ViewData["Title"] = "Coupon List";
+
+    Paginate pager = new Paginate();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+
+        pageNo = pager.CurrentPage;
+    }
+}
 
 <form asp-action="Add" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -41,14 +55,15 @@
     </div>
 
     <div class="form-group">
-        <button class="btn btn-primary">Add</button>
-        <a asp-action="Index" asp-controller="Product" class="btn btn-primary">Back</a>
+        <button class="btn btn-warning btn-sm">Add</button>
+        <a asp-action="Index" asp-controller="Product" class="btn btn-warning btn-sm">Back</a>
     </div>
 </form>
 
 <table class="table table-striped" id="myTable">
     <thead>
         <tr>
+            <th scope="col">Id</th>
             <th scope="col">Name</th>
             <th scope="col">Description</th>
             <th scope="col">Start Date</th>
@@ -62,6 +77,7 @@
         @foreach (var coupons in ViewBag.Coupons)
         {
             <tr>
+                <td>@coupons.Id</td>
                 <td>@coupons.Name</td>
                 <td>@coupons.Description</td>
                 <td>@coupons.StartDate.ToString("dd/MM/yyyy")</td>
@@ -109,6 +125,7 @@
         }
     </tbody>
 </table>
+<partial name="_Paging" model="@pager" />
 
 @section Scripts {
     <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>

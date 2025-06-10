@@ -16,9 +16,26 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         {
             _dataContext = context;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _dataContext.Brands.OrderBy(c => c.Id).ToListAsync());
+            List<BrandModel> brands = await _dataContext.Brands.OrderBy(c => c.Id).ToListAsync();
+
+            const int pageSize = 10;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            int count = brands.Count;
+            var pager = new Paginate(count, page, pageSize);
+            int skip = (page - 1) * pageSize;
+
+            var data = brands.Skip(skip).Take(pager.PageSize).ToList();
+            ViewBag.Pager = pager;
+            return View(data);
+
+            //return View(await _dataContext.Brands.OrderBy(c => c.Id).ToListAsync());
         }
 
         public IActionResult Add()

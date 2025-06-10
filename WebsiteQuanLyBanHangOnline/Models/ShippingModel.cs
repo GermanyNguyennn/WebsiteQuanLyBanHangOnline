@@ -1,7 +1,10 @@
-﻿namespace WebsiteQuanLyBanHangOnline.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebsiteQuanLyBanHangOnline.Models
 {
     public class ShippingModel
     {
+        [Key]
         public int Id { get; set; }
         public decimal Price { get; set; }
         public string Ward { get; set; }

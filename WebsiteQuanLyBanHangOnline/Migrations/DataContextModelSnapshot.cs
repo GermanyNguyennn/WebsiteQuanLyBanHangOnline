@@ -361,7 +361,7 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.ToTable("Coupons");
                 });
 
-            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderDetailViewModel", b =>
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.MoMoModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -369,26 +369,24 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("OrderCode")
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<string>("OrderId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserName")
+                    b.Property<string>("OrderInfo")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("OrderDetails");
+                    b.ToTable("MoMos");
                 });
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderModel", b =>
@@ -403,6 +401,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("OrderCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentMethod")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
@@ -528,7 +529,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
@@ -565,6 +565,67 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Statisticals");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ViewModels.OrderDetailViewModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("OrderCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderDetails");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.VnPayModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OrderDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VnPays");
                 });
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.WishlistModel", b =>
@@ -650,17 +711,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderDetailViewModel", b =>
-                {
-                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ProductModel", b =>
                 {
                     b.HasOne("WebsiteQuanLyBanHangOnline.Models.BrandModel", "Brand")
@@ -681,6 +731,17 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 });
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ProductQuantityModel", b =>
+                {
+                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ViewModels.OrderDetailViewModel", b =>
                 {
                     b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
                         .WithMany()

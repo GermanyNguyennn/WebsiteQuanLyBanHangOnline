@@ -17,7 +17,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var coupons = await _dataContext.Coupons.ToListAsync();
+            var coupons = await _dataContext.Coupons.OrderBy(c => c.Id).ToListAsync();
             ViewBag.Coupons = coupons;
             return View();
         }

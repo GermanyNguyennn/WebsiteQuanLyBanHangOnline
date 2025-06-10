@@ -15,7 +15,7 @@
 				<div class="product-image-wrapper">
 					<div class="single-products">
 						<div class="productinfo text-center">
-							<a asp-controller="Product" asp-action="Details" asp-route-Id="@item.Id">
+							<a asp-controller="Product" asp-action="Detail" asp-route-Id="@item.Id">
 								<img src="~/media/products/@item.Image" alt="@item.Name" />
 								<h2>@item.Price.ToString("#,##0 VNĐ")</h2>
 								<p><h5>@item.Name</h5></p>
@@ -24,11 +24,11 @@
 							</a>
 							@if (@item.Quantity > 0)
 							{
-								<a class="btn btn-default add-to-cart" asp-controller="Cart" asp-action="Add" asp-route-Id="@item.Id"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+								<a class="btn btn-default add-to-cart" asp-controller="Cart" asp-action="Add" asp-route-Id="@item.Id"><i class="fa fa-shopping-cart"></i>Add To Cart</a>
 							}
 							else
 							{
-								<a class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Sold out</a>
+								<a class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Sold Out</a>
 							}
 						</div>							
 					</div>

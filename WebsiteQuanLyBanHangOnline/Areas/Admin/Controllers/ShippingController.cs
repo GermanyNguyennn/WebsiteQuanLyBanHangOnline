@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebsiteQuanLyBanHangOnline.Models;
@@ -15,10 +16,26 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         {
             _dataContext = context;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var shippings = await _dataContext.Shippings.ToListAsync();
-            ViewBag.Shippings = shippings;
+            var shippings = await _dataContext.Shippings.OrderBy(c => c.Id).ToListAsync();
+
+            const int pageSize = 10;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            int count = shippings.Count;
+            var pager = new Paginate(count, page, pageSize);
+            int skip = (page - 1) * pageSize;
+
+            var pagedShippings = shippings.Skip(skip).Take(pager.PageSize).ToList();
+
+            ViewBag.Shippings = pagedShippings; // giữ nguyên tên biến cũ
+            ViewBag.Pager = pager;
+
             return View();
         }
 

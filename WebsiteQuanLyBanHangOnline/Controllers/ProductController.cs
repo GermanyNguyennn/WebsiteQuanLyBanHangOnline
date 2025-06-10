@@ -18,7 +18,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             var products = _dataContext.Products.Include("Category").Include("Brand").ToList();
             return View(products);
         }
-        public async Task<IActionResult> Details(int Id)
+        public async Task<IActionResult> Detail(int Id)
         {
             if (Id == null) return RedirectToAction("Index");
 

@@ -1,7 +1,17 @@
 ﻿@model ShippingModel
 @{
     ViewData["Title"] = "Add Shipping";
-    decimal key = 1;
+
+    Paginate pager = new Paginate();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+
+        pageNo = pager.CurrentPage;
+    }
 }
 
 <style type="text/css">
@@ -48,13 +58,14 @@
 </div>
 
 <div class="form-group">
-    <button class="btn btn-primary btn-add-shipping">Add</button>
-    <a asp-action="Index" asp-controller="Product" class="btn btn-primary">Back</a>
+    <button class="btn btn-warning btn-sm btn-add-shipping">Add</button>
+    <a asp-action="Index" asp-controller="Product" class="btn btn-warning btn-sm">Back</a>
 </div>
 
 <table class="table table-striped" id="myTable">
     <thead>
         <tr>
+            <th scope="col">Id</th>
             <th scope="col">City</th>
             <th scope="col">District</th>
             <th scope="col">Ward</th>
@@ -67,20 +78,20 @@
         @foreach (var shippings in ViewBag.Shippings)
         {
             <tr>
-                <td>@key</td>
+                <td>@shippings.Id</td>
                 <td>@shippings.City</td>
                 <td>@shippings.District</td>
                 <td>@shippings.Ward</td>
                 <td>@shippings.Price.ToString("#,##0 VNĐ")</td>
                 <td>@shippings.CreatedDate</td>
                 <td>
-                    <a asp-controller="Shipping" asp-action="Delete" asp-route-Id="@shippings.Id" class="btn btn-primary btn-sm confirmDeletion">Delete</a>
+                    <a asp-controller="Shipping" asp-action="Delete" asp-route-Id="@shippings.Id" class="btn btn-warning btn-sm confirmDeletion">Delete</a>
                 </td>             
             </tr>
-            key++;
         }
     </tbody>
 </table>
+<partial name="_Paging" model="@pager" />
 
 @section Scripts {
     @{
@@ -110,9 +121,7 @@
                         {
                             Swal.fire({
                                 title: "Add Shipping Successfully!!!",
-                                icon: "success",
-                                showConfirmButton: false,
-                                timer: 3000
+                                icon: "success"
                             }).then(() => {
                                     location.reload();
                             });
@@ -121,9 +130,7 @@
                         {
                             Swal.fire({
                                 title: "Duplicate Shipping!!!",
-                                icon: "success",
-                                showConfirmButton: false,
-                                timer: 3000
+                                icon: "warning"
                             }).then(() => {
                                 location.reload();
                             });

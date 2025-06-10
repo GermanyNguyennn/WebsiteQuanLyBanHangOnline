@@ -15,7 +15,7 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
         {
             _options = options;
         }
-        public async Task<MoMoCreatePaymentResponseModel> CreatePaymentAsync(OrderInfoModel model)
+        public async Task<MoMoCreatePaymentResponseModel> CreatePayment(MoMoInformationExecuteResponseModel model)
         {
             model.OrderId = DateTime.UtcNow.Ticks.ToString();
             model.OrderInfo = "Khách hàng: " + model.FullName + ". Nội dung: " + model.OrderInfo;
@@ -60,19 +60,18 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
 
         }
 
-        public MoMoExecuteResponseModel PaymentExecuteAsync(IQueryCollection collection)
+        public MoMoInformationExecuteResponseModel PaymentExecute(IQueryCollection collection)
         {
             //var amount = collection.First(s => s.Key == "amount").Value;
             double amount = double.Parse(collection.First(s => s.Key == "amount").Value);
             var orderInfo = collection.First(s => s.Key == "orderInfo").Value;
             var orderId = collection.First(s => s.Key == "orderId").Value;
 
-            return new MoMoExecuteResponseModel()
-            {
-                Amount = amount,
+            return new MoMoInformationExecuteResponseModel()
+            {             
                 OrderId = orderId,
-                OrderInfo = orderInfo
-
+                OrderInfo = orderInfo,
+                Amount = amount
             };
         }
 

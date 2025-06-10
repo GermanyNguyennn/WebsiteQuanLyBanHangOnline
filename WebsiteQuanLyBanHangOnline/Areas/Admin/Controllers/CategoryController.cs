@@ -20,7 +20,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         }
         public async Task<IActionResult> Index(int page = 1)
         {
-            List<CategoryModel> categories = _dataContext.Categories.ToList();
+            List<CategoryModel> categories = await _dataContext.Categories.OrderBy(c => c.Id).ToListAsync();
 
             const int pageSize = 10;
 

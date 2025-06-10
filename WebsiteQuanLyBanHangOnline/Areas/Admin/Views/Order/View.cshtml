@@ -1,4 +1,5 @@
-﻿@model IEnumerable<OrderDetailViewModel>
+﻿@using WebsiteQuanLyBanHangOnline.Models.ViewModels
+@model IEnumerable<OrderDetailViewModel>
 @{
     ViewData["Title"] = "Order Detail List";
     decimal subTotal = 0;
@@ -8,7 +9,7 @@
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">#</th>
+            <th scope="col">Id</th>
             <th scope="col">Order Code</th>
             <th scope="col">User Name</th>
             <th scope="col">Product Id</th>
@@ -24,7 +25,8 @@
             subTotal = item.Price * item.Quantity;
             totalAmount += subTotal; 
             <tr>
-                <th scope="row">@item.Id</th>
+                <input type="hidden" asp-for="@item.OrderCode" class="getId" />
+                <td>@item.Id</td>
                 <td>@item.OrderCode</td>
                 <td>@item.UserName</td>
                 <td>@item.ProductId</td>
@@ -36,7 +38,50 @@
         }
         <tr>
             <td>Total Amount: @totalAmount</td>
-        </tr>       
-        <a asp-controller="Order" asp-action="Index" class="btn btn-primary btn-sm">Back</a>
+        </tr>     
+        <tr>
+            <td>
+                @if (@ViewBag.Status != 3)
+                {
+                    <select class="form-control select-update-order">
+                        <option value="1">Đã Đặt Hàng</option>
+                        <option value="2">Đã Giao Hàng</option>
+                        <option value="0">Đã Huỷ</option>
+                    </select>
+                }
+            </td>
+        </tr>
+        <a asp-controller="Order" asp-action="Index" class="btn btn-warning btn-sm">Back</a>
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.select-update-order').change(function () {
+                var status = $(this).val();
+                var orderCode = $('.getId').val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("UpdateView")",
+                    data: { status: status, orderCode: orderCode },
+
+                    success: function (result) {
+                        if (result.success) {
+                            Swal.fire({
+                                title: "Update Status Successfully!!!",
+                                icon: "success"
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Update Status Failed!!!",
+                                icon: "success"
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,27 @@
+﻿@using WebsiteQuanLyBanHangOnline.Models.VnPay
+@model PaymentResponseModel
+
+@{
+    ViewData["Title"] = "Thanh Toán Thành Công Bằng VnPay";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">OrderId</th>
+            <th scope="col">Order Info</th>
+            <th scope="col">Transaction Id</th>
+            <th scope="col">Payment Id</th>
+            <th scope="col">Payment Method</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model.OrderId</td>
+            <td>@Model.OrderDescription</td>
+            <td>@Model.TransactionId</td>
+            <td>@Model.PaymentId</td>
+            <td>@Model.PaymentMethod</td>
+        </tr>
+    </tbody>
+</table>

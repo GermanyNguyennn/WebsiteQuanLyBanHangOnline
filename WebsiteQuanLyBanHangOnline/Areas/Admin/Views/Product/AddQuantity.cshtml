@@ -2,7 +2,17 @@
 @{
     ViewData["Title"] = "Add Product Quantity";
     decimal total_quantities = 0;
-    decimal key = 1;
+
+    Paginate pager = new Paginate();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+
+        pageNo = pager.CurrentPage;
+    }
 }
 
 <form asp-action="UpdateQuantity" asp-controller="Product" enctype="multipart/form-data">
@@ -16,31 +26,28 @@
     </div>
 
     <div class="form-group">
-        <button class="btn btn-primary">Add</button>
-        <a asp-action="Index" asp-controller="Product" class="btn btn-primary">Back</a>
+        <button class="btn btn-warning btn-sm">Add</button>
+        <a asp-action="Index" asp-controller="Product" class="btn btn-warning btn-sm">Back</a>
     </div>
 </form>
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Key</th>
+            <th>Id</th>
             <th>Quantity Added</th>
             <th>Created Date</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var productByQuantity in ViewBag.ProductByQuantity)
-
         {
-
             total_quantities += productByQuantity.Quantity;
             <tr>
-                <td>@key</td>
+                <td>@productByQuantity.Id</td>
                 <td>@productByQuantity.Quantity</td>
                 <td>@productByQuantity.CreatedDate</td>
             </tr>
-            key++;
         }
         <tr>
             <td>Total Quantities: @total_quantities</td>

@@ -2,14 +2,14 @@
 
 namespace WebsiteQuanLyBanHangOnline.Models
 {
-    public class StatisticalModel
+    public class MoMoModel
     {
         [Key]
         public int Id { get; set; }
-        public int Quantity { get; set; }
-        public int Sold { get; set; }
-        public int Revenue { get; set; }
-        public int Profit { get; set; }
+        public string OrderId { get; set; }
+        public string FullName { get; set; }
+        public string OrderInfo { get; set; }
+        public double Amount { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }

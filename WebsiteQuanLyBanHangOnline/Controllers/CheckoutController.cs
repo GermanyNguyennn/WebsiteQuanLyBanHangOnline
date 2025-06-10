@@ -29,7 +29,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Checkout()
+        public async Task<IActionResult> Checkout(string PaymentMethod, string PaymentId)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             if (userEmail == null)
@@ -42,11 +42,10 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 var orderItem = new OrderModel();
                 orderItem.OrderCode = orderCode;
                 orderItem.UserName = userEmail;
+                orderItem.PaymentMethod = PaymentMethod + " " + PaymentId;
                 orderItem.CreatedDate = DateTime.Now;
-
-                var shippingPriceCookie = Request.Cookies["ShippingPrice"];
-                decimal shippingPrice = 0;
                 orderItem.Status = 1;
+   
                 _dataContext.Add(orderItem);
                 _dataContext.SaveChanges();
                 List<CartModel> cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new List<CartModel>();
@@ -75,23 +74,70 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 var message = "Checkout Successfully!!! Enjoy The Momment <3";
                 await _emailSender.SendEmailAsync(receiver, subject, message);
                 TempData["Success"] = "Checkout Successfully!!!";
-                return RedirectToAction("Index", "Home");
+                
             }
-            return View();
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
-        public IActionResult PaymentCallBackMoMo()
+        public async Task<IActionResult> PaymentCallBackMoMo()
         {
-            var response = _moMoService.PaymentExecuteAsync(HttpContext.Request.Query);
+            var requestQuery = HttpContext.Request.Query;
+            var response = _moMoService.PaymentExecute(requestQuery);
+            response.FullName = User.FindFirstValue(ClaimTypes.Email);
+
+            if (requestQuery["resultCode"] != "00")
+            {
+                var moMoInsert = new MoMoModel
+                {
+                    OrderId = requestQuery["orderId"],
+                    FullName = User.FindFirstValue(ClaimTypes.Email),
+                    Amount = double.Parse(requestQuery["amount"]),
+                    OrderInfo = requestQuery["orderInfo"],
+                    CreatedDate = DateTime.Now
+
+                };
+                _dataContext.Add(moMoInsert);
+                await _dataContext.SaveChangesAsync();
+                var PaymentMethod = "MoMo";
+                await Checkout(PaymentMethod, requestQuery["orderId"]);
+            }
+            else
+            {
+                TempData["error"] = "Checkout With MoMo Failed!!!";
+                return RedirectToAction("Index", "Home");
+            }
+
             return View(response);
         }
 
         [HttpGet]
-        public IActionResult PaymentCallbackVnPay()
+        public async Task<IActionResult> PaymentCallbackVnPay()
         {
-            var response = _vnPayService.PaymentExecute(Request.Query);
-            return Json(response);
+            var response = _vnPayService.PaymentExecute(HttpContext.Request.Query);
+
+            if (response.VnPayResponseCode == "00")
+            {
+                var vnPayInsert = new VnPayModel
+                {
+                    OrderId = response.OrderId,
+                    PaymentMethod = response.PaymentMethod,
+                    OrderDescription = response.OrderDescription,
+                    TransactionId = response.TransactionId,
+                    PaymentId = response.PaymentId,
+                    CreatedDate = DateTime.Now
+                };
+                _dataContext.Add(vnPayInsert);
+                await _dataContext.SaveChangesAsync();
+                var PaymentMethod = response.PaymentMethod;
+                await Checkout(PaymentMethod, response.OrderId);
+            }
+            else
+            {
+                TempData["error"] = "Checkout With VnPay Failed!!!";
+                return RedirectToAction("Index", "Home");
+            }
+            return View(response);
         }
     }
 }

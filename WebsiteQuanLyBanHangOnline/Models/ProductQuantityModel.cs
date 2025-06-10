@@ -6,7 +6,6 @@ namespace WebsiteQuanLyBanHangOnline.Models
     public class ProductQuantityModel
     {
         [Key]
-        [Required]
         public int Id { get; set; }
         [Required]
         public int Quantity { get; set; }

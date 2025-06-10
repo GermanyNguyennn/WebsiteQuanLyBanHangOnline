@@ -7,8 +7,6 @@
 <style>
 	td {
 		max-width: 250px;
-		word-wrap: break-word;
-		white-space: normal;
 		vertical-align: middle;
 	}
 </style>
@@ -24,16 +22,15 @@
 		@if (Model.Cart.Count > 0)
 		{
 			<div class="table-responsive cart_info">
-				@* <table class=""> *@
 				<table class="table table-condensed">
 					<thead>
 						<tr class="cart_menu">
-							<th scope="col" class="image" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product Image</th>
-							<th scope="col" class="name" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product Name</th>
-							<th scope="col" class="price" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product Price</th>
-							<th scope="col" class="quantity" colspan="3" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product Quantity</th>
-							<th scope="col" class="total" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product Total</th>
-							<th scope="col" class="delete" style="max-width: 250px; word-wrap: break-word; white-space: normal; vertical-align: middle;">Product User</th>
+							<th scope="col" class="image" style="max-width: 250px; vertical-align: middle;">Product Image</th>
+							<th scope="col" class="name" style="max-width: 250px; vertical-align: middle;">Product Name</th>
+							<th scope="col" class="price" style="max-width: 250px; vertical-align: middle;">Product Price</th>
+							<th scope="col" class="quantity" colspan="3" style="max-width: 250px; vertical-align: middle;">Product Quantity</th>
+							<th scope="col" class="total" style="max-width: 250px; vertical-align: middle;">Product Total</th>
+							<th scope="col"></th>
 						</tr>
 					</thead>
 					<tbody>					
@@ -41,10 +38,10 @@
 						{
 							<tr>
 								<td class="cart_product">
-									<img src="~/media/products/@item.Image" alt="@item.ProductName" width="50%" height="50%" />
+									<img src="~/media/products/@item.Image" alt="@item.ProductName" width="70%" height="70%" />
 								</td>
 								<td class="cart_description">
-									<h5><a asp-controller="Product" asp-action="Details" asp-route-Id="@item.ProductId">@item.ProductName</a></h5>
+									<h5><a asp-controller="Product" asp-action="Detail" asp-route-Id="@item.ProductId">@item.ProductName</a></h5>
 								</td>
 								<td class="cart_total">
 									<h5 class="">@item.Price.ToString("#,##0 VNĐ")</h5>
@@ -53,7 +50,7 @@
 									<a class="btn btn-default btn-sm" asp-controller="Cart" asp-action="Decrease" asp-route-Id="@item.ProductId">-</a>
 								</td>
 								<td class="cart_quantity">
-									<input class="cart_quantity_input" type="text" name="quantity" value="@item.Quantity" autocomplete="off" size="1" readonly>
+									<input class="cart_quantity_input btn btn-default btn-sm" type="text" name="quantity" value="@item.Quantity" autocomplete="off" size="1" readonly>
 								</td>
 								<td>
 									<a class="btn btn-default btn-sm" asp-controller="Cart" asp-action="Increase" asp-route-Id="@item.ProductId">+</a>
@@ -61,39 +58,39 @@
 								<td class="cart_total">
 									<h5 class="">@Model.Cart.Where(x => x.ProductId == item.ProductId).Sum(x => x.Quantity * x.Price).ToString("#,##0 VNĐ")</h5>
 								</td>
-								<td class="">
+								<td class="cart_delete">
 									<a class="cart_quantity_delete" asp-controller="Cart" asp-action="Delete" asp-route-Id="@item.ProductId" ><i class="fa fa-times"></i></a>									
 								</td>								
 							</tr>
 						}
 
 						<tr>
-							<td>						
-								<div class="form-group">
-									<label>Tỉnh / Thành Phố:</label>
-									<select class="css_select" id="tinh" name="tinh" title="Chọn Tỉnh / Thành">
-										<option value="0">Tỉnh Thành</option>
-									</select>
-								</div>
+							@* <td>						 *@
+							@* 	<div class="form-group"> *@
+							@* 		<label>Tỉnh / Thành Phố:</label> *@
+							@* 		<select class="css_select" id="tinh" name="tinh" title="Chọn Tỉnh / Thành"> *@
+							@* 			<option value="0">Tỉnh Thành</option> *@
+							@* 		</select> *@
+							@* 	</div> *@
 
-								<div class="form-group">
-									<label>Quận / Huyện:</label>
-									<select class="css_select" id="quan" name="quan" title="Chọn Quận / Huyện">
-										<option value="0">Quận Huyện</option>
-									</select>
-								</div>
+							@* 	<div class="form-group"> *@
+							@* 		<label>Quận / Huyện:</label> *@
+							@* 		<select class="css_select" id="quan" name="quan" title="Chọn Quận / Huyện"> *@
+							@* 			<option value="0">Quận Huyện</option> *@
+							@* 		</select> *@
+							@* 	</div> *@
 
-								<div class="form-group">
-									<label>Phường / Xã:</label>
-									<select class="css_select" id="phuong" name="phuong" title="Chọn Phường / Xã">
-										<option value="0">Phường Xã</option>
-									</select>
-								</div>
+							@* 	<div class="form-group"> *@
+							@* 		<label>Phường / Xã:</label> *@
+							@* 		<select class="css_select" id="phuong" name="phuong" title="Chọn Phường / Xã"> *@
+							@* 			<option value="0">Phường Xã</option> *@
+							@* 		</select> *@
+							@* 	</div> *@
 
-								<a class="btn btn-primary btn-add-shipping">Charge Shipping Fee</a>
-								<h5 class="">@Model.ShippingPrice.ToString("#,##0 VNĐ")</h5>
-							</td>
-							<td colspan="5"></td>
+							@* 	<a class="btn btn-primary btn-add-shipping">Charge Shipping Fee</a> *@
+							@* 	<h5 class="">@Model.ShippingPrice.ToString("#,##0 VNĐ")</h5> *@
+							@* </td> *@
+							<td colspan="6"></td>
 							<td>
 								Grand Total: <h5 class="">@Model.GrandTotal.ToString("#,##0 VNĐ")</h5>
 							</td>
@@ -104,21 +101,22 @@
 								<form method="POST" asp-action="CreatePaymentUrlMoMo" asp-controller="Payment">
 									<input type="hidden" name="FullName" value="@User.Identity.Name" />
 									<input type="hidden" name="Amount" value="@Model.GrandTotal" />
-									<input type="hidden" name="OrderInfo" value="Thanh toán qua Momo Payment" />
+									<input type="hidden" name="OrderInfo" value="Thanh Toán Bằng MoMo" />
 
-									<button class="btn btn-primary" name="PayUrl" type="submit">Pay With MoMo</button>
+									<button class="btn btn-primary btn-sm" name="PayUrl" type="submit">Pay With MoMo</button>
 								</form>
 								
 								<form method="POST" asp-action="CreatePaymentUrlVnPay" asp-controller="Payment">
 
 									<input type="hidden" name="Name" value="@User.Identity.Name" />
 									<input type="hidden" name="Amount" value="@Model.GrandTotal" />
-									<input type="hidden" name="OrderDescription" value="Thanh toán qua VnPay" />
+									<input type="hidden" name="OrderDescription" value="Thanh Toán Bằng VnPay" />
 									<input type="hidden" name="OrderType" value="other" />
 
-									<button class="btn btn-primary" type="submit">Pay With VnPay</button>
+									<button class="btn btn-primary btn-sm" type="submit">Pay With VnPay</button>
 								</form>
-								<a class="btn btn-primary" onclick="handleCheckout(@Model.ShippingPrice)">Checkout</a>
+								@* <a class="btn btn-primary" onclick="handleCheckout(@Model.ShippingPrice)">Pay With Cash</a> *@
+								<a class="btn btn-primary btn-sm" asp-action="Checkout" asp-controller="Checkout">Pay With Cash</a>
 							</td>
 						</tr>
 						@* <tr> *@
@@ -134,26 +132,26 @@
 		}
 		else
 		{
-			
+			<h5>Your Cart Is Empty. <a asp-action="Index" asp-controller="Home">Go To Home Page To Buy.</a></h5>
 		}
 	</div>
 </section> <!--/#cart_items-->
 
 @section Scripts {
 
-	<script>
-		function handleCheckout(shippingPrice) {
-			if (shippingPrice <= 0) {
-				Swal.fire({
-					icon: 'warning',
-					title: 'Can Not Checkout',
-					text: 'You Do Not Charge Shipping!!!'
-					});
-			} else {
-				window.location.href = '/Checkout/Checkout';
-			}
-		}
-	</script>
+	@* <script> *@
+	@* 	function handleCheckout(shippingPrice) { *@
+	@* 		if (shippingPrice <= 0) { *@
+	@* 			Swal.fire({ *@
+	@* 				icon: 'warning', *@
+	@* 				title: 'Can Not Checkout', *@
+	@* 				text: 'You Do Not Charge Shipping!!!' *@
+	@* 				}); *@
+	@* 		} else { *@
+	@* 			window.location.href = '/Checkout/Checkout'; *@
+	@* 		} *@
+	@* 	} *@
+	@* </script> *@
 
 	<script>
 		$(document).ready(function() {

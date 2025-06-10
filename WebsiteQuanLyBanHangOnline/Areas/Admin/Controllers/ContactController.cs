@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Repository;
 
@@ -18,10 +19,9 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             _dataContext = dataContext;
             _webHostEnviroment = webHostEnviroment;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var contact = _dataContext.Contacts.ToList();
-            return View(contact);
+            return View(await _dataContext.Contacts.ToListAsync());
         }
 
         [HttpGet]

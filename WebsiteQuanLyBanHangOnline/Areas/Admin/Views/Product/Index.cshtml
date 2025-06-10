@@ -1,13 +1,24 @@
 ﻿@model IEnumerable<ProductModel>
 @{
     ViewData["Title"] = "Product List";
+
+    Paginate pager = new Paginate();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+
+        pageNo = pager.CurrentPage;
+    }
 }
 
-<a asp-controller="Product" asp-action="Add" class="btn btn-primary btn-sm">Add Product</a>
+<a asp-controller="Product" asp-action="Add" class="btn btn-warning btn-sm">Add Product</a>
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">#</th>
+            <th scope="col">Id</th>
             <th scope="col">Product Name</th>
             <th scope="col">Product Image</th>
             <th scope="col">Product Description</th>
@@ -18,7 +29,6 @@
             <th scope="col">Product Slug</th>
             <th scope="col">Product Category</th>
             <th scope="col">Product Brand</th>
-            <th scope="col">Product Manager</th>
 
         </tr>
     </thead>
@@ -26,9 +36,9 @@
         @foreach(var item in Model)
         {
             <tr>
-                <th scope="row">@item.Id</th>
+                <td>@item.Id</td>
                 <td>@item.Name</td>
-                <td><img src="~/media/products/@item.Image" width="100%" height="100%"/></td>
+                <td><img src="~/media/products/@item.Image" width="70%" height="70%"/></td>
                 <td>@Html.Raw(@item.Description)</td>
                 <td>@item.Price.ToString("#,##0 VNĐ")</td>
                 <td><a asp-action="AddQuantity" asp-controller="Product" asp-route-Id="@item.Id">Add Quantity</a></td>
@@ -38,10 +48,11 @@
                 <td>@item.Category.Name</td>
                 <td>@item.Brand.Name</td>
                 <td>
-                    <a asp-controller="Product" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-primary btn-sm">Edit</a>
-                    <a asp-controller="Product" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-primary btn-sm confirmDeletion">Delete</a>
+                    <a asp-controller="Product" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-controller="Product" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Delete</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+<partial name="_Paging" model="@pager" />

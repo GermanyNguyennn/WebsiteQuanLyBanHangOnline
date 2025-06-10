@@ -17,9 +17,26 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             _dataContext = dataContext;
             _webHostEnviroment = webHostEnvironment;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _dataContext.Sliders.OrderByDescending(p => p.Id).ToListAsync());
+            List<SliderModel> sliders = await _dataContext.Sliders.OrderBy(c => c.Id).ToListAsync();
+
+            const int pageSize = 10;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            int count = sliders.Count;
+            var pager = new Paginate(count, page, pageSize);
+            int skip = (page - 1) * pageSize;
+
+            var data = sliders.Skip(skip).Take(pager.PageSize).ToList();
+            ViewBag.Pager = pager;
+            return View(data);
+
+            //return View(await _dataContext.Sliders.OrderBy(p => p.Id).ToListAsync());
         }
         [HttpGet]
         public IActionResult Add()

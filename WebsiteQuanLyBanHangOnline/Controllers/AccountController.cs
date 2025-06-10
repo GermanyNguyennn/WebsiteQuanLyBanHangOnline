@@ -119,7 +119,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var orders = await _dataContext.Orders.Where(od => od.UserName == userEmail).OrderBy(od => od.Id).ToListAsync();
+            var orders = await _dataContext.Orders.Where(od => od.UserName == userEmail).OrderByDescending(od => od.CreatedDate).ToListAsync();
 
             ViewBag.UserEmail = userEmail;
             return View(orders);

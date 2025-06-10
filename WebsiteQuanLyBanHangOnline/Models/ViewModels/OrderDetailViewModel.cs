@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WebsiteQuanLyBanHangOnline.Models
+namespace WebsiteQuanLyBanHangOnline.Models.ViewModels
 {
     public class OrderDetailViewModel
     {

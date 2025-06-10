@@ -6,29 +6,44 @@
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">#</th>
+            <th scope="col">Id</th>
             <th scope="col">Order Code</th>
             <th scope="col">User Name</th>
             <th scope="col">Created Date</th>
             <th scope="col">Status</th>
+            <th scope="col">Payment Method</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
-                <th scope="row">@item.Id</th>
+                <td>@item.Id</td>
                 <td>@item.OrderCode</td>
                 <td>@item.UserName</td>
                 <td>@item.CreatedDate</td>
                 <td>
                     @if (item.Status == 1)
                     {
-                        <span class="text text-success">Hiển Thị</span>
+                        <span class="text text-warning">Đã Đặt Hàng</span>
+                    }
+                    else if (item.Status == 2)
+                    {
+                        <span class="text text-success">Đã Giao Hàng</span>
                     }
                     else
                     {
-                        <span class="text text-danger">Ẩn</span>
+                        <span class="text text-danger">Đã Huỷ</span>
+                    }
+                </td>
+                <td>
+                    @if (item.PaymentMethod == "COD" || item.PaymentMethod == null)
+                    {
+                        <span class="text text-primary">@item.PaymentMethod</span>
+                    }
+                    else if (item.PaymentMethod != "COD")
+                    {
+                        <span class="text text-primary">@item.PaymentMethod</span>
                     }
                 </td>
                 <td>

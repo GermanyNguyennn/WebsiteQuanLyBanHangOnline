@@ -8,7 +8,7 @@
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">#</th>
+            <th scope="col">Id</th>
             <th scope="col">Order Code</th>
             <th scope="col">User Name</th>
             <th scope="col">Product Id</th>
@@ -24,7 +24,7 @@
             subTotal = item.Price * item.Quantity;
             totalAmount += subTotal;
             <tr>
-                <th scope="row">@item.Id</th>
+                <td>@item.Id</td>
                 <td>@item.OrderCode</td>
                 <td>@item.UserName</td>
                 <td>@item.ProductId</td>
