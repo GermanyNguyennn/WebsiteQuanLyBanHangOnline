@@ -1,9 +1,9 @@
 ﻿using System.Net.Mail;
 using System.Net;
 
-namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Repository
+namespace WebsiteQuanLyBanHangOnline.Services.EmailTemplates
 {
-    public class EmailSender : IEmailSender
+    public class EmailSender
     {
         public async Task SendEmailAsync(string toEmail, string subject, string htmlMessage)
         {

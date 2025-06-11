@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WebsiteQuanLyBanHangOnline.Models.ViewModels
+namespace WebsiteQuanLyBanHangOnline.Models
 {
-    public class OrderDetailViewModel
+    public class OrderDetailModel
     {
         public int Id { get; set; }
         public string OrderCode { get; set; }

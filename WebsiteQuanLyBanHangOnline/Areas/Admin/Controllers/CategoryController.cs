@@ -20,24 +20,20 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         }
         public async Task<IActionResult> Index(int page = 1)
         {
-            List<CategoryModel> categories = await _dataContext.Categories.OrderBy(c => c.Id).ToListAsync();
-
             const int pageSize = 10;
+            if (page < 1) page = 1;
 
-            if (page < 1)
-            {
-                page = 1;
-            }
-
-            int count = categories.Count;
+            int count = await _dataContext.Categories.CountAsync();
             var pager = new Paginate(count, page, pageSize);
-            int skip = (page - 1) * pageSize;
 
-            var data = categories.Skip(skip).Take(pager.PageSize).ToList();
+            var data = await _dataContext.Categories
+                .OrderBy(c => c.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             ViewBag.Pager = pager;
             return View(data);
-
-            //return View(await _dataContext.Categories.OrderBy(c => c.Id).ToListAsync());
         }
 
         public IActionResult Add()
@@ -49,43 +45,40 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(CategoryModel categoryModel)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                categoryModel.Slug = categoryModel.Name.Replace(" ", "-");
-                var slug = await _dataContext.Products.FirstOrDefaultAsync(p => p.Slug == categoryModel.Slug);
-                if (slug != null)
-                {
-                    ModelState.AddModelError("", "Category Has In Database!!!");
-                    return View(categoryModel);
-                }
-                
-                _dataContext.Add(categoryModel);
-                await _dataContext.SaveChangesAsync();
-                TempData["Success"] = "Models Are Effective!!!";
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                TempData["Error"] = "Models Have Some Problems!!!";
-                List<string> errors = new List<string>();
-                foreach (var value in ModelState.Values)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
+                TempData["Error"] = "Model Validation Failed.";
+                return View(categoryModel);
             }
 
-            return View(categoryModel);
+            categoryModel.Slug = categoryModel.Name.Trim().Replace(" ", "-");
+
+            bool slugExists = await _dataContext.Categories
+                .AnyAsync(c => c.Slug == categoryModel.Slug);
+
+            if (slugExists)
+            {
+                ModelState.AddModelError("", "Category Already Exists.");
+                return View(categoryModel);
+            }
+
+            _dataContext.Add(categoryModel);
+            await _dataContext.SaveChangesAsync();
+
+            TempData["Success"] = "Category Added Successfully.";
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int Id)
         {
-            CategoryModel categoryModel = await _dataContext.Categories.FindAsync(Id);       
+            var categoryModel = await _dataContext.Categories.FindAsync(Id);
+            if (categoryModel == null)
+            {
+                TempData["Error"] = "Category Not Found.";
+                return RedirectToAction("Index");
+            }
+
             return View(categoryModel);
         }
 
@@ -93,40 +86,34 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CategoryModel categoryModel)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                categoryModel.Slug = categoryModel.Name.Replace(" ", "-");
-                
-                _dataContext.Update(categoryModel);
-                await _dataContext.SaveChangesAsync();
-                TempData["Success"] = "Models Are Effective!!!";
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                TempData["Error"] = "Models Have Some Problems!!!";
-                List<string> errors = new List<string>();
-                foreach (var value in ModelState.Values)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
+                TempData["Error"] = "Model Validation Failed.";
+                return View(categoryModel);
             }
 
-            return View(categoryModel);
+            categoryModel.Slug = categoryModel.Name.Trim().Replace(" ", "-");
+
+            _dataContext.Update(categoryModel);
+            await _dataContext.SaveChangesAsync();
+
+            TempData["Success"] = "Category Updated Successfully.";
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Delete(int Id)
         {
-            CategoryModel categoryModel = await _dataContext.Categories.FindAsync(Id);
-            
+            var categoryModel = await _dataContext.Categories.FindAsync(Id);
+            if (categoryModel == null)
+            {
+                TempData["Error"] = "Category Not Found.";
+                return RedirectToAction("Index");
+            }
+
             _dataContext.Categories.Remove(categoryModel);
             await _dataContext.SaveChangesAsync();
-            TempData["Success"] = "Delete Category Successfully!!!";
+
+            TempData["Success"] = "Category Deleted Successfully.";
             return RedirectToAction("Index");
         }
     }

@@ -1,0 +1,75 @@
+﻿@using WebsiteQuanLyBanHangOnline.Models.ViewModels
+@model EmailOrderViewModel
+@using System.Globalization
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        h2 {
+            color: #2a7ae2;
+        }
+
+        p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>Thank you for your purchase!</h2>
+    <p>Hello <strong>@Model.UserName</strong>,</p>
+    <p>We have received your order <strong>#@Model.OrderCode</strong> on <strong>@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</strong>.</p>
+
+    <h3>Order Details:</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th style="text-align:center;">Quantity</th>
+                <th style="text-align:right;">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td style="text-align:center;">@item.Quantity</td>
+                    <td style="text-align:right;">@item.Price.ToString("C0", new CultureInfo("vi-VN"))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <p style="margin-top: 15px;">
+        <strong>Total: @Model.TotalAmount.ToString("C0", new CultureInfo("vi-VN"))</strong>
+    </p>
+
+    <p>We’ll notify you when your order is on its way. ❤️</p>
+    <p style="margin-top: 30px;">Best regards,<br><strong>Nguyễn Mạnh Đức</strong></p>
+</body>
+</html>

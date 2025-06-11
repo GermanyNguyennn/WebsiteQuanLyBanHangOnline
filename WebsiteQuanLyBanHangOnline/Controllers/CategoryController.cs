@@ -15,19 +15,92 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             _dataContext = context;
         }
 
-        public async Task<IActionResult> Index(string Slug = "")
+        //public async Task<IActionResult> Index(string Slug = "")
+        //{
+        //    var category = await _dataContext.Categories
+        //        .Where(c => c.Slug == Slug)
+        //        .FirstOrDefaultAsync();
+
+        //    if (category == null)
+        //        return RedirectToAction("Index", "Home");
+
+        //    var productsByCategory = await _dataContext.Products
+        //        .Where(p => p.CategoryId == category.Id)
+        //        .OrderBy(p => p.Id)
+        //        .ToListAsync();
+
+        //    ViewBag.Sliders = await _dataContext.Sliders
+        //        .Where(s => s.Status == 1)
+        //        .ToListAsync();
+
+        //    return View(productsByCategory);
+        //}
+
+        public async Task<IActionResult> Index(string Slug = "", string sort_by = "", string startprice = "", string endprice = "")
         {
-            CategoryModel category = _dataContext.Categories.Where(c => c.Slug == Slug).FirstOrDefault();
+            var category = await _dataContext.Categories
+                .Where(c => c.Slug == Slug)
+                .FirstOrDefaultAsync();
 
-            if (category == null)   return RedirectToAction("Index");
+            if (category == null)
+                return RedirectToAction("Index", "Home");
 
-            var productsByCategory = _dataContext.Products.Where(c => c.CategoryId == category.Id);
+            var query = _dataContext.Products
+                .Where(p => p.CategoryId == category.Id);
 
-            var sliders = _dataContext.Sliders.Where(c => c.Status == 1).ToList();
+            // Lọc theo giá nếu có
+            if (!string.IsNullOrEmpty(startprice) && !string.IsNullOrEmpty(endprice))
+            {
+                if (decimal.TryParse(startprice, out decimal startPriceVal) &&
+                    decimal.TryParse(endprice, out decimal endPriceVal))
+                {
+                    query = query.Where(p => p.Price >= startPriceVal && p.Price <= endPriceVal);
+                }
+            }
 
-            ViewBag.Sliders = sliders;
+            // Sắp xếp
+            switch (sort_by)
+            {
+                case "price_increase":
+                    query = query.OrderBy(p => p.Price);
+                    break;
+                case "price_decrease":
+                    query = query.OrderByDescending(p => p.Price);
+                    break;
+                case "price_newest":
+                    query = query.OrderByDescending(p => p.Id);
+                    break;
+                case "price_oldest":
+                    query = query.OrderBy(p => p.Id);
+                    break;
+                default:
+                    query = query.OrderByDescending(p => p.Id);
+                    break;
+            }
 
-            return View(await productsByCategory.OrderBy(c => c.Id).ToArrayAsync());
+            var productsByCategory = await query.ToListAsync();
+
+            ViewBag.Sliders = await _dataContext.Sliders
+                .Where(s => s.Status == 1)
+                .ToListAsync();
+
+            ViewBag.count = productsByCategory.Count;
+
+            if (productsByCategory.Any())
+            {
+                ViewBag.minprice = productsByCategory.Min(p => p.Price);
+                ViewBag.maxprice = productsByCategory.Max(p => p.Price);
+            }
+            else
+            {
+                ViewBag.minprice = 0;
+                ViewBag.maxprice = 0;
+            }
+
+            ViewBag.sort_key = sort_by;
+
+            return View(productsByCategory);
         }
+
     }
 }

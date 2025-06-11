@@ -30,25 +30,18 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             {
                 _dataContext.Add(couponModel);
                 await _dataContext.SaveChangesAsync();
-                TempData["Success"] = "Add Coupon Successfully!!!";
+                TempData["Success"] = "Coupon Added Successfully!!!";
                 return RedirectToAction("Index");
+            }
 
-            }
-            else
-            {
-                TempData["Error"] = "Models Have Some Problems!!!";
-                List<string> errors = new List<string>();
-                foreach (var value in ModelState.Values)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
-            }
-            return View();
+            TempData["Error"] = "Models Have Some Problems!!!";
+
+            string errorMessage = string.Join("\n",
+                ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+
+            return BadRequest(errorMessage);
         }
     }
 }

@@ -18,24 +18,20 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         }
         public async Task<IActionResult> Index(int page = 1)
         {
-            List<BrandModel> brands = await _dataContext.Brands.OrderBy(c => c.Id).ToListAsync();
-
             const int pageSize = 10;
+            if (page < 1) page = 1;
 
-            if (page < 1)
-            {
-                page = 1;
-            }
-
-            int count = brands.Count;
+            int count = await _dataContext.Brands.CountAsync();
             var pager = new Paginate(count, page, pageSize);
-            int skip = (page - 1) * pageSize;
 
-            var data = brands.Skip(skip).Take(pager.PageSize).ToList();
+            var data = await _dataContext.Brands
+                .OrderBy(c => c.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             ViewBag.Pager = pager;
             return View(data);
-
-            //return View(await _dataContext.Brands.OrderBy(c => c.Id).ToListAsync());
         }
 
         public IActionResult Add()
@@ -47,43 +43,40 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(BrandModel brandModel)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                brandModel.Slug = brandModel.Name.Replace(" ", "-");
-                var slug = await _dataContext.Products.FirstOrDefaultAsync(p => p.Slug == brandModel.Slug);
-                if (slug != null)
-                {
-                    ModelState.AddModelError("", "Brand Has In Database!!!");
-                    return View(brandModel);
-                }
-
-                _dataContext.Add(brandModel);
-                await _dataContext.SaveChangesAsync();
-                TempData["Success"] = "Models Are Effective!!!";
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                TempData["Error"] = "Models Have Some Problems!!!";
-                List<string> errors = new List<string>();
-                foreach (var value in ModelState.Values)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
+                TempData["Error"] = "Model Validation Failed.";
+                return View(brandModel);
             }
 
-            return View(brandModel);
+            brandModel.Slug = brandModel.Name.Trim().Replace(" ", "-");
+
+            bool slugExists = await _dataContext.Brands
+                .AnyAsync(b => b.Slug == brandModel.Slug);
+
+            if (slugExists)
+            {
+                ModelState.AddModelError("", "Brand Already Exists In Database.");
+                return View(brandModel);
+            }
+
+            _dataContext.Add(brandModel);
+            await _dataContext.SaveChangesAsync();
+
+            TempData["Success"] = "Brand Added Successfully.";
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int Id)
         {
-            BrandModel brandModel = await _dataContext.Brands.FindAsync(Id);
+            var brandModel = await _dataContext.Brands.FindAsync(Id);
+            if (brandModel == null)
+            {
+                TempData["Error"] = "Brand Not Found.";
+                return RedirectToAction("Index");
+            }
+
             return View(brandModel);
         }
 
@@ -91,40 +84,34 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(BrandModel brandModel)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                brandModel.Slug = brandModel.Name.Replace(" ", "-");
-
-                _dataContext.Update(brandModel);
-                await _dataContext.SaveChangesAsync();
-                TempData["Success"] = "Models Are Effective!!!";
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                TempData["Error"] = "Models Have Some Problems!!!";
-                List<string> errors = new List<string>();
-                foreach (var value in ModelState.Values)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
+                TempData["Error"] = "Model Validation Failed.";
+                return View(brandModel);
             }
 
-            return View(brandModel);
+            brandModel.Slug = brandModel.Name.Trim().Replace(" ", "-");
+
+            _dataContext.Update(brandModel);
+            await _dataContext.SaveChangesAsync();
+
+            TempData["Success"] = "Brand Updated Successfully.";
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Delete(int Id)
         {
-            BrandModel brandModel = await _dataContext.Brands.FindAsync(Id);
+            var brandModel = await _dataContext.Brands.FindAsync(Id);
+            if (brandModel == null)
+            {
+                TempData["Error"] = "Brand Not Found.";
+                return RedirectToAction("Index");
+            }
 
             _dataContext.Brands.Remove(brandModel);
             await _dataContext.SaveChangesAsync();
-            TempData["Success"] = "Delete Brand Successfully!!!";
+
+            TempData["Success"] = "Brand Deleted Successfully.";
             return RedirectToAction("Index");
         }
     }

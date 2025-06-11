@@ -44,67 +44,74 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         }
         public async Task<IActionResult> Add(int Id)
         {
-            ProductModel product = await _dataContext.Products.FindAsync(Id);
-            List<CartModel> cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new List<CartModel>();
-            CartModel cartModel = cart.Where(c => c.ProductId == Id).FirstOrDefault();
+            var product = await _dataContext.Products.FindAsync(Id);
+            if (product == null)
+                return NotFound();
+
+            var cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new List<CartModel>();
+            var cartModel = cart.FirstOrDefault(c => c.ProductId == Id);
+
             if (cartModel == null)
-            {
                 cart.Add(new CartModel(product));
-            }
             else
-            {
                 cartModel.Quantity += 1;
-            }
+
             HttpContext.Session.SetJson("Cart", cart);
-            TempData["success"] = "Add To Cart Success!!!";
+            TempData["success"] = "Add To Cart Success!";
             return Redirect(Request.Headers["Referer"].ToString());
         }
 
-        public async Task<IActionResult> Decrease(int Id)
+        public IActionResult Decrease(int Id)
         {
-            List<CartModel> cart = HttpContext.Session.GetJson<List<CartModel>>("Cart");
-            CartModel cartModel = cart.Where(c => c.ProductId == Id).FirstOrDefault();
+            var cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new List<CartModel>();
+
+            var cartModel = cart.FirstOrDefault(c => c.ProductId == Id);
+            if (cartModel == null)
+                return RedirectToAction("Index");
+
             if (cartModel.Quantity > 1)
             {
-                --cartModel.Quantity;
+                cartModel.Quantity--;
             }
             else
             {
                 cart.RemoveAll(c => c.ProductId == Id);
             }
-            if (cart.Count == 0)
-            {
-                HttpContext.Session.Remove("Cart");
-            }
-            else
+
+            if (cart.Any())
             {
                 HttpContext.Session.SetJson("Cart", cart);
             }
+            else
+            {
+                HttpContext.Session.Remove("Cart");
+            }
+
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Increase(int Id)
+        public IActionResult Increase(int Id)
         {
-            ProductModel productModel = await _dataContext.Products.Where(p => p.Id == Id).FirstOrDefaultAsync();
-            List<CartModel> cart = HttpContext.Session.GetJson<List<CartModel>>("Cart");
-            CartModel cartModel = cart.Where(c => c.ProductId == Id).FirstOrDefault();
-            if (cartModel.Quantity >= 1 && productModel.Quantity > cartModel.Quantity)
+            var product = _dataContext.Products.FirstOrDefault(p => p.Id == Id);
+            if (product == null)
+                return NotFound();
+
+            var cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new List<CartModel>();
+            var cartModel = cart.FirstOrDefault(c => c.ProductId == Id);
+
+            if (cartModel == null)
+                return RedirectToAction("Index");
+
+            if (cartModel.Quantity < product.Quantity)
             {
-                ++cartModel.Quantity;
+                cartModel.Quantity++;
             }
             else
             {
-                cartModel.Quantity = productModel.Quantity;
-                TempData["Success"] = "Maximum Add Product Quantity To Cart!!! ";
+                TempData["success"] = "Maximum Product Quantity Reached.";
             }
-            if (cart.Count == 0)
-            {
-                HttpContext.Session.Remove("Cart");
-            }
-            else
-            {
-                HttpContext.Session.SetJson("Cart", cart);
-            }
+
+            HttpContext.Session.SetJson("Cart", cart);
             return RedirectToAction("Index");
         }
 
@@ -124,28 +131,24 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Clear(int Id)
+        public IActionResult Clear()
         {
             HttpContext.Session.Remove("Cart");
             return RedirectToAction("Index");
         }
 
+
         [HttpPost]
         public async Task<IActionResult> AddShipping(ShippingModel shippingModel, string tinh, string quan, string phuong)
         {
+            if (string.IsNullOrEmpty(tinh) || string.IsNullOrEmpty(quan) || string.IsNullOrEmpty(phuong))
+                return BadRequest("Địa chỉ không hợp lệ.");
 
-            var existingShipping = await _dataContext.Shippings.FirstOrDefaultAsync(x => x.City == tinh && x.District == quan && x.Ward == phuong);
+            var shipping = await _dataContext.Shippings
+                .FirstOrDefaultAsync(x => x.City == tinh && x.District == quan && x.Ward == phuong);
 
-            decimal shippingPrice = 0;
+            decimal shippingPrice = shipping?.Price ?? 50000;
 
-            if (existingShipping != null)
-            {
-                shippingPrice = existingShipping.Price;
-            }
-            else
-            {
-                shippingPrice = 50000;
-            }
             var shippingPriceJson = JsonConvert.SerializeObject(shippingPrice);
             try
             {
@@ -153,16 +156,17 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 {
                     HttpOnly = true,
                     Expires = DateTimeOffset.UtcNow.AddMinutes(30),
-                    Secure = true
+                    Secure = false // nếu đang test local; khi lên production thì đặt true
                 };
 
                 Response.Cookies.Append("ShippingPrice", shippingPriceJson, cookieOptions);
             }
-            catch (Exception)
+            catch
             {
-               return NotFound();
+                return StatusCode(500);
             }
-            return Json( new { shippingPrice });
+
+            return Json(new { shippingPrice });
         }
     }
 }

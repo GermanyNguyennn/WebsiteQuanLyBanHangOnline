@@ -7,6 +7,7 @@ using WebsiteQuanLyBanHangOnline.Areas.Admin.Repository;
 using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Models.ViewModels;
 using WebsiteQuanLyBanHangOnline.Repository;
+using WebsiteQuanLyBanHangOnline.Services.Email;
 using WebsiteQuanLyBanHangOnline.Services.MoMo;
 using WebsiteQuanLyBanHangOnline.Services.VnPay;
 namespace WebsiteQuanLyBanHangOnline.Controllers
@@ -17,12 +18,18 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         private readonly IEmailSender _emailSender;
         private readonly IMoMoService _moMoService;
         private readonly IVnPayService _vnPayService;
-        public CheckoutController(DataContext context, IEmailSender emailSender, IMoMoService moMoService, IVnPayService vnPayService)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly EmailTemplateRenderer _emailRenderer;
+        private readonly UserManager<AppUserModel> _userManager;
+        public CheckoutController(DataContext context, IEmailSender emailSender, IMoMoService moMoService, IVnPayService vnPayService, IWebHostEnvironment webHostEnvironment, EmailTemplateRenderer emailTemplateRenderer, UserManager<AppUserModel> userManager)
         {
             _dataContext = context;
             _emailSender = emailSender;
             _moMoService = moMoService;
             _vnPayService = vnPayService;
+            _webHostEnvironment = webHostEnvironment;
+            _emailRenderer = emailTemplateRenderer;
+            _userManager = userManager;
         }
         public IActionResult Index()
         {
@@ -33,74 +40,115 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             if (userEmail == null)
-            {
                 return RedirectToAction("Login", "Account");
-            }
-            else
+
+            var orderCode = Guid.NewGuid().ToString();
+
+            var orderItem = new OrderModel
             {
-                var orderCode = Guid.NewGuid().ToString();
-                var orderItem = new OrderModel();
-                orderItem.OrderCode = orderCode;
-                orderItem.UserName = userEmail;
-                orderItem.PaymentMethod = PaymentMethod + " " + PaymentId;
-                orderItem.CreatedDate = DateTime.Now;
-                orderItem.Status = 1;
-   
-                _dataContext.Add(orderItem);
-                _dataContext.SaveChanges();
-                List<CartModel> cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new List<CartModel>();
-                foreach (var cartItem in cart)
+                OrderCode = orderCode,
+                UserName = userEmail,
+                PaymentMethod = $"{PaymentMethod} {PaymentId}",
+                CreatedDate = DateTime.Now,
+                Status = 1
+            };
+
+            _dataContext.Add(orderItem);
+
+            var cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new List<CartModel>();
+            var orderDetails = new List<OrderDetailModel>();
+            var emailItems = new List<EmailOrderItemViewModel>();
+
+            foreach (var item in cart)
+            {
+                var product = await _dataContext.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId);
+                if (product == null || product.Quantity < item.Quantity)
                 {
-                    var orderDetail = new OrderDetailViewModel();
-                    orderDetail.UserName = userEmail;
-                    orderDetail.OrderCode = orderCode;
-                    orderDetail.ProductId = cartItem.ProductId;
-                    orderDetail.Quantity = cartItem.Quantity;
-                    orderDetail.Price = cartItem.Price;
-                    orderDetail.Quantity = cartItem.Quantity;
-
-                    var products = await _dataContext.Products.Where(p => p.Id == cartItem.ProductId).FirstAsync();
-                    products.Quantity -= cartItem.Quantity;
-                    products.Sold += cartItem.Quantity;
-
-                    _dataContext.Update(products);
-                    _dataContext.Add(orderDetail);
-                    _dataContext.SaveChanges();
-                    
+                    TempData["Error"] = $"Product with ID {item.ProductId} is not available in requested quantity.";
+                    return RedirectToAction("Index", "Cart");
                 }
-                HttpContext.Session.Remove("Cart");
-                var receiver = userEmail;
-                var subject = "Checkout Successfully!!!";
-                var message = "Checkout Successfully!!! Enjoy The Momment <3";
-                await _emailSender.SendEmailAsync(receiver, subject, message);
-                TempData["Success"] = "Checkout Successfully!!!";
-                
+
+                product.Quantity -= item.Quantity;
+                product.Sold += item.Quantity;
+
+                var detail = new OrderDetailModel
+                {
+                    OrderCode = orderCode,
+                    UserName = userEmail,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    Price = item.Price
+                };
+
+                orderDetails.Add(detail);
+
+                emailItems.Add(new EmailOrderItemViewModel
+                {
+                    ProductName = product.Name,
+                    Quantity = item.Quantity,
+                    Price = item.Price
+                });
             }
+
+            _dataContext.OrderDetails.AddRange(orderDetails);
+            await _dataContext.SaveChangesAsync();
+
+            HttpContext.Session.Remove("Cart");
+
+            var totalAmount = emailItems.Sum(i => i.Price * i.Quantity);
+
+            // ViewModel gửi vào Razor View
+            var viewModel = new EmailOrderViewModel
+            {
+                OrderCode = orderCode,
+                UserName = userEmail,
+                CreatedDate = DateTime.Now,
+                Items = emailItems,
+                TotalAmount = totalAmount
+            };
+
+            // Gửi email cho người mua
+            var customerEmailHtml = await _emailRenderer.RenderAsync("CustomerEmail.cshtml", viewModel);
+            await _emailSender.SendEmailAsync(userEmail, "Your Order Confirmation", customerEmailHtml);
+
+            // Gửi email cho tất cả admin
+            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            foreach (var admin in admins)
+            {
+                var adminEmailHtml = await _emailRenderer.RenderAsync("AdminEmail.cshtml", viewModel);
+                await _emailSender.SendEmailAsync(admin.Email, "New Order Received", adminEmailHtml);
+            }
+
+            TempData["Success"] = "Checkout Successfully!!!";
             return RedirectToAction("Index", "Home");
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> PaymentCallBackMoMo()
         {
-            var requestQuery = HttpContext.Request.Query;
-            var response = _moMoService.PaymentExecute(requestQuery);
-            response.FullName = User.FindFirstValue(ClaimTypes.Email);
+            var query = HttpContext.Request.Query;
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var resultCode = query["resultCode"];
+            var orderId = query["orderId"];
 
-            if (requestQuery["resultCode"] != "00")
+            var response = _moMoService.PaymentExecute(query);
+            response.FullName = email;
+
+            if (resultCode != "00")
             {
-                var moMoInsert = new MoMoModel
+                _dataContext.Add(new MoMoModel
                 {
-                    OrderId = requestQuery["orderId"],
-                    FullName = User.FindFirstValue(ClaimTypes.Email),
-                    Amount = double.Parse(requestQuery["amount"]),
-                    OrderInfo = requestQuery["orderInfo"],
+                    OrderId = orderId,
+                    FullName = email,
+                    Amount = double.Parse(query["amount"]),
+                    OrderInfo = query["orderInfo"],
                     CreatedDate = DateTime.Now
-
-                };
-                _dataContext.Add(moMoInsert);
+                });
                 await _dataContext.SaveChangesAsync();
-                var PaymentMethod = "MoMo";
-                await Checkout(PaymentMethod, requestQuery["orderId"]);
+
+                await Checkout("MoMo", orderId);
             }
             else
             {
@@ -111,14 +159,16 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             return View(response);
         }
 
+
         [HttpGet]
-        public async Task<IActionResult> PaymentCallbackVnPay()
+        public async Task<IActionResult> PaymentCallBackVnPay()
         {
-            var response = _vnPayService.PaymentExecute(HttpContext.Request.Query);
+            var query = HttpContext.Request.Query;
+            var response = _vnPayService.PaymentExecute(query);
 
             if (response.VnPayResponseCode == "00")
             {
-                var vnPayInsert = new VnPayModel
+                _dataContext.Add(new VnPayModel
                 {
                     OrderId = response.OrderId,
                     PaymentMethod = response.PaymentMethod,
@@ -126,17 +176,17 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                     TransactionId = response.TransactionId,
                     PaymentId = response.PaymentId,
                     CreatedDate = DateTime.Now
-                };
-                _dataContext.Add(vnPayInsert);
+                });
                 await _dataContext.SaveChangesAsync();
-                var PaymentMethod = response.PaymentMethod;
-                await Checkout(PaymentMethod, response.OrderId);
+
+                await Checkout(response.PaymentMethod, response.OrderId);
             }
             else
             {
                 TempData["error"] = "Checkout With VnPay Failed!!!";
                 return RedirectToAction("Index", "Home");
             }
+
             return View(response);
         }
     }

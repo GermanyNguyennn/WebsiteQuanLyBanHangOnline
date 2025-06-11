@@ -12,8 +12,8 @@ using WebsiteQuanLyBanHangOnline.Repository;
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250610054638_10_06_2025")]
-    partial class _10_06_2025
+    [Migration("20250610134545_10062025")]
+    partial class _10062025
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -392,6 +392,36 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.ToTable("MoMos");
                 });
 
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderDetailModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("OrderCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderDetails");
+                });
+
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderModel", b =>
                 {
                     b.Property<int>("Id")
@@ -570,36 +600,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.ToTable("Statisticals");
                 });
 
-            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ViewModels.OrderDetailViewModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("OrderCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("OrderDetails");
-                });
-
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.VnPayModel", b =>
                 {
                     b.Property<int>("Id")
@@ -714,6 +714,17 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderDetailModel", b =>
+                {
+                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ProductModel", b =>
                 {
                     b.HasOne("WebsiteQuanLyBanHangOnline.Models.BrandModel", "Brand")
@@ -734,17 +745,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 });
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ProductQuantityModel", b =>
-                {
-                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ViewModels.OrderDetailViewModel", b =>
                 {
                     b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
                         .WithMany()

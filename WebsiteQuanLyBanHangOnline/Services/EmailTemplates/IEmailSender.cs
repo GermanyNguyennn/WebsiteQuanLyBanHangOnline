@@ -1,4 +1,4 @@
-﻿namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Repository
+﻿namespace WebsiteQuanLyBanHangOnline.Services.EmailTemplates
 {
     public interface IEmailSender
     {

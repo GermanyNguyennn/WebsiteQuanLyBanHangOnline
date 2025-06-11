@@ -68,11 +68,10 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             if (ModelState.IsValid)
             {
-                AppUserModel appUserModel = new AppUserModel { UserName = userModel.UserName, Email = userModel.Email };
+                AppUserModel appUserModel = new AppUserModel { UserName = userModel.UserName, Email = userModel.Email, PhoneNumber = userModel.Phone };
                 IdentityResult identityResult = await _userManager.CreateAsync(appUserModel, userModel.Password);
                 if (identityResult.Succeeded)
                 {
-
                     bool roleCustomer = await _roleManager.RoleExistsAsync("Customer");
                     if (!roleCustomer)
                     {

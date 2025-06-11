@@ -1,0 +1,12 @@
+﻿@if (TempData["success"] != null)
+{
+    <div class="aleart alert-success notification" style="display: none;">
+        @TempData["success"]
+    </div>
+}
+@if (TempData["success"] != null)
+{
+    <div class="aleart alert-danger notification" style="display: none;">
+        @TempData["error"]
+    </div>
+}

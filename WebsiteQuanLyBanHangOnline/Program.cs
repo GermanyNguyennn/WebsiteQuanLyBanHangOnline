@@ -4,6 +4,7 @@ using WebsiteQuanLyBanHangOnline.Areas.Admin.Repository;
 using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Models.MoMo;
 using WebsiteQuanLyBanHangOnline.Repository;
+using WebsiteQuanLyBanHangOnline.Services.Email;
 using WebsiteQuanLyBanHangOnline.Services.MoMo;
 using WebsiteQuanLyBanHangOnline.Services.VnPay;
 
@@ -13,6 +14,8 @@ builder.Services.Configure<MoMoOptionModel>(builder.Configuration.GetSection("Mo
 builder.Services.AddScoped<IMoMoService, MoMoService>();
 
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
@@ -48,7 +51,9 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.User.RequireUniqueEmail = true;
 });
 
-//builder.WebHost.UseUrls("http://0.0.0.0:8080");
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddSingleton<EmailTemplateRenderer>();
 
 var app = builder.Build();
 

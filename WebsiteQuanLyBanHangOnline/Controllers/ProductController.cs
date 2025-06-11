@@ -15,16 +15,45 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         }
         public IActionResult Index()
         {
-            var products = _dataContext.Products.Include("Category").Include("Brand").ToList();
+            var products = _dataContext.Products
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .ToList();
+
             return View(products);
         }
+
         public async Task<IActionResult> Detail(int Id)
         {
-            if (Id == null) return RedirectToAction("Index");
+            var product = await _dataContext.Products
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .FirstOrDefaultAsync(p => p.Id == Id);
 
-            var productsById = _dataContext.Products.Where(c => c.Id == Id).FirstOrDefault();
+            if (product == null)
+            {
+                return RedirectToAction("Index");
+            }
 
-            return View(productsById);
+            return View(product);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Search(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                TempData["error"] = "Please Enter Search Keyword!!!";
+                return RedirectToAction("Index", "Product");
+            }
+
+            var products = await _dataContext.Products
+                .Where(p => p.Name.Contains(searchTerm))
+                .ToListAsync();
+
+            ViewBag.Keyword = searchTerm;
+            return View(products);
+        }
+
     }
 }

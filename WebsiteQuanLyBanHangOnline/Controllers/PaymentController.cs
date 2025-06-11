@@ -26,26 +26,11 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             return Redirect(response.PayUrl);
         }
 
-        //[HttpGet]
-        //public IActionResult PaymentCallBackMoMo()
-        //{
-        //    var response = _moMoService.PaymentExecute(HttpContext.Request.Query);
-        //    return View(response);
-        //}
-
         [HttpPost]
         public IActionResult CreatePaymentUrlVnPay(PaymentInformationModel model)
         {
             var url = _vnPayService.CreatePayment(model, HttpContext);
             return Redirect(url);
         }
-
-        //[HttpGet]
-        //public IActionResult PaymentCallBackVnPay()
-        //{
-        //    var response = _vnPayService.PaymentExecute(Request.Query);
-        //    return Json(response);
-        //}
-
     }
 }

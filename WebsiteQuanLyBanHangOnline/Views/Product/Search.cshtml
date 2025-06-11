@@ -18,9 +18,9 @@
 							<a asp-controller="Product" asp-action="Detail" asp-route-Id="@item.Id">
 								<img src="~/media/products/@item.Image" alt="@item.Name" />
 								<h2>@item.Price.ToString("#,##0 VNĐ")</h2>
-								<h5 style="height: 40px; overflow: hidden; margin: 0;">@item.Name</h5>
-								@* <p>Danh Mục: @item.Category.Name</p> *@
-								@* <p>Thương Hiệu: @item.Brand.Name</p> *@
+								<p><h5>@item.Name</h5></p>
+								<p>Danh Mục: @item.Category.Name</p>
+								<p>Thương Hiệu: @item.Brand.Name</p>
 							</a>
 							@if (@item.Quantity > 0)
 							{
@@ -101,4 +101,3 @@
 	</script>
 	}
 }
-

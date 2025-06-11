@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -13,15 +14,16 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
     public class ContactController : Controller
     {
         private readonly DataContext _dataContext;
-        private readonly IWebHostEnvironment _webHostEnviroment;
-        public ContactController(DataContext dataContext, IWebHostEnvironment webHostEnviroment)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ContactController(DataContext dataContext, IWebHostEnvironment webHostEnvironment)
         {
             _dataContext = dataContext;
-            _webHostEnviroment = webHostEnviroment;
+            _webHostEnvironment = webHostEnvironment;
         }
         public async Task<IActionResult> Index()
         {
-            return View(await _dataContext.Contacts.ToListAsync());
+            var contacts = await _dataContext.Contacts.ToListAsync();
+            return View(contacts);
         }
 
         [HttpGet]
@@ -30,121 +32,112 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             return View();
         }
 
+        [HttpPost]
         public async Task<IActionResult> Add(ContactModel contactModel)
         {
+            if (!ModelState.IsValid)
+                return HandleModelError(contactModel);
 
-            if (ModelState.IsValid)
-            {
+            if (contactModel.ImageUpload != null)
+                contactModel.LogoImage = await SaveImageAsync(contactModel.ImageUpload);
 
-                if (contactModel.ImageUpload != null)
-                {
-                    string uploadsDir = Path.Combine(_webHostEnviroment.WebRootPath, "media/logo");
-                    string imageName = Guid.NewGuid().ToString() + "_" + contactModel.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadsDir, imageName);
+            _dataContext.Add(contactModel);
+            await _dataContext.SaveChangesAsync();
 
-                    FileStream fs = new FileStream(filePath, FileMode.Create);
-                    await contactModel.ImageUpload.CopyToAsync(fs);
-                    fs.Close();
-                    contactModel.LogoImage = imageName;
-                }
-
-                _dataContext.Add(contactModel);
-                await _dataContext.SaveChangesAsync();
-                TempData["Success"] = "Add Contact Successfully!!!";
-                return RedirectToAction("Index");
-
-            }
-            else
-            {
-                TempData["Error"] = "Models Have Some Problems!!!";
-                List<string> errors = new List<string>();
-                foreach (var value in ModelState.Values)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
-            }
-            return View(contactModel);
+            TempData["Success"] = "Contact Added Successfully!!!";
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit()
         {
-            ContactModel contactModel = await _dataContext.Contacts.FirstOrDefaultAsync();
-            return View(contactModel);
+            var contact = await _dataContext.Contacts.FirstOrDefaultAsync();
+            if (contact == null)
+            {
+                TempData["Error"] = "Contact Not Found.";
+                return RedirectToAction("Index");
+            }
+            return View(contact);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ContactModel contactModel)
         {
-            var existed_contact = _dataContext.Contacts.FirstOrDefault();
-
-            if (ModelState.IsValid)
+            var existedContact = await _dataContext.Contacts.FirstOrDefaultAsync();
+            if (existedContact == null)
             {
-
-                if (contactModel.ImageUpload != null)
-                {
-                    string uploadsDir = Path.Combine(_webHostEnviroment.WebRootPath, "media/logo");
-                    string imageName = Guid.NewGuid().ToString() + "_" + contactModel.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadsDir, imageName);
-
-                    FileStream fs = new FileStream(filePath, FileMode.Create);
-                    await contactModel.ImageUpload.CopyToAsync(fs);
-                    fs.Close();
-                    existed_contact.LogoImage = imageName;
-                }
-
-                existed_contact.Name = contactModel.Name;             
-                existed_contact.Description = contactModel.Description;
-                existed_contact.Map = contactModel.Map;
-                existed_contact.Email = contactModel.Email;
-                existed_contact.Phone = contactModel.Phone;              
-
-                _dataContext.Update(existed_contact);
-                await _dataContext.SaveChangesAsync();
-                TempData["Success"] = "Update Contact Successfully!!!";
+                TempData["Error"] = "Contact Not Found.";
                 return RedirectToAction("Index");
+            }
 
-            }
-            else
-            {
-                TempData["Error"] = "Models Have Some Problems!!!";
-                List<string> errors = new List<string>();
-                foreach (var value in ModelState.Values)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
-            }
-            return View(contactModel);
+            if (!ModelState.IsValid)
+                return HandleModelError(contactModel);
+
+            if (contactModel.ImageUpload != null)
+                existedContact.LogoImage = await SaveImageAsync(contactModel.ImageUpload);
+
+            existedContact.Name = contactModel.Name;
+            existedContact.Description = contactModel.Description;
+            existedContact.Map = contactModel.Map;
+            existedContact.Email = contactModel.Email;
+            existedContact.Phone = contactModel.Phone;
+
+            _dataContext.Update(existedContact);
+            await _dataContext.SaveChangesAsync();
+
+            TempData["Success"] = "Contact Updated Successfully!!!";
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Delete(int Id)
         {
-            ContactModel contactModel = await _dataContext.Contacts.FindAsync(Id);
+            var contactModel = await _dataContext.Contacts.FindAsync(Id);
+            if (contactModel == null)
+            {
+                TempData["Error"] = "Contact Not Found.";
+                return RedirectToAction("Index");
+            }
+
             if (!string.Equals(contactModel.LogoImage, "null.jpg"))
             {
-                string uploadsDir = Path.Combine(_webHostEnviroment.WebRootPath, "media/logo");
-                string oldfilePath = Path.Combine(uploadsDir, contactModel.LogoImage);
-                if (System.IO.File.Exists(oldfilePath))
-                {
-                    System.IO.File.Delete(oldfilePath);
-                }
+                string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "media/logo", contactModel.LogoImage);
+                if (System.IO.File.Exists(filePath))
+                    System.IO.File.Delete(filePath);
             }
 
             _dataContext.Contacts.Remove(contactModel);
             await _dataContext.SaveChangesAsync();
-            TempData["Success"] = "Delete Contact Successfully!!!";
+
+            TempData["Success"] = "Contact Deleted Successfully!!!";
             return RedirectToAction("Index");
         }
+
+        private async Task<string> SaveImageAsync(IFormFile image)
+        {
+            string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/logo");
+            string imageName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(image.FileName);
+            string filePath = Path.Combine(uploadsDir, imageName);
+
+            using (var fs = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(fs);
+            }
+
+            return imageName;
+        }
+
+        private IActionResult HandleModelError(ContactModel contactModel)
+        {
+            TempData["Error"] = "Models Have Some Problems!!!";
+
+            var errors = ModelState.Values
+                                   .SelectMany(v => v.Errors)
+                                   .Select(e => e.ErrorMessage);
+
+            string errorMessage = string.Join("\n", errors);
+            return BadRequest(errorMessage);
+        }
+
     }
 }

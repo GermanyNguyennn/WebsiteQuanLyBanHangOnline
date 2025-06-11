@@ -17,10 +17,10 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             _dataContext = context;
             _roleManager = roleManager;
         }
-
         public async Task<IActionResult> Index()
         {
-            return View(await _dataContext.Roles.OrderByDescending(p => p.Id).ToListAsync());
+            var roles = await _dataContext.Roles.OrderByDescending(p => p.Id).ToListAsync();
+            return View(roles);
         }
 
         [HttpGet]
@@ -33,17 +33,41 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(IdentityRole model)
         {
-            if (!_roleManager.RoleExistsAsync(model.Name).GetAwaiter().GetResult())
+            if (string.IsNullOrWhiteSpace(model?.Name))
             {
-                _roleManager.CreateAsync(new IdentityRole(model.Name)).GetAwaiter().GetResult();
+                ModelState.AddModelError("", "Role Name Is Required.");
+                return View(model);
             }
-            return Redirect("Index");
+
+            if (!await _roleManager.RoleExistsAsync(model.Name))
+            {
+                var result = await _roleManager.CreateAsync(new IdentityRole(model.Name));
+                if (result.Succeeded)
+                {
+                    TempData["Success"] = "Role Added Successfully!";
+                    return RedirectToAction("Index");
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "Role Already Exists.");
+            }
+
+            return View(model);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string Id)
+        public async Task<IActionResult> Edit(string id)
         {
-            var role = await _roleManager.FindByIdAsync(Id);
+            if (string.IsNullOrEmpty(id)) return NotFound();
+
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null) return NotFound();
+
             return View(role);
         }
 
@@ -51,45 +75,46 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, IdentityRole model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model ?? new IdentityRole { Id = id });
+
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null) return NotFound();
+
+            role.Name = model.Name;
+
+            var result = await _roleManager.UpdateAsync(role);
+            if (result.Succeeded)
             {
-                var role = await _roleManager.FindByIdAsync(id);
-                if (role == null)
-                {
-                    return NotFound();
-                }
-                role.Name = model.Name;
-                try
-                {
-                    await _roleManager.UpdateAsync(role);
-                    TempData["Success"] = "Update Role Successfully!!!";
-                    return RedirectToAction("Index");
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "Unable To Update Role!!!");
-                }
+                TempData["Success"] = "Role Updated Successfully!";
+                return RedirectToAction("Index");
             }
-            return View(model ?? new IdentityRole { Id = id });
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View(model);
         }
 
         [HttpGet]
         public async Task<IActionResult> Delete(string id)
         {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+
             var role = await _roleManager.FindByIdAsync(id);
-            if (role == null)
+            if (role == null) return NotFound();
+
+            var result = await _roleManager.DeleteAsync(role);
+            if (result.Succeeded)
             {
-                return NotFound();
+                TempData["Success"] = "Role Deleted Successfully!";
             }
-            try
+            else
             {
-                await _roleManager.DeleteAsync(role);
-                TempData["Success"] = "Delete Role Successfully!!!";
+                TempData["Error"] = "Unable To Delete Role!";
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "Unable To Update Role!!!");
-            }
+
             return RedirectToAction("Index");
         }
     }

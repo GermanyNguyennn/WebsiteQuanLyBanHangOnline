@@ -1,0 +1,75 @@
+﻿@using WebsiteQuanLyBanHangOnline.Models.ViewModels
+@model EmailOrderViewModel
+@using System.Globalization
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>New Order Notification</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        h2, h3 {
+            margin-bottom: 5px;
+        }
+
+        p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>🛒 New Order Received</h2>
+
+    <p><strong>User:</strong> @Model.UserName</p>
+    <p><strong>Order Code:</strong> #@Model.OrderCode</p>
+    <p><strong>Date:</strong> @Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</p>
+
+    <h3>🧾 Order Items:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th style="text-align:center;">Quantity</th>
+                <th style="text-align:right;">Price</th>
+                <th style="text-align:right;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                var subtotal = item.Quantity * item.Price;
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td style="text-align:center;">@item.Quantity</td>
+                    <td style="text-align:right;">@item.Price.ToString("C0", new CultureInfo("vi-VN"))</td>
+                    <td style="text-align:right;">@subtotal.ToString("C0", new CultureInfo("vi-VN"))</td>
+                </tr>
+            }
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" style="text-align:right;"><strong>Total:</strong></td>
+                <td style="text-align:right;"><strong>@Model.TotalAmount.ToString("C0", new CultureInfo("vi-VN"))</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

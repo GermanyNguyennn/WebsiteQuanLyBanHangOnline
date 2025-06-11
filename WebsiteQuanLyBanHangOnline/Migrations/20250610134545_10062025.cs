@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     /// <inheritdoc />
-    public partial class _10_06_2025 : Migration
+    public partial class _10062025 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

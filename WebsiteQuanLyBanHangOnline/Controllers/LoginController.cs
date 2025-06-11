@@ -8,6 +8,5 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             return View();
         }
-
     }
 }

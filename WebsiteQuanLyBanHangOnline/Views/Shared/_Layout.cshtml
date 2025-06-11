@@ -99,9 +99,12 @@
 						</div>
 					</div>
 					<div class="col-sm-3">
-						<div class="search_box pull-right">
-							<input type="text" placeholder="Search" />
-						</div>
+						<form asp-action="Search" asp-controller="Product" method="post">
+							<div class="search_box pull-right">
+								<input type="text" placeholder="Search" name="searchTerm" />
+								<button class="btn btn-warning" type="submit">Search</button>
+							</div>
+						</form>					
 					</div>
 				</div>
 			</div>

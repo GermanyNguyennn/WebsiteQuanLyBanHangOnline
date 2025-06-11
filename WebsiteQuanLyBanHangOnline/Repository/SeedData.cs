@@ -22,6 +22,7 @@ namespace WebsiteQuanLyBanHangOnline.Repository
 
             // Tạo tài khoản Admin nếu chưa có
             var adminEmail = "manhducnguyen23092003@gmail.com";
+            var adminPhone = "0964429403";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
             if (adminUser == null)
@@ -30,6 +31,7 @@ namespace WebsiteQuanLyBanHangOnline.Repository
                 {
                     UserName = "Admin",
                     Email = adminEmail,
+                    PhoneNumber = adminPhone,
                     EmailConfirmed = true
                 };
 
