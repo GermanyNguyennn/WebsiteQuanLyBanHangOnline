@@ -26,7 +26,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             .Include(p => p.Brand)
             .AsQueryable();
 
-            // Lọc theo khoảng giá nếu có
             if (!string.IsNullOrEmpty(startprice) && !string.IsNullOrEmpty(endprice))
             {
                 if (decimal.TryParse(startprice, out decimal startPriceVal) &&
@@ -36,7 +35,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 }
             }
 
-            // Sắp xếp theo lựa chọn
             switch (sort_by)
             {
                 case "price_increase":
@@ -58,25 +56,12 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             var products = await query.ToListAsync();
 
-            var sliders = await _dataContext.Sliders
+            ViewBag.Sliders = await _dataContext.Sliders
                 .Where(s => s.Status == 1)
-                .ToListAsync();
-
-            ViewBag.Sliders = sliders;
+                .ToListAsync(); ;
             ViewBag.sort_key = sort_by;
             ViewBag.count = products.Count;
-
-            if (products.Any())
-            {
-                ViewBag.minprice = products.Min(p => p.Price);
-                ViewBag.maxprice = products.Max(p => p.Price);
-            }
-            else
-            {
-                ViewBag.minprice = 0;
-                ViewBag.maxprice = 0;
-            }
-
+           
             return View(products);
         }
 

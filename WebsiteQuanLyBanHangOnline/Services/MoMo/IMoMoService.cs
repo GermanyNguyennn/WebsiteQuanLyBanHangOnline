@@ -5,7 +5,7 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
 {
     public interface IMoMoService
     {
-        Task<MoMoCreatePaymentResponseModel>CreatePayment(MoMoInformationExecuteResponseModel model);
-        MoMoInformationExecuteResponseModel PaymentExecute(IQueryCollection collection);
+        Task<MoMoCreatePaymentResponseModel>CreatePaymentAsync(MoMoInformationExecuteResponseModel model);
+        MoMoInformationExecuteResponseModel PaymentExecuteAsync(IQueryCollection collection);
     }
 }

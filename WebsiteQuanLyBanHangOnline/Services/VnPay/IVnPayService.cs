@@ -4,7 +4,7 @@ namespace WebsiteQuanLyBanHangOnline.Services.VnPay
 {
     public interface IVnPayService
     {
-        string CreatePayment(PaymentInformationModel model, HttpContext context);
-        PaymentResponseModel PaymentExecute(IQueryCollection collections);
+        Task<string> CreatePaymentAsync(PaymentInformationModel model, HttpContext context);
+        Task<PaymentResponseModel> PaymentExecuteAsync(IQueryCollection collections);
     }
 }

@@ -15,7 +15,7 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
         {
             _options = options;
         }
-        public async Task<MoMoCreatePaymentResponseModel> CreatePayment(MoMoInformationExecuteResponseModel model)
+        public async Task<MoMoCreatePaymentResponseModel> CreatePaymentAsync(MoMoInformationExecuteResponseModel model)
         {
             model.OrderId = DateTime.UtcNow.Ticks.ToString();
             model.OrderInfo = "Khách hàng: " + model.FullName + ". Nội dung: " + model.OrderInfo;
@@ -23,7 +23,7 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
                 $"partnerCode={_options.Value.PartnerCode}" +
                 $"&accessKey={_options.Value.AccessKey}" +
                 $"&requestId={model.OrderId}" +
-                $"&amount={model.TotalAmount}" +
+                $"&amount={model.Amount}" +
                 $"&orderId={model.OrderId}" +
                 $"&orderInfo={model.OrderInfo}" +
                 $"&returnUrl={_options.Value.ReturnUrl}" +
@@ -45,7 +45,7 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
                 notifyUrl = _options.Value.NotifyUrl,
                 returnUrl = _options.Value.ReturnUrl,
                 orderId = model.OrderId,
-                amount = model.TotalAmount.ToString(),
+                amount = model.Amount.ToString(),
                 orderInfo = model.OrderInfo,
                 requestId = model.OrderId,
                 extraData = "",
@@ -60,10 +60,10 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
 
         }
 
-        public MoMoInformationExecuteResponseModel PaymentExecute(IQueryCollection collection)
+        public MoMoInformationExecuteResponseModel PaymentExecuteAsync(IQueryCollection collection)
         {
             //var amount = collection.First(s => s.Key == "amount").Value;
-            double totalAmount = double.Parse(collection.First(s => s.Key == "amount").Value);
+            double amount = double.Parse(collection.First(s => s.Key == "amount").Value);
             var orderInfo = collection.First(s => s.Key == "orderInfo").Value;
             var orderId = collection.First(s => s.Key == "orderId").Value;
 
@@ -71,7 +71,7 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
             {             
                 OrderId = orderId,
                 OrderInfo = orderInfo,
-                TotalAmount = totalAmount
+                Amount = amount
             };
         }
 

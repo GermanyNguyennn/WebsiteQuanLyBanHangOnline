@@ -48,42 +48,8 @@
 	<!--features_items-->
 </div>
 
-@if (ViewBag.count > 0)
-{
-	@section Scripts {
-	<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-	<script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>
-	<script>
-		$(document).ready(function () {
+@section Scripts {
 
-			$("#slider-range").slider({
-
-				range: true,
-				min: @ViewBag.minprice,
-				max: @ViewBag.maxprice,
-				step: 100000,
-				values: [@ViewBag.minprice, @ViewBag.maxprice],
-				slide: function (event, ui) {
-
-				$("#amount").val("VNĐ" + ui.values[0] + " - VNĐ" + ui.values[1]);
-				}
-			});
-			$("#amount").val("VNĐ" + $("#slider-range").slider("values", 0) + " - VNĐ" + $("#slider-range").slider("values", 1));
-
-			//btn lọc giá
-			$('.btn-locgia').on('click', function () {
-
-				var url = $(this).data("current_url");
-				// alert(url);
-				if (url) {
-					window.location = url + "?startprice=" + $("#slider-range").slider("values", 0)
-						+ "&endprice=" + $("#slider-range").slider("values", 1);
-				}
-				return false;
-			});
-
-		});
-	</script>
 	<script type="text/javascript">
 		$(document).ready(function () {
 
@@ -100,5 +66,3 @@
 		});
 	</script>
 	}
-}
-

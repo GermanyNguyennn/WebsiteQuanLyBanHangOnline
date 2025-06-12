@@ -8,9 +8,9 @@ namespace WebsiteQuanLyBanHangOnline.Services.VnPay
         private readonly IConfiguration _configuration;
         public VnPayService(IConfiguration configuration)
         {
-            _configuration = configuration;
+            _configuration = configuration; 
         }
-        public string CreatePayment(PaymentInformationModel model, HttpContext context)
+        public Task<string> CreatePaymentAsync(PaymentInformationModel model, HttpContext context)
         {
             var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
             var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
@@ -34,14 +34,14 @@ namespace WebsiteQuanLyBanHangOnline.Services.VnPay
             var paymentUrl =
                 pay.CreateRequestUrl(_configuration["Vnpay:BaseUrl"], _configuration["Vnpay:HashSecret"]);
 
-            return paymentUrl;
+            return Task.FromResult(paymentUrl);
         }
-        public PaymentResponseModel PaymentExecute(IQueryCollection collections)
+        public Task<PaymentResponseModel> PaymentExecuteAsync(IQueryCollection collections)
         {
             var pay = new VnPayLibrary();
             var response = pay.GetFullResponseData(collections, _configuration["Vnpay:HashSecret"]);
 
-            return response;
+            return Task.FromResult(response);
         }
 
     }

@@ -9,6 +9,7 @@
 	<link href="~/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.21.2/dist/sweetalert2.min.css" rel="stylesheet">
+
 	<link href="~/css/prettyPhoto.css" rel="stylesheet">
 	<link href="~/css/price-range.css" rel="stylesheet">
 	<link href="~/css/animate.css" rel="stylesheet">
@@ -53,23 +54,31 @@
 					<div class="col-sm-8">
 						<div class="shop-menu pull-right">
 							<ul class="nav navbar-nav">								
+								@{
+									var is2FACompleted = Context.Session.GetString("Is2FACompleted") == "true";
+									var isAdmin = Context.Session.GetString("IsAdmin") == "true";
+								}
+
 								@if (User.Identity?.IsAuthenticated ?? false)
 								{
-									if (User.IsInRole("Admin"))
+									if (is2FACompleted)
 									{
+										if (isAdmin)
 										{
 											<li><a asp-area="Admin" asp-controller="Product" asp-action="Index"><i class="fa fa-cogs"></i> Admin Dashboard</a></li>
 										}
+
+										<li><a asp-controller="Account" asp-action="History"><i class="fa fa-user"></i>History</a></li>
+										<li><a asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+										<li><a asp-controller="Account" asp-action="Information"><i class="fa fa-user"></i>Information</a></li>
 									}
-									<li><a asp-controller="Account" asp-action="History"><i class="fa fa-user"></i>History</a></li>
-									<li><a asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-									<li><a asp-controller="Account" asp-action="Information"><i class="fa fa-user"></i>Information</a></li>
+
 									<li><a asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Hi, @User.Identity.Name. Logout</a></li>
 								}
 								else
 								{
 									<li><a asp-controller="Account" asp-action="Login"><i class="fa fa-lock"></i>Login</a></li>
-								}								
+								}
 							</ul>
 						</div>
 					</div>
@@ -208,6 +217,8 @@
 	<script src="~/js/jquery.prettyPhoto.js"></script>
 	<script src="~/js/main.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.21.2/dist/sweetalert2.all.min.js"></script>
+	<div id="fb-root"></div>
+	<script async defer crossorigin="anonymous" src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v20.0&appId=6125793717446054" nonce="JYxicUjw"></script>
 	<script>
 		$(function() {
 			var messageSuccess = '@TempData["Success"]';

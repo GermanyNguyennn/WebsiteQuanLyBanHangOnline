@@ -19,18 +19,33 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             _vnPayService = vnPayService;
             _dataContext = dataContext;
         }
+
         [HttpPost]
         public async Task<IActionResult> CreatePaymentUrlMoMo(MoMoInformationExecuteResponseModel model)
         {
-            var response = await _moMoService.CreatePayment(model);
+            var response = await _moMoService.CreatePaymentAsync(model);
+
+            if (response == null || string.IsNullOrEmpty(response.PayUrl))
+            {
+                TempData["Error"] = "Cannot Pay With MoMo.";
+                return RedirectToAction("Cart", "Index");
+            }
+
             return Redirect(response.PayUrl);
         }
 
         [HttpPost]
-        public IActionResult CreatePaymentUrlVnPay(PaymentInformationModel model)
+        public async Task<IActionResult> CreatePaymentUrlVnPay(PaymentInformationModel model)
         {
-            var url = _vnPayService.CreatePayment(model, HttpContext);
-            return Redirect(url);
+            var response = await _vnPayService.CreatePaymentAsync(model, HttpContext);
+
+            if (string.IsNullOrEmpty(response))
+            {
+                TempData["Error"] = "Cannot Pay With VnPay.";
+                return RedirectToAction("Cart", "Index");
+            }
+
+            return Redirect(response);
         }
     }
 }

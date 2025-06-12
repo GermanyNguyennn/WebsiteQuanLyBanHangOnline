@@ -133,7 +133,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             var resultCode = query["resultCode"];
             var orderId = query["orderId"];
 
-            var response = _moMoService.PaymentExecute(query);
+            var response = _moMoService.PaymentExecuteAsync(query);
             response.FullName = email;
 
             if (resultCode != "00")
@@ -164,7 +164,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         public async Task<IActionResult> PaymentCallBackVnPay()
         {
             var query = HttpContext.Request.Query;
-            var response = _vnPayService.PaymentExecute(query);
+            var response = await _vnPayService.PaymentExecuteAsync(query);
 
             if (response.VnPayResponseCode == "00")
             {
@@ -177,6 +177,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                     PaymentId = response.PaymentId,
                     CreatedDate = DateTime.Now
                 });
+
                 await _dataContext.SaveChangesAsync();
 
                 await Checkout(response.PaymentMethod, response.OrderId);
@@ -189,5 +190,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             return View(response);
         }
+
     }
 }

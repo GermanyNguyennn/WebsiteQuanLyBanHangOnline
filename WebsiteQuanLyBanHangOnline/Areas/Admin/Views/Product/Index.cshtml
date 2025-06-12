@@ -21,7 +21,7 @@
             <th scope="col">Id</th>
             <th scope="col">Product Name</th>
             <th scope="col">Product Image</th>
-            <th scope="col">Product Description</th>
+            @* <th scope="col">Product Description</th> *@
             <th scope="col">Product Price</th>
             <th scope="col">Product Quantity</th>
             <th scope="col">Quantity</th>
@@ -39,7 +39,7 @@
                 <td>@item.Id</td>
                 <td>@item.Name</td>
                 <td><img src="~/media/products/@item.Image" width="70%" height="70%"/></td>
-                <td>@Html.Raw(@item.Description)</td>
+                @* <td>@Html.Raw(@item.Description)</td> *@
                 <td>@item.Price.ToString("#,##0 VNĐ")</td>
                 <td><a asp-action="AddQuantity" asp-controller="Product" asp-route-Id="@item.Id">Add Quantity</a></td>
                 <td>@item.Quantity</td>
@@ -49,6 +49,10 @@
                 <td>@item.Brand.Name</td>
                 <td>
                     <a asp-controller="Product" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
+                    @* <a asp-controller="Product" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Delete</a> *@
+                </td>
+                <td>
+                    @* <a asp-controller="Product" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Edit</a> *@
                     <a asp-controller="Product" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Delete</a>
                 </td>
             </tr>

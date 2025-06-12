@@ -108,7 +108,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             }
             else
             {
-                TempData["success"] = "Maximum Product Quantity Reached.";
+                TempData["error"] = "Maximum Product Quantity Reached.";
             }
 
             HttpContext.Session.SetJson("Cart", cart);

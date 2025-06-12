@@ -1,3 +1,4 @@
+using FluentAssertions.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebsiteQuanLyBanHangOnline.Areas.Admin.Repository;
@@ -38,8 +39,23 @@ builder.Services.AddSession(options =>
 builder.Services.AddIdentity<AppUserModel, IdentityRole>()
     .AddEntityFrameworkStores<DataContext>().AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
+    options.SlidingExpiration = false;
+    options.Cookie.IsEssential = true;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
+    options.User.RequireUniqueEmail = true;
+
     // Password settings.
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = false;
