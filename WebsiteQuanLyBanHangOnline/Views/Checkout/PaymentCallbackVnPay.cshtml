@@ -1,5 +1,5 @@
-﻿@using WebsiteQuanLyBanHangOnline.Models.VnPay
-@model PaymentResponseModel
+﻿﻿@using WebsiteQuanLyBanHangOnline.Models.VnPay
+@model PaymentInformationModel
 
 @{
     ViewData["Title"] = "Thanh Toán Thành Công Bằng VnPay";
@@ -13,15 +13,19 @@
             <th scope="col">Transaction Id</th>
             <th scope="col">Payment Id</th>
             <th scope="col">Payment Method</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Created Date</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>@Model.OrderId</td>
-            <td>@Model.OrderDescription</td>
+            <td>@Model.OrderInfo</td>
             <td>@Model.TransactionId</td>
             <td>@Model.PaymentId</td>
             <td>@Model.PaymentMethod</td>
+            <td>@Model.Amount.ToString("#,##0 VNĐ")</td>
+            <td>@Model.CreatedDate</td>
         </tr>
     </tbody>
 </table>

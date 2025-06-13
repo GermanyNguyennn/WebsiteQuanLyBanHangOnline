@@ -37,7 +37,7 @@
                     }
                 </td>
                 <td>
-                    @if (item.PaymentMethod == "COD" || item.PaymentMethod == null)
+                    @if (item.PaymentMethod != null && item.PaymentMethod.StartsWith("COD"))
                     {
                         <span class="text text-primary">@item.PaymentMethod</span>
                     }

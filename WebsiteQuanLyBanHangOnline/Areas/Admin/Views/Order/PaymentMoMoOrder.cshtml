@@ -1,7 +1,7 @@
 ﻿@using WebsiteQuanLyBanHangOnline.Repository
-@model VnPayModel
+@model MoMoModel
 @{
-    ViewData["Title"] = "VnPay Information";
+    ViewData["Title"] = "MoMo Information";
 
     Paginate pager = new Paginate();
 
@@ -21,8 +21,7 @@
             <th scope="col">Id</th>
             <th scope="col">Order Id</th>
             <th scope="col">Order Info</th>
-            <th scope="col">Transaction Id</th>
-            <th scope="col">Payment Id</th>
+            <th scope="col">Amount</th>
             <th scope="col">Created Date</th>
         </tr>
     </thead>
@@ -30,12 +29,11 @@
         <tr>
             <td>@Model.Id</td>
             <td>@Model.OrderId</td>
-            <td>@Model.OrderDescription</td>
-            <td>@Model.TransactionId</td>
-            <td>@Model.PaymentId</td>
+            <td>@Model.OrderInfo</td>
+            <td>@Model.Amount.ToString("#,##0 VND")</td>
             <td>@Model.CreatedDate</td>
         </tr>
         <a asp-controller="Order" asp-action="Index" class="btn btn-warning btn-sm">Back</a>
-    </tbody>
+    </tbody> 
 </table>
 <partial name="_Paging" model="@pager" />

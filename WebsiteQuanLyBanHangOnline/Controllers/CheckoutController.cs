@@ -48,7 +48,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             {
                 OrderCode = orderCode,
                 UserName = userEmail,
-                PaymentMethod = $"{PaymentMethod} {PaymentId}",
+                PaymentMethod = PaymentMethod == "COD" ? "COD" : $"{PaymentMethod} {PaymentId}",
                 CreatedDate = DateTime.Now,
                 Status = 1
             };
@@ -97,7 +97,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             var totalAmount = emailItems.Sum(i => i.Price * i.Quantity);
 
-            // ViewModel gửi vào Razor View
             var viewModel = new EmailOrderViewModel
             {
                 OrderCode = orderCode,
@@ -107,11 +106,9 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 TotalAmount = totalAmount
             };
 
-            // Gửi email cho người mua
             var customerEmailHtml = await _emailRenderer.RenderAsync("CustomerEmail.cshtml", viewModel);
             await _emailSender.SendEmailAsync(userEmail, "Your Order Confirmation", customerEmailHtml);
 
-            // Gửi email cho tất cả admin
             var admins = await _userManager.GetUsersInRoleAsync("Admin");
             foreach (var admin in admins)
             {
@@ -128,21 +125,20 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         public async Task<IActionResult> PaymentCallBackMoMo()
         {
             var query = HttpContext.Request.Query;
-            var email = User.FindFirstValue(ClaimTypes.Email);
             var resultCode = query["resultCode"];
             var orderId = query["orderId"];
+            var orderInfo = query["orderInfo"];
+            var amount = decimal.Parse(query["amount"]);
 
             var response = _moMoService.PaymentExecuteAsync(query);
-            response.FullName = email;
 
             if (resultCode != "00")
             {
                 _dataContext.Add(new MoMoModel
                 {
                     OrderId = orderId,
-                    FullName = email,
-                    Amount = double.Parse(query["amount"]),
-                    OrderInfo = query["orderInfo"],
+                    OrderInfo = orderInfo,
+                    Amount = amount,
                     CreatedDate = DateTime.Now
                 });
                 await _dataContext.SaveChangesAsync();
@@ -158,7 +154,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             return View(response);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> PaymentCallBackVnPay()
         {
@@ -170,10 +165,11 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 _dataContext.Add(new VnPayModel
                 {
                     OrderId = response.OrderId,
-                    PaymentMethod = response.PaymentMethod,
-                    OrderDescription = response.OrderDescription,
+                    OrderInfo = response.OrderInfo,
+                    PaymentMethod = response.PaymentMethod,                  
                     TransactionId = response.TransactionId,
                     PaymentId = response.PaymentId,
+                    Amount = response.Amount,
                     CreatedDate = DateTime.Now
                 });
 

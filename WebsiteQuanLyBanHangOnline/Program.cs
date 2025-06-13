@@ -35,7 +35,7 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromSeconds(60);
+    options.IdleTimeout = TimeSpan.FromMinutes(10);
     options.Cookie.IsEssential = true;
 });
 
@@ -46,7 +46,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
     options.SlidingExpiration = false;
     options.Cookie.IsEssential = true;
     options.Cookie.HttpOnly = true;
@@ -69,8 +69,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 
     options.User.RequireUniqueEmail = true;
 });
-
-builder.Services.AddControllersWithViews();
 
 builder.Services.AddSingleton<EmailTemplateRenderer>();
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     /// <inheritdoc />
-    public partial class _10062025 : Migration
+    public partial class _14062025 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,7 +30,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -127,9 +126,8 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OrderInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Amount = table.Column<double>(type: "float", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -152,23 +150,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Orders", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Shippings",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    District = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Shippings", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -210,11 +191,12 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TransactionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrderInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PaymentId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransactionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -326,6 +308,27 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Information",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    District = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Information", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Information_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -490,6 +493,11 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Information_UserId",
+                table: "Information",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_ProductId",
                 table: "OrderDetails",
                 column: "ProductId");
@@ -543,6 +551,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 name: "Coupons");
 
             migrationBuilder.DropTable(
+                name: "Information");
+
+            migrationBuilder.DropTable(
                 name: "MoMos");
 
             migrationBuilder.DropTable(
@@ -553,9 +564,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductQuantities");
-
-            migrationBuilder.DropTable(
-                name: "Shippings");
 
             migrationBuilder.DropTable(
                 name: "Sliders");

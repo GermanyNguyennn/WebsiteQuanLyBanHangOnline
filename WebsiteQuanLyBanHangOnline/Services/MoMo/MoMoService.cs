@@ -15,10 +15,10 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
         {
             _options = options;
         }
-        public async Task<MoMoCreatePaymentResponseModel> CreatePaymentAsync(MoMoInformationExecuteResponseModel model)
+        public async Task<MoMoResponseModel> CreatePaymentAsync(MoMoInformationModel model)
         {
             model.OrderId = DateTime.UtcNow.Ticks.ToString();
-            model.OrderInfo = "Khách hàng: " + model.FullName + ". Nội dung: " + model.OrderInfo;
+            model.OrderInfo = model.OrderInfo;
             var rawData =
                 $"partnerCode={_options.Value.PartnerCode}" +
                 $"&accessKey={_options.Value.AccessKey}" +
@@ -55,23 +55,23 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
             request.AddParameter("application/json", JsonConvert.SerializeObject(requestData), ParameterType.RequestBody);
 
             var response = await client.ExecuteAsync(request);
-            var momoResponse = JsonConvert.DeserializeObject<MoMoCreatePaymentResponseModel>(response.Content);
+            var momoResponse = JsonConvert.DeserializeObject<MoMoResponseModel>(response.Content);
             return momoResponse;
 
         }
 
-        public MoMoInformationExecuteResponseModel PaymentExecuteAsync(IQueryCollection collection)
+        public MoMoInformationModel PaymentExecuteAsync(IQueryCollection collection)
         {
-            //var amount = collection.First(s => s.Key == "amount").Value;
             double amount = double.Parse(collection.First(s => s.Key == "amount").Value);
             var orderInfo = collection.First(s => s.Key == "orderInfo").Value;
             var orderId = collection.First(s => s.Key == "orderId").Value;
 
-            return new MoMoInformationExecuteResponseModel()
+            return new MoMoInformationModel()
             {             
                 OrderId = orderId,
                 OrderInfo = orderInfo,
-                Amount = amount
+                Amount = amount,
+                CreatedDate = DateTime.Now,
             };
         }
 

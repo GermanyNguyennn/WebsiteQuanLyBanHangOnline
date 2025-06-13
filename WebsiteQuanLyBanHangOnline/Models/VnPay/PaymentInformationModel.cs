@@ -1,11 +1,7 @@
 ﻿namespace WebsiteQuanLyBanHangOnline.Models.VnPay
 {
-    public class PaymentInformationModel
+    public class PaymentInformationModel : PaymentResponseModel
     {
-        public string OrderType { get; set; }
-        public double Amount { get; set; }
-        public string OrderDescription { get; set; }
-        public string Name { get; set; }
-
+        public DateTime CreatedDate { get; set; }
     }
 }

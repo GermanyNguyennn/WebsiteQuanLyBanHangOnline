@@ -48,7 +48,7 @@
 
 
     <div class="form-group">
-        <label>Địa Chỉ</label>
+        <label>Địa Chỉ:</label>
         <input asp-for="Address" required class="form-control" />
         <span asp-validation-for="Address" class="text-danger"></span>
     </div>
@@ -64,7 +64,7 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-                $(document).ready(function () {
+            $(document).ready(function () {
             var selectedTinh = $("#tinh").data("selected");
             var selectedQuan = $("#quan").data("selected");
             var selectedPhuong = $("#phuong").data("selected");

@@ -21,13 +21,25 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePaymentUrlMoMo(MoMoInformationExecuteResponseModel model)
+        public async Task<IActionResult> CreatePaymentUrlMoMo(MoMoInformationModel model)
         {
             var response = await _moMoService.CreatePaymentAsync(model);
 
-            if (response == null || string.IsNullOrEmpty(response.PayUrl))
+            if (response == null)
             {
-                TempData["error"] = "Cannot Pay With MoMo.";
+                TempData["error"] = "MoMo không phản hồi.";
+                return RedirectToAction("Cart", "Index");
+            }
+
+            if (response.ErrorCode != 0)
+            {
+                TempData["error"] = $"Lỗi MoMo: {response.LocalMessage ?? response.Message} (Mã lỗi: {response.ErrorCode})";
+                return RedirectToAction("Cart", "Index");
+            }
+
+            if (string.IsNullOrEmpty(response.PayUrl))
+            {
+                TempData["error"] = "Không nhận được đường dẫn thanh toán từ MoMo.";
                 return RedirectToAction("Cart", "Index");
             }
 

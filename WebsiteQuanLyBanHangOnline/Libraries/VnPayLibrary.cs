@@ -22,29 +22,31 @@ namespace WebsiteQuanLyBanHangOnline.Libraries
                     vnPay.AddResponseData(key, value);
                 }
             }
-            var orderId = Convert.ToInt64(vnPay.GetResponseData("vnp_TxnRef"));
-            var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
-            var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
-            var vnpSecureHash =
-                collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value; //hash của dữ liệu trả về
-            var orderInfo = vnPay.GetResponseData("vnp_OrderInfo");
-            var checkSignature =
-                vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
+
+            var vnPayOrderId = Convert.ToInt64(vnPay.GetResponseData("vnp_TxnRef"));
+            var vnPayOrderInfo = vnPay.GetResponseData("vnp_OrderInfo");           
+            var vnPayTransactionId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
+            decimal vnPayAmount = Convert.ToDecimal(vnPay.GetResponseData("vnp_Amount")) / 100;
+            var vnPayResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
+            var vnPaySecureHash = collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value;        
+            var checkSignature = vnPay.ValidateSignature(vnPaySecureHash, hashSecret);
             if (!checkSignature)
-                return new PaymentResponseModel()
+                return new PaymentInformationModel()
                 {
                     Success = false
                 };
-            return new PaymentResponseModel()
+            return new PaymentInformationModel()
             {
                 Success = true,
                 PaymentMethod = "VnPay",
-                OrderDescription = orderInfo,
-                OrderId = orderId.ToString(),
-                PaymentId = vnPayTranId.ToString(),
-                TransactionId = vnPayTranId.ToString(),
-                Token = vnpSecureHash,
-                VnPayResponseCode = vnpResponseCode
+                OrderInfo = vnPayOrderInfo,
+                OrderId = vnPayOrderId.ToString(),
+                PaymentId = vnPayTransactionId.ToString(),
+                TransactionId = vnPayTransactionId.ToString(),
+                Amount = vnPayAmount,
+                Token = vnPaySecureHash,
+                VnPayResponseCode = vnPayResponseCode,
+                CreatedDate = DateTime.Now
             };
         }
 
@@ -182,5 +184,4 @@ namespace WebsiteQuanLyBanHangOnline.Libraries
             return vnpCompare.Compare(x, y, CompareOptions.Ordinal);
         }
     }
-
 }

@@ -13,7 +13,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, Employee")]
     public class UserController : Controller
     {
         private readonly UserManager<AppUserModel> _userManager;

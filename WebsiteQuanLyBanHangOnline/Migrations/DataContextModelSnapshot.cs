@@ -393,14 +393,11 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OrderId")
                         .HasColumnType("nvarchar(max)");
@@ -601,13 +598,16 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("OrderDescription")
+                    b.Property<string>("OrderId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OrderId")
+                    b.Property<string>("OrderInfo")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PaymentId")

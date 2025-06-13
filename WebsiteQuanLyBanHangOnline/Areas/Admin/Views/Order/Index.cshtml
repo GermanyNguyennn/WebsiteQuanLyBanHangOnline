@@ -62,16 +62,20 @@
                         if (text_split == "MoMo")
                         {
                             @text_split
-                            <a asp-route-OrderId="@number_split" asp-action="PaymentMoMo" asp-controller="Order"><span class="text text-primary">@number_split</span></a>
+                            <a asp-route-OrderId="@number_split" asp-action="PaymentMoMoOrder" asp-controller="Order"><span class="text text-primary">@number_split</span></a>
                         }
                         else if (text_split == "VnPay")
                         {
                             @text_split
-                            <a asp-route-OrderId="@number_split" asp-action="PaymentVnPay" asp-controller="Order"><span class="text text-primary">@number_split</span></a>
+                            <a asp-route-OrderId="@number_split" asp-action="PaymentVnPayOrder" asp-controller="Order"><span class="text text-primary">@number_split</span></a>
+                        }
+                        else if (text_split == "COD")
+                        {
+                            <span class="text text-primary">COD</span>
                         }
                         else
                         {
-                            <span class="text text-secondary">Không xác định</span>
+                            <span class="text text-secondary">Không Xác Định</span>
                         }
                     }
                 </td>

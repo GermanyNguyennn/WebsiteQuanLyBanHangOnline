@@ -12,8 +12,8 @@ using WebsiteQuanLyBanHangOnline.Repository;
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250610134545_10062025")]
-    partial class _10062025
+    [Migration("20250613174845_14062025")]
+    partial class _14062025
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -203,9 +203,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Token")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -364,6 +361,33 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.ToTable("Coupons");
                 });
 
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.InformationModel", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("District")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Ward")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Information");
+                });
+
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.MoMoModel", b =>
                 {
                     b.Property<int>("Id")
@@ -372,14 +396,11 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OrderId")
                         .HasColumnType("nvarchar(max)");
@@ -519,34 +540,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.ToTable("ProductQuantities");
                 });
 
-            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ShippingModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("District")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Ward")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Shippings");
-                });
-
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.SliderModel", b =>
                 {
                     b.Property<int>("Id")
@@ -608,13 +601,16 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("OrderDescription")
+                    b.Property<string>("OrderId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OrderId")
+                    b.Property<string>("OrderInfo")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PaymentId")
@@ -712,6 +708,15 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.InformationModel", b =>
+                {
+                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.AppUserModel", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderDetailModel", b =>

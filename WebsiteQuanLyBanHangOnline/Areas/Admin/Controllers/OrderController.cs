@@ -85,7 +85,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> PaymentMoMo(string orderId)
+        public async Task<IActionResult> PaymentMoMoOrder(string orderId)
         {
             if (string.IsNullOrWhiteSpace(orderId))
                 return BadRequest("Order ID Is Required.");
@@ -99,7 +99,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> PaymentVnPay(string orderId)
+        public async Task<IActionResult> PaymentVnPayOrder(string orderId)
         {
             if (string.IsNullOrWhiteSpace(orderId))
                 return BadRequest("Order ID Is Required.");

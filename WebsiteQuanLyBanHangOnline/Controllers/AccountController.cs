@@ -13,8 +13,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 {
     public class AccountController : BaseController
     {
-        private UserManager<AppUserModel> _userManager;
-        private SignInManager<AppUserModel> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly DataContext _dataContext;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -22,8 +20,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
         public AccountController(UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, IEmailSender emailSender, DataContext dataContext, RoleManager<IdentityRole> roleManager) : base(userManager, signInManager)
         {           
-            _userManager = userManager;
-            _signInManager = signInManager;
             _emailSender = emailSender;
             _dataContext = dataContext;
             _roleManager = roleManager;
@@ -116,7 +112,8 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             await _userManager.SetTwoFactorEnabledAsync(user, true);
             TempData["success"] = "Two-Step Authentication Enabled.";
 
-            await _signInManager.SignInAsync(user, isPersistent: false);
+            await _signInManager.SignOutAsync();
+            HttpContext.Session.Clear();
 
             return RedirectToAction("Index", "Home");
         }
@@ -214,7 +211,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
                 HttpContext.Session.SetString("IsAdmin", isAdmin ? "true" : "false");
 
-                TempData["success"] = "Two-Step Verification Successful";
+                TempData["success"] = "Account Login Successful!!!";
                 return RedirectToAction("Index", "Home");
             }
 
