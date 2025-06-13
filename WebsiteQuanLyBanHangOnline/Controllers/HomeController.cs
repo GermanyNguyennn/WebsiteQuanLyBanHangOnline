@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebsiteQuanLyBanHangOnline.Models;
+using WebsiteQuanLyBanHangOnline.Models.ViewModels;
 using WebsiteQuanLyBanHangOnline.Repository;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -17,8 +18,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             _logger = logger;
             _dataContext = context;
         }
-
-
         public async Task<IActionResult> Index(string sort_by = "", string startprice = "", string endprice = "")
         {
             var query = _dataContext.Products

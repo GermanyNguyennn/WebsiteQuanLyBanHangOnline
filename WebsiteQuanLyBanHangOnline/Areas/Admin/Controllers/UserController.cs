@@ -73,7 +73,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
                         }
                     }
 
-                    TempData["Success"] = "User Added Successfully!";
+                    TempData["success"] = "User Added Successfully!!!";
                     return RedirectToAction("Index");
                 }
 
@@ -126,7 +126,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                 {
-                    TempData["Success"] = "User Updated Successfully!";
+                    TempData["success"] = "User Updated Successfully!!!";
                     return RedirectToAction("Index");
                 }
 
@@ -149,7 +149,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var deleteResult = await _userManager.DeleteAsync(user);
             if (!deleteResult.Succeeded) return View("Error");
 
-            TempData["Success"] = "User Deleted Successfully!!!";
+            TempData["success"] = "User Deleted Successfully!!!";
             return RedirectToAction("Index");
         }
     }

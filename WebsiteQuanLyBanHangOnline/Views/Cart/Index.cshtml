@@ -19,8 +19,27 @@
 				<li class="active">Shopping Cart</li>
 			</ol>
 		</div>
+
 		@if (Model.Cart.Count > 0)
 		{
+			<h5><i class="fa fa-map-marker"></i> Shipping Address</h5>
+			<div class="form-group">
+				<label for="Address">Street Address</label>
+				<input type="text" class="form-control" id="Address" name="Information.Address" value="@Model.Information?.Address" readonly>
+			</div>
+			<div class="form-group">
+				<label for="Ward">Ward</label>
+				<input type="text" class="form-control" id="Ward" name="Information.Ward" value="@Model.Information?.Ward" readonly>
+			</div>
+			<div class="form-group">
+				<label for="District">District</label>
+				<input type="text" class="form-control" id="District" name="Information.District" value="@Model.Information?.District" readonly>
+			</div>
+			<div class="form-group">
+				<label for="City">City</label>
+				<input type="text" class="form-control" id="City" name="Information.City" value="@Model.Information?.City" readonly>
+			</div>
+
 			<div class="table-responsive cart_info">
 				<table class="table table-condensed">
 					<thead>
@@ -64,32 +83,7 @@
 							</tr>
 						}
 
-						<tr>
-							@* <td>						 *@
-							@* 	<div class="form-group"> *@
-							@* 		<label>Tỉnh / Thành Phố:</label> *@
-							@* 		<select class="css_select" id="tinh" name="tinh" title="Chọn Tỉnh / Thành"> *@
-							@* 			<option value="0">Tỉnh Thành</option> *@
-							@* 		</select> *@
-							@* 	</div> *@
-
-							@* 	<div class="form-group"> *@
-							@* 		<label>Quận / Huyện:</label> *@
-							@* 		<select class="css_select" id="quan" name="quan" title="Chọn Quận / Huyện"> *@
-							@* 			<option value="0">Quận Huyện</option> *@
-							@* 		</select> *@
-							@* 	</div> *@
-
-							@* 	<div class="form-group"> *@
-							@* 		<label>Phường / Xã:</label> *@
-							@* 		<select class="css_select" id="phuong" name="phuong" title="Chọn Phường / Xã"> *@
-							@* 			<option value="0">Phường Xã</option> *@
-							@* 		</select> *@
-							@* 	</div> *@
-
-							@* 	<a class="btn btn-primary btn-add-shipping">Charge Shipping Fee</a> *@
-							@* 	<h5 class="">@Model.ShippingPrice.ToString("#,##0 VNĐ")</h5> *@
-							@* </td> *@
+						<tr>							
 							<td colspan="6"></td>
 							<td>
 								Grand Total: <h5 class="">@Model.GrandTotal.ToString("#,##0 VNĐ")</h5>
@@ -115,17 +109,9 @@
 
 									<button class="btn btn-primary btn-sm" type="submit">Pay With VnPay</button>
 								</form>
-								@* <a class="btn btn-primary" onclick="handleCheckout(@Model.ShippingPrice)">Pay With Cash</a> *@
 								<a class="btn btn-primary btn-sm" asp-action="Checkout" asp-controller="Checkout">Pay With Cash</a>
 							</td>
-						</tr>
-						@* <tr> *@
-						@* 	<td colspan="7"></td> *@
-						@* 	<td> *@
-						@* 		<a class="btn btn-primary" onclick="handleCheckout(@Model.ShippingPrice)">Checkout</a> *@
-						@* 	</td> *@
-						@* </tr> *@
-
+						</tr>						
 					</tbody>
 				</table>
 			</div>
@@ -136,85 +122,8 @@
 		}
 	</div>
 </section> <!--/#cart_items-->
-
 @section Scripts {
-
-	@* <script> *@
-	@* 	function handleCheckout(shippingPrice) { *@
-	@* 		if (shippingPrice <= 0) { *@
-	@* 			Swal.fire({ *@
-	@* 				icon: 'warning', *@
-	@* 				title: 'Can Not Checkout', *@
-	@* 				text: 'You Do Not Charge Shipping!!!' *@
-	@* 				}); *@
-	@* 		} else { *@
-	@* 			window.location.href = '/Checkout/Checkout'; *@
-	@* 		} *@
-	@* 	} *@
-	@* </script> *@
-
-	<script>
-		$(document).ready(function() {
-				$(".btn-add-shipping").click(function () {
-				var tinh = $("#tinh").val();
-				var quan = $("#quan").val();
-				var phuong = $("#phuong").val();
-
-				if (tinh === "0" || quan === "0" || phuong === "0") {
-					Swal.fire({
-						icon: 'warning',
-						title: 'Missing Address Info',
-						text: 'Please Select All fields: Province, District, and Ward!!!'
-					});
-				} else {
-					$.ajax({
-						type: "POST",
-						url: "@Url.Action("AddShipping", "Cart")",
-						data: { tinh: $("#tinh option:selected").text(), quan: $("#quan option:selected").text(), phuong: $("#phuong option:selected").text() },
-						success: function (result) {
-							if (result) {
-								location.reload();
-							}
-						}
-					});
-				}
-			});
-		
-			//Lấy tỉnh thành
-			$.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm',function(data_tinh) {
-				if(data_tinh.error==0){
-					$.each(data_tinh.data, function (key_tinh,val_tinh) {
-						$("#tinh").append('<option value="'+val_tinh.id+'">'+val_tinh.full_name+'</option>');
-					});
-					$("#tinh").change(function(e){
-						var idtinh=$(this).val();
-						//Lấy quận huyện
-						$.getJSON('https://esgoo.net/api-tinhthanh/2/'+idtinh+'.htm',function(data_quan) {
-							if(data_quan.error==0){
-								$("#quan").html('<option value="0">Quận Huyện</option>');
-								$("#phuong").html('<option value="0">Phường Xã</option>');
-								$.each(data_quan.data, function (key_quan,val_quan) {
-									$("#quan").append('<option value="'+val_quan.id+'">'+val_quan.full_name+'</option>');
-								});
-								//Lấy phường xã
-								$("#quan").change(function(e){
-									var idquan=$(this).val();
-									$.getJSON('https://esgoo.net/api-tinhthanh/3/'+idquan+'.htm',function(data_phuong){
-										if(data_phuong.error==0){
-											$("#phuong").html('<option value="0">Phường Xã</option>');
-											$.each(data_phuong.data, function (key_phuong,val_phuong) {
-												$("#phuong").append('<option value="'+val_phuong.id+'">'+val_phuong.full_name+'</option>');
-											});
-										}
-									});
-								});
-
-							}
-						});
-					});
-
-				}
-			});
-		});
-	</script>
-}
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}	
+}   

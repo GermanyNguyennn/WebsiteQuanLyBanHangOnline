@@ -55,14 +55,14 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                TempData["Error"] = "Models Have Some Problems!!!";
+                TempData["error"] = "Models Have Some Problems!!!";
                 return BadRequest(string.Join("\n", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
             }
 
             productModel.Slug = productModel.Name.Replace(" ", "-");
             if (await _dataContext.Products.AnyAsync(p => p.Slug == productModel.Slug))
             {
-                ModelState.AddModelError("", "Product Has In Database!!!");
+                TempData["error"] = "Product Has In Database!!!";
                 return View(productModel);
             }
 
@@ -82,7 +82,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
             _dataContext.Add(productModel);
             await _dataContext.SaveChangesAsync();
-            TempData["Success"] = "Product Added Successfully!!!";
+            TempData["success"] = "Product Added Successfully!!!";
             return RedirectToAction("Index");
         }
 
@@ -109,7 +109,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                TempData["Error"] = "Models Have Some Problems!!!";
+                TempData["error"] = "Models Have Some Problems!!!";
                 return BadRequest(string.Join("\n", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
             }
 
@@ -129,7 +129,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", "Unable To Delete Image!!! " + ex.Message);
+                    ModelState.AddModelError("", "Unable To Edit Image!!! " + ex.Message);
                     return View(productModel);
                 }
 
@@ -150,7 +150,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             _dataContext.Update(existingProduct);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Product Updated Successfully!!!";
+            TempData["success"] = "Product Updated Successfully!!!";
             return RedirectToAction("Index");
         }
 
@@ -167,15 +167,15 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
                 if (System.IO.File.Exists(filePath))
                     System.IO.File.Delete(filePath);
             }
-            catch
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", "Unable To Delete Image!!!");
+                ModelState.AddModelError("", "Unable To Delete Image!!! " + ex.Message);
             }
 
             _dataContext.Products.Remove(productModel);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Product Deleted Successfully!!!";
+            TempData["success"] = "Product Deleted Successfully!!!";
             return RedirectToAction("Index");
         }
 
@@ -203,7 +203,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             _dataContext.Add(productQuantityModel);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Quantity Updated Successfully!!!";
+            TempData["success"] = "Quantity Updated Successfully!!!";
             return RedirectToAction("AddQuantity", new { Id = productQuantityModel.ProductId });
         }
     }

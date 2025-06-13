@@ -47,7 +47,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["Error"] = "Model Validation Failed.";
+                TempData["error"] = "Model Validation Failed.";
                 return View(categoryModel);
             }
 
@@ -58,14 +58,14 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
             if (slugExists)
             {
-                ModelState.AddModelError("", "Category Already Exists.");
+                TempData["error"] = "Category Already Exists.";
                 return View(categoryModel);
             }
 
             _dataContext.Add(categoryModel);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Category Added Successfully.";
+            TempData["success"] = "Category Added Successfully!!!";
             return RedirectToAction("Index");
         }
 
@@ -75,7 +75,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var categoryModel = await _dataContext.Categories.FindAsync(Id);
             if (categoryModel == null)
             {
-                TempData["Error"] = "Category Not Found.";
+                TempData["error"] = "Category Not Found.";
                 return RedirectToAction("Index");
             }
 
@@ -88,7 +88,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["Error"] = "Model Validation Failed.";
+                TempData["error"] = "Model Validation Failed.";
                 return View(categoryModel);
             }
 
@@ -97,7 +97,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             _dataContext.Update(categoryModel);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Category Updated Successfully.";
+            TempData["success"] = "Category Updated Successfully!!!";
             return RedirectToAction("Index");
         }
 
@@ -106,14 +106,14 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var categoryModel = await _dataContext.Categories.FindAsync(Id);
             if (categoryModel == null)
             {
-                TempData["Error"] = "Category Not Found.";
+                TempData["error"] = "Category Not Found.";
                 return RedirectToAction("Index");
             }
 
             _dataContext.Categories.Remove(categoryModel);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Category Deleted Successfully.";
+            TempData["success"] = "Category Deleted Successfully!!!";
             return RedirectToAction("Index");
         }
     }

@@ -20,7 +20,7 @@ namespace WebsiteQuanLyBanHangOnline.Repository
         public DbSet<CompareModel> Compares { get; set; }
         public DbSet<WishlistModel> Wishlists { get; set; }
         public DbSet<ProductQuantityModel> ProductQuantities { get; set; }
-        public DbSet<ShippingModel> Shippings { get; set; }
+        public DbSet<InformationModel> Information { get; set; }
         public DbSet<CouponModel> Coupons { get; set; }
         public DbSet<StatisticalModel> Statisticals { get; set; }
         public DbSet<MoMoModel> MoMos { get; set; }

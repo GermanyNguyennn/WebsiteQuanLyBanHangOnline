@@ -61,7 +61,8 @@
 
 								@if (User.Identity?.IsAuthenticated ?? false)
 								{
-									if (is2FACompleted)
+									// Nếu là Admin thì bắt buộc phải hoàn thành 2FA
+									if (!isAdmin || (isAdmin && is2FACompleted))
 									{
 										if (isAdmin)
 										{
@@ -79,6 +80,7 @@
 								{
 									<li><a asp-controller="Account" asp-action="Login"><i class="fa fa-lock"></i>Login</a></li>
 								}
+
 							</ul>
 						</div>
 					</div>

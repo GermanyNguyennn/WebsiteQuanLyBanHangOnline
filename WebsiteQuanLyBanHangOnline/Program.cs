@@ -6,6 +6,7 @@ using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Models.MoMo;
 using WebsiteQuanLyBanHangOnline.Repository;
 using WebsiteQuanLyBanHangOnline.Services.Email;
+using WebsiteQuanLyBanHangOnline.Services.Location;
 using WebsiteQuanLyBanHangOnline.Services.MoMo;
 using WebsiteQuanLyBanHangOnline.Services.VnPay;
 
@@ -17,6 +18,8 @@ builder.Services.AddScoped<IMoMoService, MoMoService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+builder.Services.AddHttpClient<ILocationService, LocationService>();
 
 builder.Services.AddDbContext<DataContext>(options =>
 {

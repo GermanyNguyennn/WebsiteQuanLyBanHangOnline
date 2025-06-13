@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Models.ViewModels;
 using WebsiteQuanLyBanHangOnline.Repository;
+using WebsiteQuanLyBanHangOnline.Services.Location;
 
 namespace WebsiteQuanLyBanHangOnline.Controllers
 {
@@ -12,30 +14,46 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
     public class CartController : Controller
     {
         private readonly DataContext _dataContext;
-        public CartController(DataContext context)
+        private readonly UserManager<AppUserModel> _userManager;
+        private readonly ILocationService _locationService;
+        public CartController(DataContext context, UserManager<AppUserModel> userManager, ILocationService locationService)
         {
             _dataContext = context;
+            _userManager = userManager;
+            _locationService = locationService;
         }
-        
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {
-            List<CartModel> cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new List<CartModel>();
+            var userId = _userManager.GetUserId(User);
 
-            var shippingPriceCookie = Request.Cookies["ShippingPrice"];
-            decimal shippingPrice = 0;
+            var cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new();
 
-            if (shippingPriceCookie != null)
+            var info = await _dataContext.Information.FirstOrDefaultAsync(x => x.UserId == userId);
+
+            string cityName = "", districtName = "", wardName = "";
+
+            if (info != null)
             {
-                shippingPrice = JsonConvert.DeserializeObject<decimal>(shippingPriceCookie);
-                Response.Cookies.Delete("ShippingPrice");
+                cityName = await _locationService.GetCityNameById(info.City);
+                districtName = await _locationService.GetDistrictNameById(info.City, info.District);
+                wardName = await _locationService.GetWardNameById(info.District, info.Ward);
             }
-            CartViewModel cartViewModel = new()
+
+            var viewModel = new CartViewModel
             {
                 Cart = cart,
-                GrandTotal = cart.Sum(x => x.Quantity * x.Price) + shippingPrice,
-                ShippingPrice = shippingPrice
+                GrandTotal = cart.Sum(x => x.Quantity * x.Price),
+                Information = new InformationViewModel
+                {
+                    Address = info?.Address ?? "",
+                    City = cityName,
+                    District = districtName,
+                    Ward = wardName
+                }
             };
-            return View(cartViewModel);
+
+            return View(viewModel);
         }
 
         public IActionResult Checkout()
@@ -57,7 +75,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 cartModel.Quantity += 1;
 
             HttpContext.Session.SetJson("Cart", cart);
-            TempData["success"] = "Add To Cart Success!";
+            TempData["success"] = "Add To Cart Success!!!";
             return Redirect(Request.Headers["Referer"].ToString());
         }
 
@@ -135,38 +153,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             HttpContext.Session.Remove("Cart");
             return RedirectToAction("Index");
-        }
-
-
-        [HttpPost]
-        public async Task<IActionResult> AddShipping(ShippingModel shippingModel, string tinh, string quan, string phuong)
-        {
-            if (string.IsNullOrEmpty(tinh) || string.IsNullOrEmpty(quan) || string.IsNullOrEmpty(phuong))
-                return BadRequest("Địa chỉ không hợp lệ.");
-
-            var shipping = await _dataContext.Shippings
-                .FirstOrDefaultAsync(x => x.City == tinh && x.District == quan && x.Ward == phuong);
-
-            decimal shippingPrice = shipping?.Price ?? 50000;
-
-            var shippingPriceJson = JsonConvert.SerializeObject(shippingPrice);
-            try
-            {
-                var cookieOptions = new CookieOptions
-                {
-                    HttpOnly = true,
-                    Expires = DateTimeOffset.UtcNow.AddMinutes(30),
-                    Secure = false // nếu đang test local; khi lên production thì đặt true
-                };
-
-                Response.Cookies.Append("ShippingPrice", shippingPriceJson, cookieOptions);
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
-
-            return Json(new { shippingPrice });
-        }
+        }        
     }
 }

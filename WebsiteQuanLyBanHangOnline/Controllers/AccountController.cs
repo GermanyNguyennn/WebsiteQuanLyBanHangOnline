@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web;
 using WebsiteQuanLyBanHangOnline.Areas.Admin.Repository;
 using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Models.ViewModels;
@@ -41,7 +42,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             {
                 var userId = TempData["UserId"].ToString();
                 user = await _userManager.FindByIdAsync(userId);
-                TempData.Keep("UserId"); // Giữ lại nếu cần dùng tiếp
+                TempData.Keep("UserId");
             }
             else
             {
@@ -108,14 +109,13 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
                 ViewBag.QrCodeUrl = qrCodeUrl;
                 ViewBag.Key = authenticatorKey;
-                ModelState.AddModelError("", "Mã xác thực không hợp lệ.");
+                TempData["error"] = "Invalid Verification Code.";
                 return View();
             }
 
             await _userManager.SetTwoFactorEnabledAsync(user, true);
-            TempData["Success"] = "Đã bật xác thực hai bước.";
+            TempData["success"] = "Two-Step Authentication Enabled.";
 
-            // Sau khi bật 2FA → tự đăng nhập lại nếu cần
             await _signInManager.SignInAsync(user, isPersistent: false);
 
             return RedirectToAction("Index", "Home");
@@ -143,7 +143,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 var user = await _userManager.FindByNameAsync(loginViewModel.UserName);
                 if (user == null)
                 {
-                    ModelState.AddModelError("", "Account Does Not Exist!!!");
+                    TempData["error"] = "Account Does Not Exist!!!";
                     return View(loginViewModel);
                 }
 
@@ -151,14 +151,12 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
                 if (signInResult.RequiresTwoFactor)
                 {
-                    // Lưu user ID tạm nếu cần sau đó
                     TempData["UserId"] = user.Id;
                     return RedirectToAction("Verify2FA");
                 }
 
                 if (signInResult.Succeeded)
                 {
-                    // Nếu là admin và chưa bật 2FA, chuyển sang Enable2FA
                     var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
                     var has2FA = await _userManager.GetTwoFactorEnabledAsync(user);
 
@@ -168,11 +166,11 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                         return RedirectToAction("Enable2FA", "Account");
                     }
 
-                    TempData["Success"] = "Login Account Successfully!!!";
+                    TempData["success"] = "Account Login Successful!!!";
                     return Redirect(loginViewModel.ReturnURL ?? "/");
                 }
 
-                ModelState.AddModelError("", "Unable To Login!!!");
+                TempData["error"] = "Account Login Failed!!!";
             }
 
             return View(loginViewModel);
@@ -196,7 +194,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             if (string.IsNullOrWhiteSpace(verificationCode))
             {
-                ModelState.AddModelError("", "Vui lòng nhập mã xác thực.");
+                TempData["error"] = "Please Enter Verification Code";
                 return View();
             }
 
@@ -211,14 +209,12 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             if (result.Succeeded)
             {
-                // Lưu trạng thái đã xác thực 2FA vào session
                 HttpContext.Session.SetString("Is2FACompleted", "true");
 
-                // Nếu cần kiểm tra role admin
                 var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
                 HttpContext.Session.SetString("IsAdmin", isAdmin ? "true" : "false");
 
-                TempData["Success"] = "Xác thực hai bước thành công!";
+                TempData["success"] = "Two-Step Verification Successful";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -227,27 +223,9 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 return RedirectToAction("Lockout", "Account");
             }
 
-            ModelState.AddModelError("", "Mã xác thực không hợp lệ.");
+            TempData["error"] = "Invalid Verification Code.";
             return View();
         }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Login(LoginViewModel loginViewModel)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        Microsoft.AspNetCore.Identity.SignInResult signInResult = await _signInManager.PasswordSignInAsync(loginViewModel.UserName, loginViewModel.Password, false, false);
-        //        if (signInResult.Succeeded)
-        //        {
-        //            TempData["Success"] = "Login Account Successfully!!!";
-        //            return Redirect(loginViewModel.ReturnURL ?? "/");
-        //        }
-        //        ModelState.AddModelError("", "Unable To Login!!!");
-        //    }
-        //    return View(loginViewModel);
-        //}
-
 
         [HttpGet]
         public IActionResult Add()
@@ -275,11 +253,11 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                     var result = await _userManager.AddToRoleAsync(appUserModel, "Customer");
                     if (result.Succeeded)
                     {
-                        TempData["success"] = "Create Account Successfully!!!";
+                        TempData["success"] = "Account Created Successfully!!!";
                     }    
                     else
                     {
-                        TempData["error"] = "Create Account Failed!!!";
+                        TempData["error"] = "Account Creation Failed!!!";
                     }
                     return RedirectToAction("Login");
                 }
@@ -295,7 +273,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             await _signInManager.SignOutAsync();
 
-            // XÓA TOÀN BỘ SESSION sau khi đăng xuất
             HttpContext.Session.Clear();
 
             return Redirect(returnURL);
@@ -323,133 +300,173 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
         public async Task<IActionResult> View(string orderCode)
         {
-            var orderDetail = await _dataContext.OrderDetails.Include(c => c.Product).Where(c => c.OrderCode == orderCode).ToListAsync();
-            return View(orderDetail);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SendMailForgotPassword(AppUserModel appUserModel)
-        {
-            var checkMail = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == appUserModel.Email);
-
-            if (checkMail == null)
-            {
-                TempData["error"] = "Email Not Found";
-                return RedirectToAction("ForgotPassword", "Account");
-            }
-            else
-            {
-                string token = Guid.NewGuid().ToString();
-                checkMail.Token = token;
-                _dataContext.Update(checkMail);
-                await _dataContext.SaveChangesAsync();
-                var receiver = checkMail.Email;
-                var subject = "Change password for user " + checkMail.Email;
-                var message = "Click on link to recover password " + "<a href='" + $"{Request.Scheme}://{Request.Host}/Account/NewPassword?email=" + checkMail.Email + "&token=" + token + "'>";
-
-                await _emailSender.SendEmailAsync(receiver, subject, message);
-            }
-
-            TempData["success"] = "An email has been sent to your registered email address with password reset instructions.";
-            return RedirectToAction("ForgotPassword", "Account");
-        }
-        public IActionResult ForgotPassword()
-        {
-            return View();
-        }
-        public async Task<IActionResult> NewPassword(AppUserModel appUserModel, string token)
-        {
-            var checkuser = await _userManager.Users.Where(u => u.Email == appUserModel.Email).Where(u => u.Token == appUserModel.Token).FirstOrDefaultAsync();
-
-            if (checkuser != null)
-            {
-                ViewBag.Email = checkuser.Email;
-                ViewBag.Token = token;
-            }
-            else
-            {
-                TempData["error"] = "Email Not Found Or Token Not True";
-                return RedirectToAction("ForgotPassword", "Account");
-            }
-            return View();
-        }
-        public async Task<IActionResult> UpdateNewPassword(AppUserModel appUserModel, string token)
-        {
-            var checkuser = await _userManager.Users.Where(u => u.Email == appUserModel.Email).Where(u => u.Token == appUserModel.Token).FirstOrDefaultAsync();
-
-            if (checkuser != null)
-            {
-                string newtoken = Guid.NewGuid().ToString();
-                var passwordHasher = new PasswordHasher<AppUserModel>();
-                var passwordHash = passwordHasher.HashPassword(checkuser, appUserModel.PasswordHash);
-
-                checkuser.PasswordHash = passwordHash;
-                checkuser.Token = newtoken;
-
-                var result = await _userManager.UpdateAsync(checkuser);
-                if (result.Succeeded)
-                {
-                    TempData["success"] = "Update Password Successfully!!!";
-                }
-                else
-                {
-                    TempData["error"] = "Update Password Failed!!!";
-                }    
-                return RedirectToAction("Login", "Account");
-            }
-            else
-            {
-                TempData["error"] = "Email Not Found Or Token Not True";
-                return RedirectToAction("ForgotPassword", "Account");
-            }
-            return View();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> InformationAsync()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userById = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (userById == null)
+            if (string.IsNullOrWhiteSpace(orderCode))
             {
                 return NotFound();
             }
 
-            var model = new AppUserModel
+            var orderDetails = await _dataContext.OrderDetails
+                .Include(od => od.Product)
+                .Where(od => od.OrderCode == orderCode)
+                .ToListAsync();
+
+            if (!orderDetails.Any())
             {
-                Id = userById.Id,
-                UserName = userById.UserName,
-                Email = userById.Email,
-                PhoneNumber = userById.PhoneNumber
+                return NotFound();
+            }
+
+            return View(orderDetails);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> SendMailForgotPassword(AppUserModel appUserModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await View("ForgotPassword");
+            }
+
+            var user = await _userManager.FindByEmailAsync(appUserModel.Email);
+            if (user == null)
+            {
+                TempData["error"] = "Email Not Found!!!";
+                return RedirectToAction("ForgotPassword");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var url = Url.Action("NewPassword", "Account", new
+            {
+                email = user.Email,
+                token = HttpUtility.UrlEncode(token)
+            }, Request.Scheme);
+
+            var message = $"Click <a href='{url}'>Here</a> To Reset Your Password.";
+
+            await _emailSender.SendEmailAsync(user.Email, "Reset Your Password", message);
+
+            TempData["success"] = "Password Reset Email Sent!";
+            return RedirectToAction("ForgotPassword");
+        }
+
+
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+        
+        public IActionResult NewPassword(string email, string token)
+        {
+            var model = new ResetPasswordViewModel
+            {
+                Email = email,
+                Token = HttpUtility.UrlDecode(token)
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateNewPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("NewPassword", model);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                TempData["error"] = "Email Not Found!!!";
+                return RedirectToAction("ForgotPassword");
+            }
+
+            var decodedToken = HttpUtility.UrlDecode(model.Token);
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
+
+            if (result.Succeeded)
+            {
+                TempData["success"] = "Password Updated successfully!!!";
+                return RedirectToAction("Login");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View("NewPassword", model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Information()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User Not Found!!!");
+            }
+
+            var shipping = await _dataContext.Information.FirstOrDefaultAsync(s => s.UserId == userId);
+
+            var model = new InformationViewModel
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Address = shipping?.Address,
+                City = shipping?.City,
+                District = shipping?.District,
+                Ward = shipping?.Ward
             };
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Information(AppUserModel appUserModel)
+        public async Task<IActionResult> Information(InformationViewModel model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userById = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
 
-            if (userById == null)
+            if (user == null) return NotFound();
+
+            user.Email = model.Email;
+            user.PhoneNumber = model.PhoneNumber;
+            await _userManager.UpdateAsync(user);
+
+            var information = await _dataContext.Information.FirstOrDefaultAsync(s => s.UserId == userId);
+            if (information == null)
             {
-                return NotFound();
-            }
-
-            userById.Email = appUserModel.Email;
-            userById.PhoneNumber = appUserModel.PhoneNumber;
-
-            var result = await _userManager.UpdateAsync(userById);
-            if (result.Succeeded)
-            {
-                TempData["success"] = "Update Information Successfully!!!";
+                information = new InformationModel
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    UserId = userId,
+                    Address = model.Address,
+                    Ward = model.Ward,
+                    District = model.District,
+                    City = model.City
+                };
+                _dataContext.Information.Add(information);
             }
             else
             {
-                TempData["error"] = "Update Information Failed!!!";
+                information.Address = model.Address;
+                information.Ward = model.Ward;
+                information.District = model.District;
+                information.City = model.City;
+                _dataContext.Information.Update(information);
             }
 
+            await _dataContext.SaveChangesAsync();
+            TempData["success"] = "Update Information Successfully!!!";
             return RedirectToAction("Information", "Account");
         }
     }

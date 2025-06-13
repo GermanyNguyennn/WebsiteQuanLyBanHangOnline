@@ -64,7 +64,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 var product = await _dataContext.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId);
                 if (product == null || product.Quantity < item.Quantity)
                 {
-                    TempData["Error"] = $"Product with ID {item.ProductId} is not available in requested quantity.";
+                    TempData["error"] = $"Product with ID {item.ProductId} Is Not Available in Requested Quantity.";
                     return RedirectToAction("Index", "Cart");
                 }
 
@@ -119,10 +119,9 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 await _emailSender.SendEmailAsync(admin.Email, "New Order Received", adminEmailHtml);
             }
 
-            TempData["Success"] = "Checkout Successfully!!!";
+            TempData["success"] = "Checkout Successful!!!";
             return RedirectToAction("Index", "Home");
         }
-
 
 
         [HttpGet]
@@ -190,6 +189,5 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             return View(response);
         }
-
     }
 }

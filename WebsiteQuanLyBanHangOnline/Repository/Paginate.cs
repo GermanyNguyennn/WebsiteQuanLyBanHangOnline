@@ -1,4 +1,4 @@
-﻿namespace WebsiteQuanLyBanHangOnline.Models
+﻿namespace WebsiteQuanLyBanHangOnline.Repository
 {
     public class Paginate
     {
@@ -26,7 +26,7 @@
 
             if (startPage < 1)
             {
-                endPage += (1 - startPage);
+                endPage += 1 - startPage;
                 startPage = 1;
             }
 

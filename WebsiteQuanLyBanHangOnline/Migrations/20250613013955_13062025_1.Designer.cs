@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebsiteQuanLyBanHangOnline.Repository;
 
@@ -11,9 +12,11 @@ using WebsiteQuanLyBanHangOnline.Repository;
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250613013955_13062025_1")]
+    partial class _13062025_1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -200,6 +203,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -358,33 +364,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.ToTable("Coupons");
                 });
 
-            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.InformationModel", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("District")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Ward")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Information");
-                });
-
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.MoMoModel", b =>
                 {
                     b.Property<int>("Id")
@@ -538,6 +517,33 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductQuantities");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ShippingModel", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("District")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Ward")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Shippings");
                 });
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.SliderModel", b =>
@@ -707,15 +713,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.InformationModel", b =>
-                {
-                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.AppUserModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderDetailModel", b =>
                 {
                     b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
@@ -755,6 +752,15 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ShippingModel", b =>
+                {
+                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.AppUserModel", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.WishlistModel", b =>

@@ -35,7 +35,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         {
             if (string.IsNullOrWhiteSpace(model?.Name))
             {
-                ModelState.AddModelError("", "Role Name Is Required.");
+                TempData["success"] = "Role Name Is Required!!!";
                 return View(model);
             }
 
@@ -44,7 +44,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
                 var result = await _roleManager.CreateAsync(new IdentityRole(model.Name));
                 if (result.Succeeded)
                 {
-                    TempData["Success"] = "Role Added Successfully!";
+                    TempData["success"] = "Role Added Successfully!!!";
                     return RedirectToAction("Index");
                 }
                 foreach (var error in result.Errors)
@@ -54,7 +54,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             }
             else
             {
-                ModelState.AddModelError("", "Role Already Exists.");
+                TempData["error"] = "Role Already Exists!!!";
             }
 
             return View(model);
@@ -85,7 +85,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var result = await _roleManager.UpdateAsync(role);
             if (result.Succeeded)
             {
-                TempData["Success"] = "Role Updated Successfully!";
+                TempData["success"] = "Role Updated Successfully!!!";
                 return RedirectToAction("Index");
             }
 
@@ -108,11 +108,11 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var result = await _roleManager.DeleteAsync(role);
             if (result.Succeeded)
             {
-                TempData["Success"] = "Role Deleted Successfully!";
+                TempData["success"] = "Role Deleted Successfully!!!";
             }
             else
             {
-                TempData["Error"] = "Unable To Delete Role!";
+                TempData["error"] = "Unable To Delete Role!";
             }
 
             return RedirectToAction("Index");

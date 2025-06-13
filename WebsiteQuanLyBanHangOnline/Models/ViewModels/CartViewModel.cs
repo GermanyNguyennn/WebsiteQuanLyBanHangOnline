@@ -4,6 +4,6 @@
     {
         public List<CartModel> Cart { get; set; }
         public decimal GrandTotal { get; set; }
-        public decimal ShippingPrice { get; set; }
+        public InformationViewModel Information { get; set; } = new();
     }
 }

@@ -30,11 +30,11 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             {
                 _dataContext.Add(couponModel);
                 await _dataContext.SaveChangesAsync();
-                TempData["Success"] = "Coupon Added Successfully!!!";
+                TempData["success"] = "Coupon Added Successfully!!!";
                 return RedirectToAction("Index");
             }
 
-            TempData["Error"] = "Models Have Some Problems!!!";
+            TempData["error"] = "Models Have Some Problems!!!";
 
             string errorMessage = string.Join("\n",
                 ModelState.Values

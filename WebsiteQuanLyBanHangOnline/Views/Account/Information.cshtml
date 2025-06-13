@@ -1,9 +1,9 @@
-﻿@model AppUserModel
+﻿@model InformationViewModel
 @{
     ViewData["Title"] = "Update Information";
 }
 
-<form asp-action="Information" asp-controller="Account" enctype="multipart/form-data">
+<form asp-action="Information" asp-controller="Account" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -26,6 +26,34 @@
     </div>
 
     <div class="form-group">
+        <label>Tỉnh / Thành Phố:</label>
+        <select class="css_select" id="tinh" name="City" data-selected="@Model.City" title="Chọn Tỉnh / Thành">
+            <option value="">Tỉnh Thành</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Quận / Huyện:</label>
+        <select class="css_select" id="quan" name="District" data-selected="@Model.District" title="Chọn Quận / Huyện">
+            <option value="">Quận Huyện</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Phường / Xã:</label>
+        <select class="css_select" id="phuong" name="Ward" data-selected="@Model.Ward" title="Chọn Phường / Xã">
+            <option value="">Phường Xã</option>
+        </select>
+    </div>
+
+
+    <div class="form-group">
+        <label>Địa Chỉ</label>
+        <input asp-for="Address" required class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
         <button class="btn btn-primary btn-sm">Edit</button>
         <a asp-action="Index" asp-controller="Account" class="btn btn-primary btn-sm">Back</a>
     </div>
@@ -35,4 +63,65 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+                $(document).ready(function () {
+            var selectedTinh = $("#tinh").data("selected");
+            var selectedQuan = $("#quan").data("selected");
+            var selectedPhuong = $("#phuong").data("selected");
+
+            // Lấy tỉnh thành
+            $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm', function (data_tinh) {
+                if (data_tinh.error == 0) {
+                    $.each(data_tinh.data, function (key_tinh, val_tinh) {
+                        var selected = val_tinh.id == selectedTinh ? "selected" : "";
+                        $("#tinh").append('<option value="' + val_tinh.id + '" ' + selected + '>' + val_tinh.full_name + '</option>');
+                    });
+
+                    if (selectedTinh) {
+                        loadQuan(selectedTinh, selectedQuan, selectedPhuong);
+                    }
+
+                    // Khi chọn tỉnh
+                    $("#tinh").change(function () {
+                        var idtinh = $(this).val();
+                        loadQuan(idtinh, null, null);
+                    });
+                }
+            });
+
+            function loadQuan(idtinh, selectedQuanId, selectedPhuongId) {
+                $.getJSON('https://esgoo.net/api-tinhthanh/2/' + idtinh + '.htm', function (data_quan) {
+                    if (data_quan.error == 0) {
+                        $("#quan").html('<option value="">Quận Huyện</option>');
+                        $("#phuong").html('<option value="">Phường Xã</option>');
+                        $.each(data_quan.data, function (key_quan, val_quan) {
+                            var selected = val_quan.id == selectedQuanId ? "selected" : "";
+                            $("#quan").append('<option value="' + val_quan.id + '" ' + selected + '>' + val_quan.full_name + '</option>');
+                        });
+
+                        if (selectedQuanId) {
+                            loadPhuong(selectedQuanId, selectedPhuongId);
+                        }
+
+                        $("#quan").change(function () {
+                            var idquan = $(this).val();
+                            loadPhuong(idquan, null);
+                        });
+                    }
+                });
+            }
+
+            function loadPhuong(idquan, selectedPhuongId) {
+                $.getJSON('https://esgoo.net/api-tinhthanh/3/' + idquan + '.htm', function (data_phuong) {
+                    if (data_phuong.error == 0) {
+                        $("#phuong").html('<option value="">Phường Xã</option>');
+                        $.each(data_phuong.data, function (key_phuong, val_phuong) {
+                            var selected = val_phuong.id == selectedPhuongId ? "selected" : "";
+                            $("#phuong").append('<option value="' + val_phuong.id + '" ' + selected + '>' + val_phuong.full_name + '</option>');
+                        });
+                    }
+                });
+            }
+        });
+    </script>
 }   

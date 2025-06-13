@@ -45,7 +45,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["Error"] = "Model Validation Failed.";
+                TempData["error"] = "Model Validation Failed.";
                 return View(brandModel);
             }
 
@@ -56,14 +56,14 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
             if (slugExists)
             {
-                ModelState.AddModelError("", "Brand Already Exists In Database.");
+                TempData["error"] = "Brand Already Exists In Database.";
                 return View(brandModel);
             }
 
             _dataContext.Add(brandModel);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Brand Added Successfully.";
+            TempData["success"] = "Brand Added Successfully!!!";
             return RedirectToAction("Index");
         }
 
@@ -73,7 +73,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var brandModel = await _dataContext.Brands.FindAsync(Id);
             if (brandModel == null)
             {
-                TempData["Error"] = "Brand Not Found.";
+                TempData["error"] = "Brand Not Found.";
                 return RedirectToAction("Index");
             }
 
@@ -86,7 +86,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["Error"] = "Model Validation Failed.";
+                TempData["error"] = "Model Validation Failed.";
                 return View(brandModel);
             }
 
@@ -95,7 +95,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             _dataContext.Update(brandModel);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Brand Updated Successfully.";
+            TempData["success"] = "Brand Updated Successfully!!!";
             return RedirectToAction("Index");
         }
 
@@ -104,14 +104,14 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var brandModel = await _dataContext.Brands.FindAsync(Id);
             if (brandModel == null)
             {
-                TempData["Error"] = "Brand Not Found.";
+                TempData["error"] = "Brand Not Found.";
                 return RedirectToAction("Index");
             }
 
             _dataContext.Brands.Remove(brandModel);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Brand Deleted Successfully.";
+            TempData["success"] = "Brand Deleted Successfully!!!";
             return RedirectToAction("Index");
         }
     }

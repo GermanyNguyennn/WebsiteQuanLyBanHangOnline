@@ -62,11 +62,11 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
                 _dataContext.Add(sliderModel);
                 await _dataContext.SaveChangesAsync();
-                TempData["Success"] = "Slider Added Successfully!!!";
+                TempData["success"] = "Slider Added Successfully!!!";
                 return RedirectToAction("Index");
             }
 
-            TempData["Error"] = "Models Have Some Problems!!!";
+            TempData["error"] = "Models Have Some Problems!!!";
             return BadRequest(string.Join("\n", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
         }
 
@@ -106,11 +106,11 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
                 _dataContext.Update(slider_existed);
                 await _dataContext.SaveChangesAsync();
-                TempData["Success"] = "Slider Updated Successfully!!!";
+                TempData["success"] = "Slider Updated Successfully!!!";
                 return RedirectToAction("Index");
             }
 
-            TempData["Error"] = "Models Have Some Problems!!!";
+            TempData["error"] = "Models Have Some Problems!!!";
             return BadRequest(string.Join("\n", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
         }
 
@@ -131,7 +131,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
             _dataContext.Sliders.Remove(sliderModel);
             await _dataContext.SaveChangesAsync();
-            TempData["Success"] = "Slider Deleted Successfully!!!";
+            TempData["success"] = "Slider Deleted Successfully!!!";
             return RedirectToAction("Index");
         }
     }

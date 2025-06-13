@@ -44,7 +44,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             _dataContext.Add(contactModel);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Contact Added Successfully!!!";
+            TempData["success"] = "Contact Added Successfully!!!";
             return RedirectToAction("Index");
         }
 
@@ -54,7 +54,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var contact = await _dataContext.Contacts.FirstOrDefaultAsync();
             if (contact == null)
             {
-                TempData["Error"] = "Contact Not Found.";
+                TempData["error"] = "Contact Not Found.";
                 return RedirectToAction("Index");
             }
             return View(contact);
@@ -67,7 +67,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var existedContact = await _dataContext.Contacts.FirstOrDefaultAsync();
             if (existedContact == null)
             {
-                TempData["Error"] = "Contact Not Found.";
+                TempData["error"] = "Contact Not Found.";
                 return RedirectToAction("Index");
             }
 
@@ -86,7 +86,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             _dataContext.Update(existedContact);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Contact Updated Successfully!!!";
+            TempData["success"] = "Contact Updated Successfully!!!";
             return RedirectToAction("Index");
         }
 
@@ -95,7 +95,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var contactModel = await _dataContext.Contacts.FindAsync(Id);
             if (contactModel == null)
             {
-                TempData["Error"] = "Contact Not Found.";
+                TempData["error"] = "Contact Not Found.";
                 return RedirectToAction("Index");
             }
 
@@ -109,7 +109,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             _dataContext.Contacts.Remove(contactModel);
             await _dataContext.SaveChangesAsync();
 
-            TempData["Success"] = "Contact Deleted Successfully!!!";
+            TempData["success"] = "Contact Deleted Successfully!!!";
             return RedirectToAction("Index");
         }
 
@@ -129,7 +129,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
         private IActionResult HandleModelError(ContactModel contactModel)
         {
-            TempData["Error"] = "Models Have Some Problems!!!";
+            TempData["error"] = "Models Have Some Problems!!!";
 
             var errors = ModelState.Values
                                    .SelectMany(v => v.Errors)

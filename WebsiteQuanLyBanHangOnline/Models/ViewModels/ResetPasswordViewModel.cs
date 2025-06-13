@@ -2,13 +2,16 @@
 
 namespace WebsiteQuanLyBanHangOnline.Models.ViewModels
 {
-    public class LoginViewModel
+    public class ResetPasswordViewModel
     {
         [Required]
-        public string UserName { get; set; }
+        public string Email { get; set; }
+
+        [Required]
+        public string Token { get; set; }
+
         [Required]
         [DataType(DataType.Password)]
-        public string Password { get; set; }
-        public string ReturnURL { get; set; }
+        public string NewPassword { get; set; }
     }
 }

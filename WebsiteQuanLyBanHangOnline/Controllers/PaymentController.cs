@@ -27,7 +27,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             if (response == null || string.IsNullOrEmpty(response.PayUrl))
             {
-                TempData["Error"] = "Cannot Pay With MoMo.";
+                TempData["error"] = "Cannot Pay With MoMo.";
                 return RedirectToAction("Cart", "Index");
             }
 
@@ -41,7 +41,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             if (string.IsNullOrEmpty(response))
             {
-                TempData["Error"] = "Cannot Pay With VnPay.";
+                TempData["error"] = "Cannot Pay With VnPay.";
                 return RedirectToAction("Cart", "Index");
             }
 

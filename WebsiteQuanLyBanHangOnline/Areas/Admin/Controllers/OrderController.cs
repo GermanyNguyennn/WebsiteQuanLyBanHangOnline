@@ -76,7 +76,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             try
             {
                 await _dataContext.SaveChangesAsync();
-                return Ok(new { success = true, message = "Status Updated successfully!" });
+                return Ok(new { success = true, message = "Status Updated Successfully!!!" });
             }
             catch (Exception ex)
             {
