@@ -24,6 +24,7 @@
             <th scope="col">Product Image</th>
             @* <th scope="col">Product Description</th> *@
             <th scope="col">Product Price</th>
+            <th scope="col">Product Import Price</th>
             <th scope="col">Product Quantity</th>
             <th scope="col">Quantity</th>
             <th scope="col">Sold</th>
@@ -42,7 +43,8 @@
                 <td><img src="~/media/products/@item.Image" width="70%" height="70%"/></td>
                 @* <td>@Html.Raw(@item.Description)</td> *@
                 <td>@item.Price.ToString("#,##0 VNĐ")</td>
-                <td><a asp-action="AddQuantity" asp-controller="Product" asp-route-Id="@item.Id">Add Quantity</a></td>
+                <td>@item.ImportPrice.ToString("#,##0 VNĐ")</td>
+                <td><a asp-action="AddQuantity" asp-controller="Product" asp-route-Id="@item.Id">Add</a></td>
                 <td>@item.Quantity</td>
                 <td>@item.Sold</td>
                 <td>@item.Slug</td>

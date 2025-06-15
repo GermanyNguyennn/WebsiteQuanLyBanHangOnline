@@ -22,7 +22,6 @@ namespace WebsiteQuanLyBanHangOnline.Repository
         public DbSet<ProductQuantityModel> ProductQuantities { get; set; }
         public DbSet<InformationModel> Information { get; set; }
         public DbSet<CouponModel> Coupons { get; set; }
-        public DbSet<StatisticalModel> Statisticals { get; set; }
         public DbSet<MoMoModel> MoMos { get; set; }
         public DbSet<VnPayModel> VnPays { get; set; }
     }

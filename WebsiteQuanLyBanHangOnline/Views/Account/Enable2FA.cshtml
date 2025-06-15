@@ -2,16 +2,16 @@
     var encodedQrCodeUrl = System.Net.WebUtility.UrlEncode(ViewBag.QrCodeUrl);
 }
 
-<h2>Xác thực hai bước (2FA)</h2>
-<p>Quét mã QR bằng ứng dụng Authenticator:</p>
+<h2>Two-Factor Authentication (2FA)</h2>
+<p>Scan QR Code With Authenticator App:</p>
 
 <img src="https://api.qrserver.com/v1/create-qr-code/?data=@encodedQrCodeUrl&size=200x200" />
 
-<p>Hoặc nhập mã thủ công: <strong>@ViewBag.Key</strong></p>
+<p>Or Enter The Code Manually: <strong>@ViewBag.Key</strong></p>
 
 <form method="post">
-    <label>Nhập mã xác thực</label>
-    <input type="text" name="verificationCode" class="form-control" required />
-    <button type="submit" class="btn btn-primary mt-2">Xác nhận</button>
+    <label>Enter The Authentication Code</label>
+    <input type="text" name="verificationCode" class="form-control" required /><br />
+    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 

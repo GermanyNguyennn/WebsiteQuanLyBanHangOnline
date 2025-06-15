@@ -12,8 +12,8 @@ using WebsiteQuanLyBanHangOnline.Repository;
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250613174845_14062025")]
-    partial class _14062025
+    [Migration("20250614042335_CreatedDatabase")]
+    partial class CreatedDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -53,14 +53,33 @@
 					<div class="col-sm-8">
 						<div class="shop-menu pull-right">
 							<ul class="nav navbar-nav">
+								@{
+									var is2FACompleted = Context.Session.GetString("Is2FACompleted") == "true";
+									var isAdmin = Context.Session.GetString("IsAdmin") == "true";
+								}
+
 								@if (User.Identity?.IsAuthenticated ?? false)
 								{
-									<li><a asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Hi, @User.Identity.Name. Logout</a></li>
+									// Nếu là Admin thì bắt buộc phải hoàn thành 2FA
+									if (!isAdmin || (isAdmin && is2FACompleted))
+									{
+										if (isAdmin)
+										{
+											<li><a asp-area="Admin" asp-controller="Product" asp-action="Index"><i class="fa fa-cogs"></i>Admin Dashboard</a></li>
+										}
+
+										<li><a asp-controller="Account" asp-action="History"><i class="fa fa-user"></i>History</a></li>
+										<li><a asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+										<li><a asp-controller="Account" asp-action="Information"><i class="fa fa-user"></i>Information</a></li>
+									}
+
+									<li><a asp-area="" asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Hi, @User.Identity.Name. Log Out</a></li>
 								}
 								else
 								{
-									<li><a asp-controller="Account" asp-action="Login"><i class="fa fa-lock"></i>Login</a></li>
+									<li><a asp-controller="Account" asp-action="Login"><i class="fa fa-lock"></i>Log In</a></li>
 								}
+
 							</ul>
 						</div>
 					</div>

@@ -14,6 +14,7 @@ namespace WebsiteQuanLyBanHangOnline.Models
         public string Image { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
+        public decimal ImportPrice { get; set; }
         public int Quantity { get; set; }
         public int Sold { get; set; }
         public string Slug { get; set; }

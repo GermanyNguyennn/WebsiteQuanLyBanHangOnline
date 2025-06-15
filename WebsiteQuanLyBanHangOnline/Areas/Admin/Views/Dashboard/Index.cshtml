@@ -1,22 +1,128 @@
-﻿@{
-    ViewData["Title"] = "Dashboard";
-}
-<div class="row">
-    <div class="container-fluid">
-        <div class="col-md-12">
-            <h5>Thống Kê Số Lượng</h5>
-            <ul>
-                <li>Tổng Đơn Hàng : @ViewBag.CountProduct</li>
-                <li>Tổng Sản Phẩm : @ViewBag.CountProduct</li>
-                <li>Tổng Danh Mục Sản Phẩm : @ViewBag.CountCategory</li>
-                <li>Tổng Khách Hàng : @ViewBag.CountUser</li>
-            </ul>
-        </div>        
-    </div>
-</div>
-@section Scripts {
+﻿@model StatisticalFilterModel
+@using System.Text.Json
+@using WebsiteQuanLyBanHangOnline.Models.Statistical
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>    
+@{
+    ViewData["Title"] = "Thống Kê Doanh Thu";
+
+    var productNamesWrapped = Model.Statistics.Select(x =>
+        x.ProductName.Length > 22
+            ? x.ProductName.Chunk(22).Select(c => new string(c)).ToArray()
+            : new string[] { x.ProductName }
+    );
 }
+
+<!-- FORM LỌC THEO NGÀY -->
+<form method="GET" class="row g-2 align-items-center mb-4">
+    <div class="col-auto">
+        <label asp-for="FromDate" class="col-form-label">Từ Ngày:</label>
+    </div>
+    <div class="col-auto">
+        <input asp-for="FromDate" type="date" class="form-control" />
+    </div>
+    <br />
+    <div class="col-auto">
+        <label asp-for="ToDate" class="col-form-label">Đến Ngày:</label>
+    </div>
+    <div class="col-auto">
+        <input asp-for="ToDate" type="date" class="form-control" />
+    </div>
+    <br />
+    <div class="col-auto">
+        <button type="submit" class="btn btn-warning">Lọc</button>
+    </div>
+</form>
+<br />
+
+<!-- BIỂU ĐỒ DOANH THU -->
+<div class="mb-5">
+    <canvas id="revenueChart" height="100"></canvas>
+</div>
+<br />
+
+<!-- BẢNG THỐNG KÊ -->
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Ảnh</th>
+            <th>Sản Phẩm</th>
+            <th>Số Lượng Đã Bán</th>
+            <th>Doanh Thu</th>
+            <th>Giá Vốn</th>
+            <th>Lợi Nhuận</th>
+            <th>Ngày Bán Đầu</th>
+            <th>Ngày Bán Cuối</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Statistics)
+        {
+            <tr>
+                <td><img src="~/media/products/@item.Image" width="50%" height="50%" /></td>
+                <td>@item.ProductName</td>
+                <td>@item.TotalQuantitySold</td>
+                <td>@item.TotalRevenue.ToString("#,##0 VNĐ")</td>
+                <td>@item.TotalCost.ToString("#,##0 VNĐ")</td>
+                <td>@item.TotalProfit.ToString("#,##0 VNĐ")</td>
+                <td>@item.FirstSoldDate.ToString()</td>
+                <td>@item.LastSoldDate.ToString()</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- THƯ VIỆN CHART.JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- SCRIPT VẼ BIỂU ĐỒ -->
+<script>
+    const productNames = @Html.Raw(JsonSerializer.Serialize(productNamesWrapped));
+    const revenues = @Html.Raw(JsonSerializer.Serialize(Model.Statistics.Select(x => x.TotalRevenue)));
+
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    const revenueChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: productNames,
+            datasets: [{
+                label: 'Doanh thu (VNĐ)',
+                data: revenues,
+                backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                borderColor: 'rgba(255, 159, 64, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let value = context.raw || 0;
+                            return value.toLocaleString('vi-VN') + ' VNĐ';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        maxRotation: 0,
+                        minRotation: 0,
+                        align: 'center',
+                        padding: 5
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN') + ' VNĐ';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -236,35 +237,50 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             if (ModelState.IsValid)
             {
-                AppUserModel appUserModel = new AppUserModel { UserName = userModel.UserName, Email = userModel.Email, PhoneNumber = userModel.Phone };
+                // Kiểm tra trước khi tạo user
+                bool roleCustomer = await _roleManager.RoleExistsAsync("Customer");
+                if (!roleCustomer)
+                {
+                    TempData["error"] = "Admin Has Not Added Customer Role!!!";
+                    return View(userModel); // Dừng lại không tạo user
+                }
+
+                // Tạo AppUserModel và lưu vào Identity
+                AppUserModel appUserModel = new AppUserModel
+                {
+                    UserName = userModel.UserName,
+                    Email = userModel.Email,
+                    PhoneNumber = userModel.Phone
+                };
+
                 IdentityResult identityResult = await _userManager.CreateAsync(appUserModel, userModel.Password);
                 if (identityResult.Succeeded)
                 {
-                    bool roleCustomer = await _roleManager.RoleExistsAsync("Customer");
-                    if (!roleCustomer)
-                    {
-                        TempData["error"] = "Admin Has Not Added Customer Role!!!";
-                        return View(userModel);
-                    }                       
-                    
                     var result = await _userManager.AddToRoleAsync(appUserModel, "Customer");
                     if (result.Succeeded)
                     {
                         TempData["success"] = "Account Created Successfully!!!";
-                    }    
+                        return RedirectToAction("Login");
+                    }
                     else
                     {
                         TempData["error"] = "Account Creation Failed!!!";
+                        // Nếu add role thất bại, có thể xóa user để rollback
+                        await _userManager.DeleteAsync(appUserModel);
                     }
-                    return RedirectToAction("Login");
                 }
-                foreach (IdentityError error in identityResult.Errors)
+                else
                 {
-                    ModelState.AddModelError("", error.Description);
-                }   
+                    foreach (IdentityError error in identityResult.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
             }
+
             return View(userModel);
         }
+
 
         public async Task<IActionResult> Logout(string returnURL = "/")
         {

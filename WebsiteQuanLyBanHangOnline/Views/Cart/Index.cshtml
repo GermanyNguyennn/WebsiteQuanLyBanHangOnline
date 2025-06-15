@@ -5,9 +5,9 @@
 }
 
 <style>
-	td {
-		max-width: 250px;
-		vertical-align: middle;
+	th, td {
+		max-width: 250px !important;
+		vertical-align: middle !important;
 	}
 </style>
 
@@ -44,11 +44,11 @@
 				<table class="table table-condensed">
 					<thead>
 						<tr class="cart_menu">
-							<th scope="col" class="image" style="max-width: 250px; vertical-align: middle;">Product Image</th>
-							<th scope="col" class="name" style="max-width: 250px; vertical-align: middle;">Product Name</th>
-							<th scope="col" class="price" style="max-width: 250px; vertical-align: middle;">Product Price</th>
-							<th scope="col" class="quantity" colspan="3" style="max-width: 250px; vertical-align: middle;">Product Quantity</th>
-							<th scope="col" class="total" style="max-width: 250px; vertical-align: middle;">Product Total</th>
+							<th scope="col" class="image">Product Image</th>
+							<th scope="col" class="name">Product Name</th>
+							<th scope="col" class="price">Product Price</th>
+							<th scope="col" class="quantity" colspan="3">Product Quantity</th>
+							<th scope="col" class="total">Product Total</th>
 							<th scope="col"></th>
 						</tr>
 					</thead>
@@ -96,7 +96,7 @@
 									<input type="hidden" name="Amount" value="@Model.GrandTotal" />
 									<input type="hidden" name="OrderInfo" value="Thanh Toán Bằng MoMo" />
 
-									<button class="btn btn-primary btn-sm" name="PayUrl" type="submit">Pay With MoMo</button>
+									<button class="btn btn-primary" name="PayUrl" type="submit">Pay With MoMo</button>
 								</form>
 								
 								<form method="POST" asp-action="CreatePaymentUrlVnPay" asp-controller="Payment">
@@ -104,13 +104,13 @@
 									<input type="hidden" name="OrderInfo" value="Thanh Toán Bằng VnPay" />
 									<input type="hidden" name="OrderType" value="other" />
 
-									<button class="btn btn-primary btn-sm" type="submit">Pay With VnPay</button>
+									<button class="btn btn-primary" type="submit">Pay With VnPay</button>
 								</form>
 								<form asp-action="Checkout" asp-controller="Checkout" method="GET">
 									<input type="hidden" name="PaymentMethod" value="COD" />
 									<input type="hidden" name="PaymentId" value="" />
 
-									<button class="btn btn-primary btn-sm" type="submit">Pay With Cash</button>
+									<button class="btn btn-primary" type="submit">Pay With Cash</button>
 								</form>
 							</td>
 						</tr>						

@@ -13,118 +13,67 @@
 
         pageNo = pager.CurrentPage;
     }
+
+    var coupons = ViewBag.Coupons as List<CouponModel>;
 }
 
-<form asp-action="Add" enctype="multipart/form-data">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-group">
-        <label>Name</label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label>Description</label>
-        <textarea asp-for="Description" class="form-control"> </textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label>Start Date</label>
-        <input asp-for="StartDate" class="form-control" />
-        <span asp-validation-for="StartDate" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label>End Date</label>
-        <input asp-for="EndDate" class="form-control" />
-        <span asp-validation-for="EndDate" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label>Quantity</label>
-        <input asp-for="Quantity" min="1" value="1" class="form-control" />
-        <span asp-validation-for="Quantity" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label>Status</label>
-        <select name="Status" class="form-control">
-            <option value="1">Kích hoạt</option>
-            <option value="0">Ẩn</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <button class="btn btn-warning btn-sm">Add</button>
-        <a asp-action="Index" asp-controller="Product" class="btn btn-warning btn-sm">Back</a>
-    </div>
-</form>
-
-<table class="table table-striped" id="myTable">
+<a asp-controller="Coupon" asp-action="Add" class="btn btn-warning btn-sm">Add Coupon</a>
+<table class="table">
     <thead>
         <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Start Date</th>
-            <th scope="col">End Date</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Active</th>
-            <th scope="col">Status</th>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Discount Type</th>
+            <th>Discount Value</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Quantity</th>
+            <th>Active</th>
+            <th>Status</th>
+            <td></td>
         </tr>
     </thead>
     <tbody>
-        @foreach (var coupons in ViewBag.Coupons)
+        @foreach (var coupon in coupons)
         {
             <tr>
-                <td>@coupons.Id</td>
-                <td>@coupons.Name</td>
-                <td>@coupons.Description</td>
-                <td>@coupons.StartDate.ToString("dd/MM/yyyy")</td>
-                <td>@coupons.EndDate.ToString("dd/MM/yyyy")</td>
-                <td>@coupons.Quantity</td>
+                <td>@coupon.Id</td>
+                <td>@coupon.Name</td>
+                <td>@coupon.Description</td>
+                <td>@coupon.DiscountType</td>
+                <td>@(coupon.DiscountType == DiscountType.Percent ? coupon.DiscountValue + "%" : coupon.DiscountValue.ToString("#,##0 VNĐ"))</td>
+                <td>@coupon.StartDate.ToString("dd/MM/yyyy")</td>
+                <td>@coupon.EndDate.ToString("dd/MM/yyyy")</td>
+                <td>@coupon.Quantity</td>
                 <td>
-                    @if (@coupons.Status == 1)
+                    <form asp-action="ToggleStatus" method="POST" style="display:inline;">
+                        <input type="hidden" name="Id" value="@coupon.Id" />
+                        <button type="submit" class="btn btn-sm @(coupon.Status == 1 ? "btn-success btn-sm" : "btn-danger btn-sm")">
+                            @(coupon.Status == 1 ? "On" : "Off")
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    @if (coupon.EndDate < DateTime.Now)
                     {
-                        <select name="Status">
-                            <option selected value="1">Kích hoạt</option>
-                            <option value="0">Ẩn</option>
-                        </select>
+                        <span class="text-danger">Đã Hết Hạn</span>
                     }
                     else
                     {
-                        <select name="Status">
-                            <option value="1">Kích hoạt</option>
-                            <option selected value="0">Ẩn</option>
-                        </select>
+                        int daysLeft = (coupon.EndDate - DateTime.Now).Days;
+                        <span class="text-success">@daysLeft Ngày Còn Lại</span>
                     }
                 </td>
-
                 <td>
-                    @if (coupons.EndDate < DateTime.Now)
-                    {
-                        <span class="text text-danger">Expired</span>
-                    }
-                    else
-                    {
-                        TimeSpan remainingTime = coupons.EndDate - DateTime.Now;
-                        int daysRemaining = remainingTime.Days;
-                        @if (daysRemaining == 0)
-                        {
-                            <span class="text text-danger">Today</span>
-                        }
-                        else
-                        {
-                            <span class="text text-success">@daysRemaining Days Left</span>
-                        }
-
-                    }
+                    <a asp-action="Edit" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Delete" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Delete</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
 <partial name="_Paging" model="@pager" />
 
 @section Scripts {
@@ -132,25 +81,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script>
-        $(function () {
-            $("#datepicker").datepicker({
-                changeYear: true,
-                minDate: 0,
-                showButtonPanel: true,
-                dateFormat: 'dd/mm/yyyy'
-
-            });
-        });
-
-        $(function () {
-            $("#datepicker2").datepicker({
-                changeYear: true,
-                minDate: +1,
-                showButtonPanel: true,
-                dateFormat: 'dd/mm/yyyy'
-            });
-
-        });
-    </script>
 }

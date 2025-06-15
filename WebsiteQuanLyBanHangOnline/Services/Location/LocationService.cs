@@ -15,21 +15,21 @@ namespace WebsiteQuanLyBanHangOnline.Services.Location
         {
             var response = await _httpClient.GetStringAsync("https://esgoo.net/api-tinhthanh/1/0.htm");
             var result = JsonSerializer.Deserialize<LocationApiResponse>(response);
-            return result?.data?.FirstOrDefault(c => c.Id == cityId)?.Name ?? "";
+            return result?.data?.FirstOrDefault(c => c.id == cityId)?.full_name ?? "";
         }
 
         public async Task<string> GetDistrictNameById(string cityId, string districtId)
         {
             var response = await _httpClient.GetStringAsync($"https://esgoo.net/api-tinhthanh/2/{cityId}.htm");
             var result = JsonSerializer.Deserialize<LocationApiResponse>(response);
-            return result?.data?.FirstOrDefault(d => d.Id == districtId)?.Name ?? "";
+            return result?.data?.FirstOrDefault(d => d.id == districtId)?.full_name ?? "";
         }
 
         public async Task<string> GetWardNameById(string districtId, string wardId)
         {
             var response = await _httpClient.GetStringAsync($"https://esgoo.net/api-tinhthanh/3/{districtId}.htm");
             var result = JsonSerializer.Deserialize<LocationApiResponse>(response);
-            return result?.data?.FirstOrDefault(w => w.Id == wardId)?.Name ?? "";
+            return result?.data?.FirstOrDefault(w => w.id == wardId)?.full_name ?? "";
         }
 
         private class LocationApiResponse
@@ -39,8 +39,8 @@ namespace WebsiteQuanLyBanHangOnline.Services.Location
         }
         private class LocationItem
         {
-            public string Id { get; set; }
-            public string Name { get; set; }
+            public string id { get; set; }
+            public string full_name { get; set; }
         }
     }
 }
