@@ -43,6 +43,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 return RedirectToAction("Login", "Account");
 
             var orderCode = Guid.NewGuid().ToString();
+            var couponCode = HttpContext.Session.GetString("AppliedCoupon");
 
             var orderItem = new OrderModel
             {
@@ -50,7 +51,8 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 UserName = userEmail,
                 PaymentMethod = PaymentMethod == "COD" ? "COD" : $"{PaymentMethod} {PaymentId}",
                 CreatedDate = DateTime.Now,
-                Status = 1
+                Status = 1,
+                CouponCode = couponCode // Lưu mã đã dùng (nếu có)
             };
 
             _dataContext.Add(orderItem);
@@ -64,7 +66,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 var product = await _dataContext.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId);
                 if (product == null || product.Quantity < item.Quantity)
                 {
-                    TempData["error"] = $"Product with ID {item.ProductId} Is Not Available in Requested Quantity.";
+                    TempData["error"] = $"Product with ID {item.ProductId} is not available in requested quantity.";
                     return RedirectToAction("Index", "Cart");
                 }
 
@@ -91,9 +93,29 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             }
 
             _dataContext.OrderDetails.AddRange(orderDetails);
+
+            // 🔻 Trừ mã giảm giá (nếu có)
+            if (!string.IsNullOrEmpty(couponCode))
+            {
+                var coupon = await _dataContext.Coupons.FirstOrDefaultAsync(c =>
+                    c.Name == couponCode &&
+                    c.Status == 1 &&
+                    c.Quantity > 0 &&
+                    DateTime.Now >= c.StartDate &&
+                    DateTime.Now <= c.EndDate
+                );
+
+                if (coupon != null)
+                {
+                    coupon.Quantity -= 1;
+                }
+            }
+
             await _dataContext.SaveChangesAsync();
 
+            // 🔻 Xóa giỏ hàng và mã giảm giá sau khi thanh toán
             HttpContext.Session.Remove("Cart");
+            HttpContext.Session.Remove("AppliedCoupon");
 
             var totalAmount = emailItems.Sum(i => i.Price * i.Quantity);
 
@@ -106,9 +128,11 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 TotalAmount = totalAmount
             };
 
+            // Gửi email cho khách hàng
             var customerEmailHtml = await _emailRenderer.RenderAsync("CustomerEmail.cshtml", viewModel);
             await _emailSender.SendEmailAsync(userEmail, "Your Order Confirmation", customerEmailHtml);
 
+            // Gửi email cho admin
             var admins = await _userManager.GetUsersInRoleAsync("Admin");
             foreach (var admin in admins)
             {
@@ -116,7 +140,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 await _emailSender.SendEmailAsync(admin.Email, "New Order Received", adminEmailHtml);
             }
 
-            TempData["success"] = "Checkout Successful!!!";
+            TempData["success"] = "Checkout successful!";
             return RedirectToAction("Index", "Home");
         }
 

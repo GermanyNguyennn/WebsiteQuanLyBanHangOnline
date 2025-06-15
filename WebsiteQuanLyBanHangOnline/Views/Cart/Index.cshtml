@@ -82,25 +82,51 @@
 								</td>								
 							</tr>
 						}
-
-						<tr>							
+						<tr>									
 							<td colspan="6"></td>
 							<td>
 								Grand Total: <h5 class="">@Model.GrandTotal.ToString("#,##0 VNĐ")</h5>
+							</td>
+						</tr>
+						@if (!string.IsNullOrEmpty(Model.CouponCode))
+						{
+							<tr>
+								<td colspan="6"></td>
+								<td>
+									Coupon (@Model.CouponCode): <h5 class="">-@Model.DiscountAmount.ToString("#,##0 VNĐ")</h5>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="6"></td>
+								<td>
+									Total After Discount: <h5 class="">@Model.TotalAfterDiscount.ToString("#,##0 VNĐ")</h5>
+								</td>
+							</tr>
+						}
+						<tr>
+							<td colspan="6"></td>
+							<td>
+								<form asp-action="ApplyCoupon" asp-controller="Cart" method="POST">
+									<div class="form-group">
+										<label for="CouponCode">Coupon:</label>
+										<input type="text" name="CouponCode" id="CouponCode" class="form-control" />
+										<button type="submit" class="btn btn-primary">Apply</button>
+									</div>
+								</form>
 							</td>
 						</tr>
 						<tr>
 							<td colspan="7"></td>
 							<td>
 								<form method="POST" asp-action="CreatePaymentUrlMoMo" asp-controller="Payment">
-									<input type="hidden" name="Amount" value="@Model.GrandTotal" />
+									<input type="hidden" name="Amount" value="@Model.TotalAfterDiscount" />
 									<input type="hidden" name="OrderInfo" value="Thanh Toán Bằng MoMo" />
 
 									<button class="btn btn-primary" name="PayUrl" type="submit">Pay With MoMo</button>
 								</form>
 								
 								<form method="POST" asp-action="CreatePaymentUrlVnPay" asp-controller="Payment">
-									<input type="hidden" name="Amount" value="@Model.GrandTotal" />
+									<input type="hidden" name="Amount" value="@Model.TotalAfterDiscount" />
 									<input type="hidden" name="OrderInfo" value="Thanh Toán Bằng VnPay" />
 									<input type="hidden" name="OrderType" value="other" />
 

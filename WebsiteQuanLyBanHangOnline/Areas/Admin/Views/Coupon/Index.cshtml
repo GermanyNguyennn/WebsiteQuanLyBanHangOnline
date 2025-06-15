@@ -21,17 +21,16 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Discount Type</th>
-            <th>Discount Value</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Quantity</th>
-            <th>Active</th>
-            <th>Status</th>
-            <td></td>
+            <th scope="col">Coupon Id</th>
+            <th scope="col">Coupon Name</th>
+            <th scope="col">Coupon Description</th>
+            <th scope="col">Coupon Discount Type</th>
+            <th scope="col">Coupon Discount Value</th>
+            <th scope="col">Coupon Start Date</th>
+            <th scope="col">Coupon End Date</th>
+            <th scope="col">Coupon Quantity</th>
+            <th scope="col">Coupon Active</th>
+            <th scope="col">Coupon Status</th>
         </tr>
     </thead>
     <tbody>
@@ -50,23 +49,27 @@
                     <form asp-action="ToggleStatus" method="POST" style="display:inline;">
                         <input type="hidden" name="Id" value="@coupon.Id" />
                         <button type="submit" class="btn btn-sm @(coupon.Status == 1 ? "btn-success btn-sm" : "btn-danger btn-sm")">
-                            @(coupon.Status == 1 ? "On" : "Off")
+                            @(coupon.Status == 1 ? "ON" : "OFF")
                         </button>
                     </form>
                 </td>
                 <td>
                     @if (coupon.EndDate < DateTime.Now)
                     {
-                        <span class="text-danger">Đã Hết Hạn</span>
+                        <span class="text-danger">Expired</span>
                     }
                     else
                     {
                         int daysLeft = (coupon.EndDate - DateTime.Now).Days;
-                        <span class="text-success">@daysLeft Ngày Còn Lại</span>
+                        <span class="text-success">@daysLeft Day Left</span>
                     }
                 </td>
                 <td>
                     <a asp-action="Edit" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Edit</a>
+                    @* <a asp-action="Delete" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Delete</a> *@
+                </td>
+                <td>
+                    @* <a asp-action="Edit" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Edit</a> *@
                     <a asp-action="Delete" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Delete</a>
                 </td>
             </tr>

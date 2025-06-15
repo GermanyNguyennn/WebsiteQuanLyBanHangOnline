@@ -50,9 +50,19 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                     City = cityName,
                     District = districtName,
                     Ward = wardName
-                }
+                },               
             };
 
+            if (HttpContext.Session.GetString("DiscountAmount") != null &&
+                decimal.TryParse(HttpContext.Session.GetString("DiscountAmount"), out var discountAmount))
+            {
+                viewModel.DiscountAmount = discountAmount;
+            }
+
+            if (HttpContext.Session.GetString("AppliedCoupon") != null)
+            {
+                viewModel.CouponCode = HttpContext.Session.GetString("AppliedCoupon");
+            }
             return View(viewModel);
         }
 
@@ -133,7 +143,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Delete(int Id)
+        public IActionResult Delete(int Id)
         {
             List<CartModel> cart = HttpContext.Session.GetJson<List<CartModel>>("Cart");
             
@@ -153,6 +163,47 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             HttpContext.Session.Remove("Cart");
             return RedirectToAction("Index");
-        }        
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ApplyCoupon(string CouponCode)
+        {
+            if (string.IsNullOrEmpty(CouponCode))
+            {
+                TempData["error"] = "Please Enter Coupon Code!!!";
+                return RedirectToAction("Index");
+            }
+
+            var coupon = await _dataContext.Coupons
+                .FirstOrDefaultAsync(c => c.Name == CouponCode && c.Status == 1
+                                          && c.Quantity > 0
+                                          && c.StartDate <= DateTime.Now
+                                          && c.EndDate >= DateTime.Now);
+
+            if (coupon == null)
+            {
+                TempData["error"] = "Invalid Or Expired Coupon Code!!!";
+                return RedirectToAction("Index");
+            }
+
+            var cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new List<CartModel>();
+            var grandTotal = cart.Sum(x => x.Quantity * x.Price);
+
+            decimal discountAmount = 0;
+            if (coupon.DiscountType == DiscountType.Percent)
+            {
+                discountAmount = (grandTotal * coupon.DiscountValue) / 100;
+            }
+            else
+            {
+                discountAmount = coupon.DiscountValue;
+            }
+
+            // ✅ Sửa ở đây: Dùng Session thay vì TempData
+            HttpContext.Session.SetString("AppliedCoupon", CouponCode);
+            HttpContext.Session.SetString("DiscountAmount", discountAmount.ToString());
+
+            return RedirectToAction("Index");
+        }
     }
 }
