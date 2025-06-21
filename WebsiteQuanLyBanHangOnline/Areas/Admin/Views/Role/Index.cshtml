@@ -2,7 +2,7 @@
 @using WebsiteQuanLyBanHangOnline.Repository
 @model IEnumerable<IdentityRole>
 @{
-    ViewData["Title"] = "Role List";
+    ViewData["Title"] = "Danh Sách Vai Trò";
 
     Paginate pager = new Paginate();
 
@@ -16,28 +16,29 @@
     }
 }
 
-<a asp-controller="Role" asp-action="Add" class="btn btn-warning btn-sm">Add Role</a>
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Role</th>
-            <th scope="col">Role Name</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="container">
+    <p><a asp-controller="Role" asp-action="Add" class="btn btn-warning btn-sm">Thêm Vai Trò</a></p>
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <td>@item.Id</td>
-                <td>@item.Name</td>
-                <td>@item.NormalizedName</td>
-                <td></td>
-                <td>
-                    <a asp-controller="Role" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
-                    <a asp-controller="Role" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Delete</a>
-                </td>
+                <th scope="col">Id</th>
+                <th scope="col">Vai Trò</th>
+                @* <th scope="col">Role Name</th> *@
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    @* <td>@item.NormalizedName</td> *@
+                    <td>
+                        <a asp-controller="Role" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Sửa</a>
+                        <a asp-controller="Role" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Xoá</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -66,21 +66,21 @@
 									{
 										if (isAdmin)
 										{
-											<li><a asp-area="Admin" asp-controller="Product" asp-action="Index"><i class="fa fa-cogs"></i> Admin Dashboard</a></li>
+											<li><a asp-area="Admin" asp-controller="Product" asp-action="Index"><i class="fa fa-cogs"></i> Admin</a></li>
 										}
 
-										<li><a asp-controller="Account" asp-action="History"><i class="fa fa-user"></i>History</a></li>
-										<li><a asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-										<li><a asp-controller="Account" asp-action="Information"><i class="fa fa-user"></i>Information</a></li>
+										<li><a asp-area="" asp-controller="Account" asp-action="History"><i class="fa fa-history"></i> Lịch Sử</a></li>
+										<li><a asp-area="" asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-cart"></i> Giỏ Hàng</a></li>
+										<li><a asp-area="" asp-controller="Account" asp-action="Information"><i class="fa fa-user"></i> Thông Tin</a></li>
+										<li><a asp-area="" asp-controller="Account" asp-action="ChangePassword"><i class="fa fa-key"></i> Đổi Mật Khẩu</a></li>
 									}
 
-									<li><a asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Hi, @User.Identity.Name. Logout</a></li>
+									<li><a asp-area="" asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Xin Chào, @User.Identity.Name. Đăng Xuất</a></li>
 								}
 								else
 								{
-									<li><a asp-controller="Account" asp-action="Login"><i class="fa fa-lock"></i>Log In</a></li>
+									<li><a asp-area="" asp-controller="Account" asp-action="Login"><i class="fa fa-lock"></i> Đăng Nhập</a></li>
 								}
-
 							</ul>
 						</div>
 					</div>
@@ -103,17 +103,17 @@
 						</div>
 						<div class="mainmenu pull-left">
 							<ul class="nav navbar-nav collapse navbar-collapse">
-								<li><a asp-controller="Home" asp-action="Index" class="active">Home</a></li>
-								<li><a asp-controller="Cart" asp-action="Index">Cart</a></li>								
-								<li><a asp-controller="Home" asp-action="Contact">Contact</a></li>
+								<li><a asp-controller="Home" asp-action="Index" class="active">Trang Chủ</a></li>
+								<li><a asp-controller="Cart" asp-action="Index">Giỏ Hàng</a></li>								
+								<li><a asp-controller="Home" asp-action="Contact">Liên Hệ</a></li>
 							</ul>
 						</div>
 					</div>
 					<div class="col-sm-3">
-						<form asp-action="Search" asp-controller="Product" method="post">
+						<form asp-action="Search" asp-controller="Product" method="POST">
 							<div class="search_box pull-right">
 								<input type="text" placeholder="Search" name="searchTerm" />
-								<button class="btn btn-warning" type="submit">Search</button>
+								<button class="btn btn-warning" type="submit">Tìm Kiếm</button>
 							</div>
 						</form>					
 					</div>
@@ -204,8 +204,8 @@
 		<div class="footer-bottom">
 			<div class="container">
 				<div class="row">
-					<p class="pull-left">Copyright © 2013 E-SHOPPER Inc. All rights reserved.</p>
-					<p class="pull-right">Designed by <span><a target="_blank" href="https://www.facebook.com/nguyen.manh.duc.2003">Nguyễn Mạnh Đức</a></span></p>
+					<p class="pull-left">Copyright © 2013 E-SHOPPER Inc. All Rights Reserved.</p>
+					<p class="pull-right">Designed By <span><a target="_blank" href="https://www.facebook.com/nguyen.manh.duc.2003">Nguyễn Mạnh Đức</a></span></p>
 				</div>
 			</div>
 		</div>
@@ -219,8 +219,7 @@
 	<script src="~/js/jquery.prettyPhoto.js"></script>
 	<script src="~/js/main.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.21.2/dist/sweetalert2.all.min.js"></script>
-	<div id="fb-root"></div>
-	<script async defer crossorigin="anonymous" src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v20.0&appId=6125793717446054" nonce="JYxicUjw"></script>
+
 	<script>
 		$(function() {
 			var messageSuccess = '@TempData["Success"]';

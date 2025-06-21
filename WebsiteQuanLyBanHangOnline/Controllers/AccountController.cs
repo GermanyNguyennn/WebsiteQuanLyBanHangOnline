@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using System.Web;
 using WebsiteQuanLyBanHangOnline.Areas.Admin.Repository;
@@ -106,12 +107,12 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
                 ViewBag.QrCodeUrl = qrCodeUrl;
                 ViewBag.Key = authenticatorKey;
-                TempData["error"] = "Invalid Verification Code.";
+                TempData["error"] = "Mã Xác Thực Không Hợp Lệ.";
                 return View();
             }
 
             await _userManager.SetTwoFactorEnabledAsync(user, true);
-            TempData["success"] = "Two-Step Authentication Enabled.";
+            TempData["success"] = "Đã Bật Xác Thực 2 Bước.";
 
             await _signInManager.SignOutAsync();
             HttpContext.Session.Clear();
@@ -141,7 +142,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 var user = await _userManager.FindByNameAsync(loginViewModel.UserName);
                 if (user == null)
                 {
-                    TempData["error"] = "Account Does Not Exist!!!";
+                    TempData["error"] = "Tài Khoản Không Tồn Tại.";
                     return View(loginViewModel);
                 }
 
@@ -164,11 +165,11 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                         return RedirectToAction("Enable2FA", "Account");
                     }
 
-                    TempData["success"] = "Account Login Successful!!!";
+                    TempData["success"] = "Đăng Nhập Thành Công.";
                     return Redirect(loginViewModel.ReturnURL ?? "/");
                 }
 
-                TempData["error"] = "Account Login Failed!!!";
+                TempData["error"] = "Đăng Nhập Thất Bại";
             }
 
             return View(loginViewModel);
@@ -192,7 +193,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             if (string.IsNullOrWhiteSpace(verificationCode))
             {
-                TempData["error"] = "Please Enter Verification Code";
+                TempData["error"] = "Vui Lòng Nhập Mã Xác Thực.";
                 return View();
             }
 
@@ -212,7 +213,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
                 HttpContext.Session.SetString("IsAdmin", isAdmin ? "true" : "false");
 
-                TempData["success"] = "Account Login Successful!!!";
+                TempData["success"] = "Xác Thực 2 Bước Thành Công.";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -221,9 +222,69 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 return RedirectToAction("Lockout", "Account");
             }
 
-            TempData["error"] = "Invalid Verification Code.";
+            TempData["error"] = "Mã Xác Thực Không Hợp Lệ.";
             return View();
         }
+
+        [HttpGet]
+        public IActionResult Reset2FA()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reset2FA(Reset2FAViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null || !(await _userManager.IsInRoleAsync(user, "Admin")))
+            {
+                TempData["error"] = "Email Không Tồn Tại.";
+                return View();
+            }
+
+            var token = await _userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultProvider, "Reset2FA");
+            var resetLink = Url.Action("ConfirmReset2FA", "Account", new { userId = user.Id, token = token }, Request.Scheme);
+
+            await _emailSender.SendEmailAsync(model.Email, "Reset 2FA", $"Ấn Vào <a href='{resetLink}'>Đây</a> Để Đặt Lại Xác Thực 2 Bước.");
+
+            TempData["success"] = "Đã Gửi Link Reset 2FA Đến Email Của Bạn.";
+            return RedirectToAction("Login", "Account");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmReset2FA(string userId, string token)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var isValid = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "Reset2FA", token);
+            if (!isValid)
+            {
+                TempData["error"] = "Liên Kết Không Hợp Lệ Hoặc Đã Hết Hạn.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var disableResult = await _userManager.SetTwoFactorEnabledAsync(user, false);
+            if (!disableResult.Succeeded)
+            {
+                TempData["error"] = "Không Thể Reset 2FA.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            TempData["success"] = "Đã Reset 2FA. Vui Lòng Đăng Nhập Lại Để Thiết Lập 2FA.";
+            return RedirectToAction("Login", "Account");
+        }
+
+
 
         [HttpGet]
         public IActionResult Add()
@@ -237,20 +298,19 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Kiểm tra trước khi tạo user
                 bool roleCustomer = await _roleManager.RoleExistsAsync("Customer");
                 if (!roleCustomer)
                 {
-                    TempData["error"] = "Admin Has Not Added Customer Role!!!";
-                    return View(userModel); // Dừng lại không tạo user
+                    TempData["error"] = "Tài Khoản Admin Chưa Tạo Vai Trò Customer.";
+                    return View(userModel);
                 }
 
-                // Tạo AppUserModel và lưu vào Identity
                 AppUserModel appUserModel = new AppUserModel
                 {
                     UserName = userModel.UserName,
+                    FullName = userModel.FullName,
                     Email = userModel.Email,
-                    PhoneNumber = userModel.Phone
+                    PhoneNumber = userModel.PhoneNumber
                 };
 
                 IdentityResult identityResult = await _userManager.CreateAsync(appUserModel, userModel.Password);
@@ -259,13 +319,12 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                     var result = await _userManager.AddToRoleAsync(appUserModel, "Customer");
                     if (result.Succeeded)
                     {
-                        TempData["success"] = "Account Created Successfully!!!";
+                        TempData["success"] = "Đăng Ký Thành Công.";
                         return RedirectToAction("Login");
                     }
                     else
                     {
-                        TempData["error"] = "Account Creation Failed!!!";
-                        // Nếu add role thất bại, có thể xóa user để rollback
+                        TempData["error"] = "Đăng Ký Thất Bại.";
                         await _userManager.DeleteAsync(appUserModel);
                     }
                 }
@@ -299,15 +358,16 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             }
 
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var userName = User.FindFirstValue(ClaimTypes.Name);
 
             if (string.IsNullOrEmpty(userEmail))
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            var orders = await _dataContext.Orders.Where(od => od.UserName == userEmail).OrderByDescending(od => od.CreatedDate).ToListAsync();
+            var orders = await _dataContext.Orders.Where(od => od.UserName == userName).OrderByDescending(od => od.CreatedDate).ToListAsync();
 
-            ViewBag.UserEmail = userEmail;
+            ViewBag.UserEmail = userName;
             return View(orders);
         }
 
@@ -318,15 +378,28 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 return NotFound();
             }
 
+            var orders = await _dataContext.Orders
+                .FirstOrDefaultAsync(o => o.OrderCode == orderCode);
+
+            if (orders == null)
+            {
+                return NotFound();
+            }
+
             var orderDetails = await _dataContext.OrderDetails
                 .Include(od => od.Product)
                 .Where(od => od.OrderCode == orderCode)
                 .ToListAsync();
 
-            if (!orderDetails.Any())
+            CouponModel? coupons = null;
+            if (!string.IsNullOrEmpty(orders.CouponCode))
             {
-                return NotFound();
+                coupons = await _dataContext.Coupons
+                    .FirstOrDefaultAsync(c => c.CouponCode == orders.CouponCode);
             }
+
+            ViewBag.Order = orders;
+            ViewBag.Coupon = coupons;
 
             return View(orderDetails);
         }
@@ -343,7 +416,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             var user = await _userManager.FindByEmailAsync(appUserModel.Email);
             if (user == null)
             {
-                TempData["error"] = "Email Not Found!!!";
+                TempData["error"] = "Email Không Hợp Lệ.";
                 return RedirectToAction("ForgotPassword");
             }
 
@@ -354,11 +427,11 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 token = HttpUtility.UrlEncode(token)
             }, Request.Scheme);
 
-            var message = $"Click <a href='{url}'>Here</a> To Reset Your Password.";
+            var message = $"Ấn Vào <a href='{url}'>Đây</a> Để Đặt Lại Mật Khẩu.";
 
-            await _emailSender.SendEmailAsync(user.Email, "Reset Your Password", message);
+            await _emailSender.SendEmailAsync(user.Email, "Đặt Lại Mật Khẩu", message);
 
-            TempData["success"] = "Password Reset Email Sent!";
+            TempData["success"] = "Email Đặt Lại Mật Khẩu Đã Được Gửi.";
             return RedirectToAction("ForgotPassword");
         }
 
@@ -389,7 +462,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                TempData["error"] = "Email Not Found!!!";
+                TempData["error"] = "Email Không Hợp Lệ.";
                 return RedirectToAction("ForgotPassword");
             }
 
@@ -398,7 +471,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             if (result.Succeeded)
             {
-                TempData["success"] = "Password Updated successfully!!!";
+                TempData["success"] = "Cập Nhật Mật Khẩu Thành Công.";
                 return RedirectToAction("Login");
             }
 
@@ -423,21 +496,22 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound("User Not Found!!!");
+                return NotFound("Không Tìm Thấy Thông Tin Cá Nhân.");
             }
 
-            var shipping = await _dataContext.Information.FirstOrDefaultAsync(s => s.UserId == userId);
+            var information = await _dataContext.Information.FirstOrDefaultAsync(s => s.UserId == userId);
 
             var model = new InformationViewModel
             {
                 Id = user.Id,
                 UserName = user.UserName,
+                FullName = user.FullName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-                Address = shipping?.Address,
-                City = shipping?.City,
-                District = shipping?.District,
-                Ward = shipping?.Ward
+                Address = information?.Address,
+                City = information?.City,
+                District = information?.District,
+                Ward = information?.Ward
             };
 
             return View(model);
@@ -451,6 +525,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             if (user == null) return NotFound();
 
+            user.FullName = model.FullName;
             user.Email = model.Email;
             user.PhoneNumber = model.PhoneNumber;
             await _userManager.UpdateAsync(user);
@@ -465,7 +540,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                     Address = model.Address,
                     Ward = model.Ward,
                     District = model.District,
-                    City = model.City
+                    City = model.City,
                 };
                 _dataContext.Information.Add(information);
             }
@@ -479,8 +554,55 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             }
 
             await _dataContext.SaveChangesAsync();
-            TempData["success"] = "Update Information Successfully!!!";
+            TempData["success"] = "Cập Nhật Thông Tin Cá Nhân Thành Công.";
             return RedirectToAction("Information", "Account");
         }
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
+        {
+            if (string.IsNullOrWhiteSpace(currentPassword) ||
+                string.IsNullOrWhiteSpace(newPassword) ||
+                string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                TempData["error"] = "Vui Lòng Nhập Đầy Đủ Thông Tin.";
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                TempData["error"] = "Mật Khẩu Không Trùng Khớp.";
+                return View();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+            if (result.Succeeded)
+            {
+                await _signInManager.RefreshSignInAsync(user);
+                TempData["success"] = "Đổi Mật Khẩu Thành Công.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View();
+        }
+
     }
 }

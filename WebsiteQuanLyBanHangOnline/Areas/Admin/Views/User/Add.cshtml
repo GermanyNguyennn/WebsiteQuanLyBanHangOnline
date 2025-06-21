@@ -1,19 +1,20 @@
 ﻿@model AppUserModel
 @{
-    ViewData["Title"] = "Add User";
+    ViewData["Title"] = "Thêm Tài Khoản";
 }
 
+<div class="container">
 <form asp-action="Add" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group">
-        <label>UserName</label>
+        <label>Tài Khoản</label>
         <input asp-for="UserName" class="form-control" />
         <span asp-validation-for="UserName" class="text-danger" />
     </div>
 
     <div class="form-group">
-        <label>PasswordHash</label>
+        <label>Mật Khẩu</label>
         <input asp-for="PasswordHash" class="form-control" />
         <span asp-validation-for="PasswordHash" class="text-danger" />
     </div>
@@ -25,21 +26,22 @@
     </div>
 
     <div class="form-group">
-        <label>Phone Number</label>
+        <label>Số Điện Thoại</label>
         <input asp-for="PhoneNumber" class="form-control" />
         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Role</label>
+        <label>Vai Trò</label>
         <select name="selectedRoleId" class="form-control" asp-items="ViewBag.Roles"></select>
     </div>
 
     <div class="form-group">
-        <button class="btn btn-warning btn-sm">Add</button>
-        <a asp-action="Index" class="btn btn-warning btn-sm">Back</a>
+        <button class="btn btn-warning btn-sm">Thêm</button>
+        <a asp-action="Index" asp-controller="User" class="btn btn-warning btn-sm">Quay Lại</a>
     </div>
 </form>
+</div>
 
 @section Scripts {
     @{

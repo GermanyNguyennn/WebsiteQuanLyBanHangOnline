@@ -7,5 +7,8 @@
         public DateTime CreatedDate { get; set; }
         public List<EmailOrderItemViewModel> Items { get; set; }
         public decimal TotalAmount { get; set; }
+        public string CouponCode { get; set; } = string.Empty;
+        public decimal DiscountAmount { get; set; } = 0;
+        public decimal TotalAfterDiscount => TotalAmount - DiscountAmount;
     }
 }

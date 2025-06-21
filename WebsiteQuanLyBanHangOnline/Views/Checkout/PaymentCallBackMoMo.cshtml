@@ -5,21 +5,23 @@
     ViewData["Title"] = "Thanh Toán Thành Công Bằng MoMo";
 }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Order Id</th>
-            <th scope="col">Order Info</th>
-            <th scope="col">Amount</th>
-            <th scope="col">Created Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>@Model.OrderId</td>
-            <td>@Model.OrderInfo</td>
-            <td>@Model.Amount.ToString("#,##0 VNĐ")</td>
-            <td>@Model.CreatedDate</td>
-        </tr>
-    </tbody>
-</table>
+<div class="container">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Mã Giao Dịch</th>
+                <th scope="col">Nội Dung Giao Dịch</th>
+                <th scope="col">Số Tiền Giao Dịch</th>
+                <th scope="col">Ngày Giao Dịch</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Model.OrderId</td>
+                <td>@Model.OrderInfo</td>
+                <td>@Model.Amount.ToString("#,##0 VNĐ")</td>
+                <td>@Model.CreatedDate.ToString()</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

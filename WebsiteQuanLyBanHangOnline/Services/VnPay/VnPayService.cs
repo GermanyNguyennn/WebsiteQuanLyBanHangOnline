@@ -10,7 +10,7 @@ namespace WebsiteQuanLyBanHangOnline.Services.VnPay
         {
             _configuration = configuration;
         }
-        public Task<string> CreatePaymentAsync(PaymentInformationModel model, HttpContext context)
+        public Task<string> CreatePaymentAsync(VNPayInformationModel model, HttpContext context)
         {
             var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
             var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
@@ -36,7 +36,7 @@ namespace WebsiteQuanLyBanHangOnline.Services.VnPay
 
             return Task.FromResult(paymentUrl);
         }
-        public Task<PaymentResponseModel> PaymentExecuteAsync(IQueryCollection collections)
+        public Task<VNPayResponseModel> PaymentExecuteAsync(IQueryCollection collections)
         {
             var pay = new VnPayLibrary();
             var response = pay.GetFullResponseData(collections, _configuration["Vnpay:HashSecret"]);

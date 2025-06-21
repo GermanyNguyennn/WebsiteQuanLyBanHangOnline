@@ -1,32 +1,33 @@
 ﻿@model SliderModel
 @{
-    ViewData["Title"] = "Add Slider";
+    ViewData["Title"] = "Thêm Banner";
 }
 
+<div class="container">
 <form asp-action="Add" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group">
-        <label>Name</label>
+        <label>Tên Banner</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger" />
     </div>
 
     <div class="form-group">
-        <label>Image</label>
+        <label>Ảnh</label>
         <input asp-for="ImageUpload" class="form-control" />
         <span asp-validation-for="ImageUpload" class="text-danger" />
         <img id="imgpreview" class="pt-2" />
     </div>
 
     <div class="form-group">
-        <label>Description</label>
+        <label>Mô Tả</label>
         <textarea asp-for="Description" class="form-control"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Status</label>
+        <label>Trạng Thái</label>
         <select asp-for="Status" class="form-control">
             <option value="1">Hiển Thị</option>
             <option value="0">Ẩn</option>
@@ -35,10 +36,11 @@
     </div>
 
     <div class="form-group">
-        <button class="btn btn-warning btn-sm">Add</button>
-        <a asp-action="Index" class="btn btn-warning btn-sm">Back</a>
+        <button class="btn btn-warning btn-sm">Thêm</button>
+        <a asp-action="Index" asp-controller="Slider" class="btn btn-warning btn-sm">Quay Lại</a>
     </div>
 </form>
+</div>
 
 @section Scripts {
     @{

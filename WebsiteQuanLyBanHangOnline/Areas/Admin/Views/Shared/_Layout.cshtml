@@ -65,21 +65,22 @@
 									{
 										if (isAdmin)
 										{
-											<li><a asp-area="Admin" asp-controller="Product" asp-action="Index"><i class="fa fa-cogs"></i>Admin Dashboard</a></li>
+											<li><a asp-area="Admin" asp-controller="Product" asp-action="Index"><i class="fa fa-cogs"></i> Admin</a></li>
 										}
 
-										<li><a asp-controller="Account" asp-action="History"><i class="fa fa-user"></i>History</a></li>
-										<li><a asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-										<li><a asp-controller="Account" asp-action="Information"><i class="fa fa-user"></i>Information</a></li>
+										<li><a asp-area="" asp-controller="Account" asp-action="History"><i class="fa fa-history"></i> Lịch Sử</a></li>
+										<li><a asp-area="" asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-cart"></i> Giỏ Hàng</a></li>
+										<li><a asp-area="" asp-controller="Account" asp-action="Information"><i class="fa fa-user"></i> Thông Tin</a></li>
+										<li><a asp-area="" asp-controller="Account" asp-action="ChangePassword"><i class="fa fa-key"></i> Đổi Mật Khẩu</a></li>
+										<li><a asp-area="" asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i> Trang Chủ</a></li>
 									}
 
-									<li><a asp-area="" asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Hi, @User.Identity.Name. Log Out</a></li>
+									<li><a asp-area="" asp-controller="Account" asp-action="Logout"><i class="fa fa-lock"></i>Xin Chào, @User.Identity.Name. Đăng Xuất</a></li>
 								}
 								else
 								{
-									<li><a asp-controller="Account" asp-action="Login"><i class="fa fa-lock"></i>Log In</a></li>
+									<li><a asp-area="" asp-controller="Account" asp-action="Login"><i class="fa fa-lock"></i> Đăng Nhập</a></li>
 								}
-
 							</ul>
 						</div>
 					</div>
@@ -102,23 +103,22 @@
 						</div>
 						<div class="mainmenu pull-left">
 							<ul class="nav navbar-nav collapse navbar-collapse">
-								<li><a asp-controller="Product" class="active">Home</a></li>
+								<li><a asp-area="Admin" asp-controller="Product" asp-action="Index" class="active">Trang Chủ</a></li>
 								<li class="dropdown">
-									<a asp-controller="Product">Shop<i class="fa fa-angle-down"></i></a>
+									<a>Sản Phẩm<i class="fa fa-angle-down"></i></a>
 									<ul role="menu" class="sub-menu">
-										<li><a asp-controller ="Category" asp-action="Index">Categories</a></li>
-										<li><a asp-controller="Brand" asp-action="Index">Brands</a></li>
-										<li><a asp-controller="Product" asp-action="Index">Products</a></li>
-										<li><a asp-controller="Order" asp-action="Index">Orders</a></li>
-										<li><a asp-controller="User" asp-action="Index">Users</a></li>
-										<li><a asp-controller="Role" asp-action="Index">Roles</a></li>
-										<li><a asp-controller="Slider" asp-action="Index">Sliders</a></li>	
-										<li><a asp-controller="Coupon" asp-action="Index">Coupons</a></li>
-										<li><a asp-controller="Dashboard" asp-action="Index">Dashboards</a></li>
+										<li><a asp-area="Admin" asp-controller="Category" asp-action="Index">Danh Mục</a></li>
+										<li><a asp-area="Admin" asp-controller="Brand" asp-action="Index">Thương Hiệu</a></li>
+										<li><a asp-area="Admin" asp-controller="Product" asp-action="Index">Sản Phẩm</a></li>
+										<li><a asp-area="Admin" asp-controller="Order" asp-action="Index">Đơn Hàng</a></li>
+										<li><a asp-area="Admin" asp-controller="User" asp-action="Index">Tài Khoản</a></li>
+										<li><a asp-area="Admin" asp-controller="Role" asp-action="Index">Vai Trò</a></li>
+										<li><a asp-area="Admin" asp-controller="Slider" asp-action="Index">Banner</a></li>
+										<li><a asp-area="Admin" asp-controller="Coupon" asp-action="Index">Mã Giảm Giá</a></li>
+										<li><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Thống Kê Doanh Thu</a></li>
 									</ul>
 								</li>
-								<li><a asp-controller="Contact" asp-action="Index">Contact</a></li>
-								@* <li><a asp-controller="Shipping" asp-action="Index">Shipping</a></li> *@
+								<li><a asp-area="Admin" asp-controller="Contact" asp-action="Index">Liên Hệ</a></li>
 							</ul>
 						</div>
 					</div>
@@ -145,7 +145,6 @@
 		<!--Footer-->
 
 	</footer><!--/Footer-->
-
 
 
 	<script src="~/js/jquery.js"></script>

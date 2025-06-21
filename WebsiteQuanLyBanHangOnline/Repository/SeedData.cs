@@ -19,6 +19,10 @@ namespace WebsiteQuanLyBanHangOnline.Repository
             {
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
             }
+            if (!await roleManager.RoleExistsAsync("Customer"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Customer"));
+            }
 
             // Tạo tài khoản Admin nếu chưa có
             var adminEmail = "manhducnguyen23092003@gmail.com";
@@ -59,11 +63,11 @@ namespace WebsiteQuanLyBanHangOnline.Repository
                     new ProductModel { Name = "MacBook Pro 16 M4 Max 16CPU 40GPU 64GB 2TB", Image = "macbook-pro.jpg", Description = "", Price = 117490000, Slug = "", Brand = apple, Category = macos },
                     new ProductModel { Name = "iMac M4 2024 24 inch 10CPU 10GPU 24GB 512GB", Image = "imac-m4.jpg", Description = "", Price = 48990000, Slug = "", Brand = apple, Category = macos },
 
-                    new ProductModel { Name = "iPhone 16 Pro Max 1TB", Image = "iphone-16-pro-max.jpg", Description = "", Price = 42690000, Slug = "", Brand = apple, Category = iphone },
-                    new ProductModel { Name = "iPhone 16 Pro 1TB", Image = "iphone-16-pro.jpg", Description = "", Price = 38990000, Slug = "", Brand = apple, Category = iphone },
-                    new ProductModel { Name = "iPhone 16 Plus 512GB", Image = "iphone-16-plus.jpg", Description = "", Price = 38990000, Slug = "", Brand = apple, Category = iphone },
-                    new ProductModel { Name = "iPhone 16 512GB", Image = "iphone-16.jpg", Description = "", Price = 38990000, Slug = "", Brand = apple, Category = iphone },
-                    new ProductModel { Name = "iPhone 16e 512GB", Image = "iphone-16e.jpg", Description = "", Price = 25490000, Slug = "", Brand = apple, Category = iphone }
+                    new ProductModel { Name = "iPhone 16 Pro Max 1TB | Chính hãng VN/A", Image = "iphone-16-pro-max.jpg", Description = "", Price = 42690000, Slug = "", Brand = apple, Category = iphone },
+                    new ProductModel { Name = "iPhone 16 Pro 1TB | Chính hãng VN/A", Image = "iphone-16-pro.jpg", Description = "", Price = 38990000, Slug = "", Brand = apple, Category = iphone },
+                    new ProductModel { Name = "iPhone 16 Plus 512GB | Chính hãng VN/A", Image = "iphone-16-plus.jpg", Description = "", Price = 38990000, Slug = "", Brand = apple, Category = iphone },
+                    new ProductModel { Name = "iPhone 16 512GB | Chính hãng VN/A", Image = "iphone-16.jpg", Description = "", Price = 38990000, Slug = "", Brand = apple, Category = iphone },
+                    new ProductModel { Name = "iPhone 16e 512GB | Chính hãng VN/A", Image = "iphone-16e.jpg", Description = "", Price = 25490000, Slug = "", Brand = apple, Category = iphone }
                 );
 
                 await context.SaveChangesAsync();

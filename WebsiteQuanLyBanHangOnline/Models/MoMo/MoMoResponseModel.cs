@@ -2,11 +2,9 @@
 {
     public class MoMoResponseModel
     {
+        public string OrderId { get; set; }
         public string RequestId { get; set; }
         public int ErrorCode { get; set; }
-        public string OrderId { get; set; }
-        public string OrderInfo { get; set; }
-        public double Amount { get; set; }
         public string Message { get; set; }
         public string LocalMessage { get; set; }
         public string RequestType { get; set; }

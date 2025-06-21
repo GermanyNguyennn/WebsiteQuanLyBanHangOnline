@@ -1,7 +1,7 @@
 ﻿@using WebsiteQuanLyBanHangOnline.Repository
 @model ProductQuantityModel
 @{
-    ViewData["Title"] = "Add Product Quantity";
+    ViewData["Title"] = "Thêm Số Lượng Sản Phẩm";
     decimal total_quantities = 0;
 
     Paginate pager = new Paginate();
@@ -16,28 +16,29 @@
     }
 }
 
-<form asp-action="UpdateQuantity" asp-controller="Product" enctype="multipart/form-data">
+<div class="container">
+<form asp-action="AddQuantity" asp-controller="Product" enctype="multipart/form-data">
     <input type="hidden" name="ProductId" value="@ViewBag.ProductId" />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group">
-        <label>Quantity</label>
+        <label>Số Lượng</label>
         <input min="1" value="1" asp-for="Quantity" class="form-control" />
         <span asp-validation-for="Quantity" class="text-danger" />
     </div>
 
     <div class="form-group">
-        <button class="btn btn-warning btn-sm">Add</button>
+        <button class="btn btn-warning btn-sm">Thêm</button>
         <a asp-action="Index" asp-controller="Product" class="btn btn-warning btn-sm">Back</a>
     </div>
 </form>
 
-<table class="table table-striped">
+<table class="table table-bordered table-hover">
     <thead>
         <tr>
             <th>Id</th>
-            <th>Quantity Added</th>
-            <th>Created Date</th>
+            <th>Số Lượng</th>
+            <th>Ngày Tạo</th>
         </tr>
     </thead>
     <tbody>
@@ -48,13 +49,20 @@
                 <td>@productByQuantity.Id</td>
                 <td>@productByQuantity.Quantity</td>
                 <td>@productByQuantity.CreatedDate</td>
+                <td>
+                    <form asp-action="DeleteQuantity" asp-controller="Product" method="POST" asp-route-id="@productByQuantity.Id">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-warning btn-sm">Xoá</button>
+                    </form>
+                </td>
             </tr>
         }
         <tr>
-            <td>Total Quantities: @total_quantities</td>
+            <td>Tổng Số Lượng: @total_quantities</td>
         </tr>
     </tbody>
 </table>
+</div>
 
 @section Scripts {
     @{

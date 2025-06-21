@@ -2,23 +2,25 @@
 @model IdentityRole
 
 @{
-    ViewData["title"] = "Add Role";
+    ViewData["title"] = "Thêm Vai Trò";
 }
 
+<div class="container">
 <form asp-action="Add" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group">
-        <label>Name</label>
+        <label>Vai Trò</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger" />
     </div>   
 
     <div class="form-group">
-        <button class="btn btn-warning btn-sm">Add</button>
-        <a asp-action="Index" asp-controller="Role" class="btn btn-warning btn-sm">Back</a>
+        <button class="btn btn-warning btn-sm">Thêm</button>
+        <a asp-action="Index" asp-controller="Role" class="btn btn-warning btn-sm">Quay Lại</a>
     </div>
 </form>
+</div>
 
 @section Scripts {
     @{

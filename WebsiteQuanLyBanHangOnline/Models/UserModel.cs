@@ -10,10 +10,12 @@ namespace WebsiteQuanLyBanHangOnline.Models
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-        [Required, EmailAddress]
+        [Required]
+        public string FullName { get; set; }
+        [Required, EmailAddress]    
         public string Email { get; set; }
         [Required, Phone]
-        public string Phone { get; set; }
+        public string PhoneNumber { get; set; }
 
     }
 }

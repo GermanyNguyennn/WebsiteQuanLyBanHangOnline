@@ -1,43 +1,72 @@
 ﻿@using WebsiteQuanLyBanHangOnline.Models.MoMo
 @model IEnumerable<OrderDetailModel>
 @{
+    var coupons = ViewBag.Coupon as CouponModel;
+
     ViewData["Title"] = "History Order Detail List" + @ViewBag.UserEmail;
     decimal subTotal = 0;
     decimal totalAmount = 0;
+    decimal discount = 0;
+    decimal finalAmount = 0;
 }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Order Code</th>
-            <th scope="col">User Name</th>
-            <th scope="col">Product Id</th>
-            <th scope="col">Product Name</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Price</th>
-            <th scope="col">Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            subTotal = item.Price * item.Quantity;
-            totalAmount += subTotal;
+<div class="container">
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <td>@item.Id</td>
-                <td>@item.OrderCode</td>
-                <td>@item.UserName</td>
-                <td>@item.ProductId</td>
-                <td>@item.Product.Name</td>
-                <td>@item.Quantity</td>
-                <td>@item.Price</td>
-                <td>@subTotal</td>
+                <th scope="col">Id</th>
+                <th scope="col">Mã Đơn Hàng</th>
+                <th scope="col">Tài Khoản</th>
+                @* <th scope="col">Mã Sản Phẩm</th> *@
+                <th scope="col">Tên Sản Phẩm</th>
+                <th scope="col">Số Lượng</th>
+                <th scope="col">Đơn Giá</th>
+                <th scope="col">Thành Tiền</th>
             </tr>
-        }
-        <tr>
-            <td>Total Amount: @totalAmount</td>
-        </tr>
-        <a asp-controller="Order" asp-action="Index" class="btn btn-primary btn-sm">Back</a>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                subTotal = item.Price * item.Quantity;
+                totalAmount += subTotal;
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.OrderCode</td>
+                    <td>@item.UserName</td>
+                    @* <td>@item.ProductId</td> *@
+                    <td>@item.Product.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price</td>
+                    <td>@subTotal.ToString("#,##0 VNĐ")</td>
+                </tr>
+            }
+            <tr>
+                <td colspan="6">Tổng Thành Tiền</td>
+                <td> @totalAmount.ToString("#,##0 VNĐ")</td>
+            </tr>
+            @if (coupons != null)
+            {
+                discount = coupons.DiscountType == DiscountType.Percent
+                ? totalAmount * coupons.DiscountValue / 100
+                : coupons.DiscountValue;
+
+                finalAmount = totalAmount - discount;
+
+                <tr>
+                    <td colspan="6" class="text-end text-success">
+                    Giảm Giá - @(coupons.DiscountType == DiscountType.Percent
+                            ? coupons.DiscountValue + "%"
+                          : coupons.DiscountValue.ToString("#,##0 VNĐ"))
+                    </td>
+                    <td class="text-success">- @discount.ToString("#,##0 VNĐ")</td>
+                </tr>
+
+                <tr>
+                    <td colspan="6" class="text-end">Tổng Thành Tiền Sau Khi Giảm Giá</td>
+                    <td>@finalAmount.ToString("#,##0 VNĐ")</td>
+                </tr>
+            }
+            <p><a asp-controller="Order" asp-action="Index" class="btn btn-warning btn-sm">Quay Lại</a></p>
+        </tbody>
+    </table>
+</div>

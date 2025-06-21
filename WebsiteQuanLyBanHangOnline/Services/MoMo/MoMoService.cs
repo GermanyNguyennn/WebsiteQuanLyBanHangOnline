@@ -17,18 +17,19 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
         }
         public async Task<MoMoResponseModel> CreatePaymentAsync(MoMoInformationModel model)
         {
-            model.OrderId = DateTime.UtcNow.Ticks.ToString();
-            model.OrderInfo = model.OrderInfo;
+            var requestId = DateTime.UtcNow.Ticks.ToString();
+
             var rawData =
-                $"partnerCode={_options.Value.PartnerCode}" +
-                $"&accessKey={_options.Value.AccessKey}" +
-                $"&requestId={model.OrderId}" +
+                $"accessKey={_options.Value.AccessKey}" +
                 $"&amount={model.Amount}" +
+                $"&extraData=" +
                 $"&orderId={model.OrderId}" +
                 $"&orderInfo={model.OrderInfo}" +
-                $"&returnUrl={_options.Value.ReturnUrl}" +
-                $"&notifyUrl={_options.Value.NotifyUrl}" +
-                $"&extraData=";
+                $"&partnerCode={_options.Value.PartnerCode}" +
+                $"&redirectUrl={_options.Value.ReturnUrl}" +
+                $"&ipnUrl={_options.Value.NotifyUrl}" +
+                $"&requestId={requestId}" +
+                $"&requestType={_options.Value.RequestType}";
 
             var signature = ComputeHmacSha256(rawData, _options.Value.SecretKey);
 
@@ -36,21 +37,21 @@ namespace WebsiteQuanLyBanHangOnline.Services.MoMo
             var request = new RestRequest() { Method = Method.Post };
             request.AddHeader("Content-Type", "application/json; charset=UTF-8");
 
-            // Create an object representing the request data
             var requestData = new
             {
                 accessKey = _options.Value.AccessKey,
                 partnerCode = _options.Value.PartnerCode,
                 requestType = _options.Value.RequestType,
-                notifyUrl = _options.Value.NotifyUrl,
-                returnUrl = _options.Value.ReturnUrl,
+                redirectUrl = _options.Value.ReturnUrl,
+                ipnUrl = _options.Value.NotifyUrl,
                 orderId = model.OrderId,
                 amount = model.Amount.ToString(),
                 orderInfo = model.OrderInfo,
-                requestId = model.OrderId,
+                requestId = requestId,
                 extraData = "",
                 signature = signature
             };
+
 
             request.AddParameter("application/json", JsonConvert.SerializeObject(requestData), ParameterType.RequestBody);
 

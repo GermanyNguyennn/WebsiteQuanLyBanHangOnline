@@ -1,7 +1,7 @@
 ﻿@using WebsiteQuanLyBanHangOnline.Repository
 @model IEnumerable<OrderModel>
 @{
-    ViewData["Title"] = "Order List";
+    ViewData["Title"] = "Danh Sách Đơn Hàng";
 
     Paginate pager = new Paginate();
 
@@ -14,78 +14,83 @@
         pageNo = pager.CurrentPage;
     }
 }
-
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Order Code</th>
-            <th scope="col">User Name</th>
-            <th scope="col">Created Date</th>
-            <th scope="col">Status</th>
-            <th scope="col">PaymentMethod</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="container">
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <td>@item.Id</td>
-                <td>@item.OrderCode</td>
-                <td>@item.UserName</td>
-                <td>@item.CreatedDate</td>
-                <td>
-                    @if (item.Status == 1)
-                    {
-                        <span class="text text-warning">Đã Đặt Hàng</span>
-                    }
-                    else if (item.Status == 2)
-                    {
-                        <span class="text text-success">Đã Giao Hàng</span>
-                    }
-                    else
-                    {
-                        <span class="text text-danger">Đã Huỷ</span>
-                    }
-                </td>
-                <td>
-                    @if (string.IsNullOrEmpty(item.PaymentMethod))
-                    {
-                        <span class="text text-primary">COD</span>
-                    }
-                    else
-                    {
-                        var parts = item.PaymentMethod.Split(' ');
-                        var text_split = parts.Length > 0 ? parts[0] : "";
-                        var number_split = parts.Length > 1 ? parts[1] : "";
-
-                        if (text_split == "MoMo")
+                <th scope="col">Id</th>
+                <th scope="col">Mã Đơn Hàng</th>
+                <th scope="col">Tài Khoản</th>
+                <th scope="col">Ngày Mua Hàng</th>
+                <th scope="col">Trạng Thái</th>
+                <th scope="col">Phương Thức Thanh Toán</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.OrderCode</td>
+                    <td>
+                        <a asp-controller="Order" asp-action="CustomerInformation" asp-route-orderCode="@item.OrderCode">
+                            @item.UserName
+                        </a>
+                    </td>
+                    <td>@item.CreatedDate</td>
+                    <td>
+                        @if (item.Status == 1)
                         {
-                            @text_split
-                            <a asp-route-OrderId="@number_split" asp-action="PaymentMoMoOrder" asp-controller="Order"><span class="text text-primary">@number_split</span></a>
+                            <span class="text text-warning">Đã Đặt Hàng</span>
                         }
-                        else if (text_split == "VnPay")
+                        else if (item.Status == 2)
                         {
-                            @text_split
-                            <a asp-route-OrderId="@number_split" asp-action="PaymentVnPayOrder" asp-controller="Order"><span class="text text-primary">@number_split</span></a>
+                            <span class="text text-success">Đã Giao Hàng</span>
                         }
-                        else if (text_split == "COD")
+                        else
+                        {
+                            <span class="text text-danger">Đã Huỷ</span>
+                        }
+                    </td>
+                    <td>
+                        @if (string.IsNullOrEmpty(item.PaymentMethod))
                         {
                             <span class="text text-primary">COD</span>
                         }
                         else
                         {
-                            <span class="text text-secondary">Không Xác Định</span>
-                        }
-                    }
-                </td>
+                            var parts = item.PaymentMethod.Split(' ');
+                            var text_split = parts.Length > 0 ? parts[0] : "";
+                            var number_split = parts.Length > 1 ? parts[1] : "";
 
-                <td>
-                    <a asp-controller="Order" asp-action="View" asp-route-OrderCode="@item.OrderCode" class="btn btn-warning btn-sm">View</a>
-                    <a asp-controller="Order" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-<partial name="_Paging" model="@pager" />
+                            if (text_split == "MoMo")
+                            {
+                                @text_split
+                                <a asp-route-OrderId="@number_split" asp-action="PaymentMoMoOrder" asp-controller="Order"><span class="text text-primary">@number_split</span></a>
+                            }
+                            else if (text_split == "VNPay")
+                            {
+                                @text_split
+                                <a asp-route-OrderId="@number_split" asp-action="PaymentVNPayOrder" asp-controller="Order"><span class="text text-primary">@number_split</span></a>
+                            }
+                            else if (text_split == "COD")
+                            {
+                                <span class="text text-primary">COD</span>
+                            }
+                            else
+                            {
+                                <span class="text text-secondary">Không Xác Định</span>
+                            }
+                        }
+                    </td>
+
+                    <td>
+                        <a asp-controller="Order" asp-action="View" asp-route-OrderCode="@item.OrderCode" class="btn btn-warning btn-sm">Xem</a>
+                        <a asp-controller="Order" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Xoá</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <partial name="_Paging" model="@pager" />
+</div>

@@ -24,7 +24,9 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
                 EndDate = DateTime.Now
             };
 
-            ViewBag.Coupons = _dataContext.Coupons.ToList();
+            var coupons = await _dataContext.Coupons.ToListAsync();
+            ViewBag.Coupons = coupons;
+
             return View(model);
         }
 
@@ -53,7 +55,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             }
 
             var isExist = await _dataContext.Coupons
-                .AnyAsync(c => c.Name.ToLower() == couponModel.Name.ToLower());
+                .AnyAsync(c => c.CouponCode.ToLower() == couponModel.CouponCode.ToLower());
 
             if (isExist)
             {
@@ -85,7 +87,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var coupon = await _dataContext.Coupons.FindAsync(model.Id);
             if (coupon == null) return NotFound();
 
-            coupon.Name = model.Name;
+            coupon.CouponCode = model.CouponCode;
             coupon.Description = model.Description;
             coupon.DiscountType = model.DiscountType;
             coupon.DiscountValue = model.DiscountValue;

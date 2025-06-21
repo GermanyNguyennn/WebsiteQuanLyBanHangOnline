@@ -23,6 +23,6 @@ namespace WebsiteQuanLyBanHangOnline.Repository
         public DbSet<InformationModel> Information { get; set; }
         public DbSet<CouponModel> Coupons { get; set; }
         public DbSet<MoMoModel> MoMos { get; set; }
-        public DbSet<VnPayModel> VnPays { get; set; }
+        public DbSet<VnPayModel> VNPays { get; set; }
     }
 }

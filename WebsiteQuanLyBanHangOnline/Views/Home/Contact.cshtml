@@ -1,9 +1,33 @@
 ﻿@model ContactModel
-<div class="row">
+
+<div class="container">
+	<div class="col">
+		<table class="table table-bordered">
+			<tbody>
+				<tr>
+					<th>Họ và Tên</th>
+					<td>@Model.Name</td>
+				</tr>
+				<tr>
+					<th>Email</th>
+					<td>@Model.Email</td>
+				</tr>
+				<tr>
+					<th>Số Điện Thoại</th>
+					<td>@Model.Phone</td>
+				</tr>
+				<tr>
+					<th>Địa Chỉ</th>
+					<td>@Model.Address</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
 	<div class="col">
 		<div id="map">
 			<iframe src="@Model.Map"
-					width="100%"	
+					width="100%"
 					height="450"
 					style="border:0;"
 					allowfullscreen=""
@@ -12,10 +36,5 @@
 			</iframe>
 		</div>
 		@* @Html.Raw(Model.Description) *@
-	</div>
-	<div class="col">
-		<h5><b>Name: @Model.Name</b></h5>
-		<h5>Email: @Model.Email</h5>
-		<h5>Phone: @Model.Phone</h5>
 	</div>
 </div>

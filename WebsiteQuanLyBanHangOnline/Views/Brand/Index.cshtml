@@ -1,5 +1,7 @@
 ﻿@model IEnumerable<ProductModel>
 
+<partial name="_SliderPartial" />
+
 <div class="col-sm-3">
 	<partial name="_SidebarPartial" />
 </div>
@@ -17,34 +19,29 @@
 						<div class="productinfo text-center">
 							<a asp-controller="Product" asp-action="Detail" asp-route-Id="@item.Id">
 								<img src="~/media/products/@item.Image" alt="@item.Name" />
-								<h2>@item.Price.ToString("#,##0 VNĐ")</h2>
-								<h5 style="height: 40px; overflow: hidden; margin: 0;">@item.Name</h5>
-								@* <p>Danh Mục: @item.Category.Name</p> *@
-								@* <p>Thương Hiệu: @item.Brand.Name</p> *@
+								<p><h5>@item.Name</h5></p>
+								<p><h2>@item.Price.ToString("#,##0 VNĐ")</h2></p>
 							</a>
 							@if (@item.Quantity > 0)
 							{
-								<a class="btn btn-default add-to-cart" asp-controller="Cart" asp-action="Add" asp-route-Id="@item.Id"><i class="fa fa-shopping-cart"></i>Add To Cart</a>
+								<a class="btn btn-default add-to-cart" asp-controller="Cart" asp-action="Add" asp-route-Id="@item.Id"><i class="fa fa-shopping-cart"></i>Thêm Vào Giỏ Hàng</a>
 							}
 							else
 							{
-								<a class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Sold Out</a>
+								<a class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Hết Hàng</a>
 							}
 						</div>
 					</div>
 					<div class="choose">
-						@if (User.Identity?.IsAuthenticated ?? false)
-						{
-							<ul class="nav nav-pills nav-justified">
-								<li><a href="#"><i class="fa fa-plus-square"></i>Add To Wishlist</a></li>
-								<li><a href="#"><i class="fa fa-plus-square"></i>Add To Compare</a></li>
-							</ul>
-						}
+						<ul class="nav nav-pills nav-justified">
+							<li><a href="#"><i class="fa fa-plus-square"></i>Yêu Thích</a></li>
+							<li><a href="#"><i class="fa fa-plus-square"></i>So Sánh</a></li>
+						</ul>
 					</div>
 				</div>
 			</div>
 		}
-		</div>
+	</div>
 	<!--features_items-->
 </div>
 

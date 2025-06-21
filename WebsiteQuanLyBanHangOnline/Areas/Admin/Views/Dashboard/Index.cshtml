@@ -12,65 +12,63 @@
     );
 }
 
-<!-- FORM LỌC THEO NGÀY -->
-<form method="GET" class="row g-2 align-items-center mb-4">
-    <div class="col-auto">
-        <label asp-for="FromDate" class="col-form-label">Từ Ngày:</label>
-    </div>
-    <div class="col-auto">
-        <input asp-for="FromDate" type="date" class="form-control" />
-    </div>
-    <br />
-    <div class="col-auto">
-        <label asp-for="ToDate" class="col-form-label">Đến Ngày:</label>
-    </div>
-    <div class="col-auto">
-        <input asp-for="ToDate" type="date" class="form-control" />
-    </div>
-    <br />
-    <div class="col-auto">
-        <button type="submit" class="btn btn-warning">Lọc</button>
-    </div>
-</form>
-<br />
-
-<!-- BIỂU ĐỒ DOANH THU -->
-<div class="mb-5">
-    <canvas id="revenueChart" height="100"></canvas>
-</div>
-<br />
-
-<!-- BẢNG THỐNG KÊ -->
-<table class="table table-bordered table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>Ảnh</th>
-            <th>Sản Phẩm</th>
-            <th>Số Lượng Đã Bán</th>
-            <th>Doanh Thu</th>
-            <th>Giá Vốn</th>
-            <th>Lợi Nhuận</th>
-            <th>Ngày Bán Đầu</th>
-            <th>Ngày Bán Cuối</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Statistics)
-        {
+<div class="container">
+    <!-- FORM LỌC THEO NGÀY -->
+    <form method="GET" class="mb-4">
+        <table class="table table-bordered">
             <tr>
-                <td><img src="~/media/products/@item.Image" width="50%" height="50%" /></td>
-                <td>@item.ProductName</td>
-                <td>@item.TotalQuantitySold</td>
-                <td>@item.TotalRevenue.ToString("#,##0 VNĐ")</td>
-                <td>@item.TotalCost.ToString("#,##0 VNĐ")</td>
-                <td>@item.TotalProfit.ToString("#,##0 VNĐ")</td>
-                <td>@item.FirstSoldDate.ToString()</td>
-                <td>@item.LastSoldDate.ToString()</td>
+                <th><label asp-for="FromDate" class="form-label">Từ Ngày:</label></th>
+                <td><input asp-for="FromDate" type="date" class="form-control" /></td>
             </tr>
-        }
-    </tbody>
-</table>
+            <tr>
+                <th><label asp-for="ToDate" class="form-label">Đến Ngày:</label></th>
+                <td><input asp-for="ToDate" type="date" class="form-control" /></td>
+            </tr>
+            <tr>
+                <td>
+                    <button type="submit" class="btn btn-warning mt-2">Lọc</button>
+                </td>
+            </tr>
+        </table>
+    </form>
 
+
+    <!-- BIỂU ĐỒ DOANH THU -->
+    <div class="mb-5">
+        <canvas id="revenueChart" height="100"></canvas>
+    </div>
+
+    <!-- BẢNG THỐNG KÊ -->
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Ảnh</th>
+                <th>Tên Sản Phẩm</th>
+                <th>Số Lượng Đã Bán</th>
+                <th>Doanh Thu</th>
+                <th>Giá Vốn</th>
+                <th>Lợi Nhuận</th>
+                <th>Ngày Bán Đầu</th>
+                <th>Ngày Bán Cuối</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Statistics)
+            {
+                <tr>
+                    <td><img src="~/media/products/@item.Image" width="50%" height="50%" /></td>
+                    <td>@item.ProductName</td>
+                    <td>@item.TotalQuantitySold</td>
+                    <td>@item.TotalRevenue.ToString("#,##0 VNĐ")</td>
+                    <td>@item.TotalCost.ToString("#,##0 VNĐ")</td>
+                    <td>@item.TotalProfit.ToString("#,##0 VNĐ")</td>
+                    <td>@item.FirstSoldDate.ToString()</td>
+                    <td>@item.LastSoldDate.ToString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 <!-- THƯ VIỆN CHART.JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -85,7 +83,7 @@
         data: {
             labels: productNames,
             datasets: [{
-                label: 'Doanh thu (VNĐ)',
+                label: 'Doanh Thu (VNĐ)',
                 data: revenues,
                 backgroundColor: 'rgba(255, 159, 64, 0.6)',
                 borderColor: 'rgba(255, 159, 64, 1)',

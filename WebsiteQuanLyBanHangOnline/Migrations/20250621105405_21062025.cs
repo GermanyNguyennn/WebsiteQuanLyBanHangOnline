@@ -5,14 +5,14 @@
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     /// <inheritdoc />
-    public partial class _16062025_1 : Migration
+    public partial class _21062025 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "CouponCode",
-                table: "Orders",
+                name: "Address",
+                table: "Contacts",
                 type: "nvarchar(max)",
                 nullable: true);
         }
@@ -21,8 +21,8 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "CouponCode",
-                table: "Orders");
+                name: "Address",
+                table: "Contacts");
         }
     }
 }

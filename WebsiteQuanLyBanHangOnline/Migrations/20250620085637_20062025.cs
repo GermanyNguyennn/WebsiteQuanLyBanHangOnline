@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     /// <inheritdoc />
-    public partial class CreatedDatabase : Migration
+    public partial class _20062025 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,6 +30,7 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -106,10 +107,11 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CouponCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DiscountType = table.Column<int>(type: "int", nullable: false),
+                    DiscountValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
@@ -136,23 +138,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Orders",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Sliders",
                 columns: table => new
                 {
@@ -169,39 +154,19 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Statisticals",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Sold = table.Column<int>(type: "int", nullable: false),
-                    Revenue = table.Column<int>(type: "int", nullable: false),
-                    Profit = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Statisticals", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "VnPays",
+                name: "VNPays",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OrderInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PaymentId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TransactionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VnPays", x => x.Id);
+                    table.PrimaryKey("PK_VNPays", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -341,6 +306,7 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ImportPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Sold = table.Column<int>(type: "int", nullable: false),
                     Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -362,6 +328,37 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CouponId = table.Column<int>(type: "int", nullable: true),
+                    CouponCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    District = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_Coupons_CouponId",
+                        column: x => x.CouponId,
+                        principalTable: "Coupons",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -495,12 +492,19 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Information_UserId",
                 table: "Information",
-                column: "UserId");
+                column: "UserId",
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_ProductId",
                 table: "OrderDetails",
                 column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_CouponId",
+                table: "Orders",
+                column: "CouponId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductQuantities_ProductId",
@@ -548,9 +552,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 name: "Contacts");
 
             migrationBuilder.DropTable(
-                name: "Coupons");
-
-            migrationBuilder.DropTable(
                 name: "Information");
 
             migrationBuilder.DropTable(
@@ -569,10 +570,7 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                 name: "Sliders");
 
             migrationBuilder.DropTable(
-                name: "Statisticals");
-
-            migrationBuilder.DropTable(
-                name: "VnPays");
+                name: "VNPays");
 
             migrationBuilder.DropTable(
                 name: "Wishlists");
@@ -582,6 +580,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Coupons");
 
             migrationBuilder.DropTable(
                 name: "Products");

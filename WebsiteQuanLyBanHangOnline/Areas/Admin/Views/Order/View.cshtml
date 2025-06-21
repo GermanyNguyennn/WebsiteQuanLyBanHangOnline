@@ -2,59 +2,98 @@
 @using WebsiteQuanLyBanHangOnline.Models.ViewModels
 @model IEnumerable<OrderDetailModel>
 @{
-    ViewData["Title"] = "Order Detail List";
+    ViewData["Title"] = "Danh Sách Chi Tiết Đơn Hàng";
     decimal subTotal = 0;
     decimal totalAmount = 0;
 }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Order Code</th>
-            <th scope="col">User Name</th>
-            <th scope="col">Product Id</th>
-            <th scope="col">Product Name</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Price</th>
-            <th scope="col">Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            subTotal = item.Price * item.Quantity;
-            totalAmount += subTotal; 
+<div class="container">
+    <p><a asp-controller="Order" asp-action="Index" class="btn btn-warning btn-sm">Quay Lại</a></p>
+
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <input type="hidden" asp-for="@item.OrderCode" class="getId" />
-                <td>@item.Id</td>
-                <td>@item.OrderCode</td>
-                <td>@item.UserName</td>
-                <td>@item.ProductId</td>
-                <td>@item.Product.Name</td>
-                <td>@item.Quantity</td>
-                <td>@item.Price</td>   
-                <td>@subTotal</td>              
+                <th scope="col">Id</th>
+                <th scope="col">Mã Đơn Hàng</th>
+                <th scope="col">Tài Khoản</th>
+                <th scope="col">Mã Sản Phẩm</th>
+                <th scope="col">Tên Sản Phẩm</th>
+                <th scope="col">Số Lượng</th>
+                <th scope="col">Đơn Giá</th>
+                <th scope="col">Thành Tiền</th>
             </tr>
-        }
-        <tr>
-            <td>Total Amount: @totalAmount</td>
-        </tr>     
-        <tr>
-            <td>
-                @if (@ViewBag.Status != 3)
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                subTotal = item.Price * item.Quantity;
+                totalAmount += subTotal; 
+                <tr>
+                    <input type="hidden" asp-for="@item.OrderCode" class="getId" />
+                    <td>@item.Id</td>
+                    <td>@item.OrderCode</td>
+                    <td>@item.UserName</td>
+                    <td>@item.ProductId</td>
+                    <td>@item.Product.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price.ToString("#,##0 VNĐ")</td>
+                    <td>@subTotal.ToString("#,##0 VNĐ")</td>
+                </tr>
+            }
+            <tr>
+                <td colspan="7" class="text-end fw-bold">Tổng Thành Tiền:</td>
+                <td>@totalAmount.ToString("#,##0 VNĐ")</td>
+            </tr>
+
+            @{
+                decimal discountValue = Convert.ToDecimal(ViewBag.DiscountValue ?? 0);
+                string discountType = ViewBag.DiscountType?.ToString();
+                decimal discountAmount = 0;
+                decimal finalTotal = totalAmount;
+
+                if (discountValue > 0)
                 {
-                    <select class="form-control select-update-order">
-                        <option value="1">Đã Đặt Hàng</option>
-                        <option value="2">Đã Giao Hàng</option>
-                        <option value="0">Đã Huỷ</option>
-                    </select>
+                    if (discountType == "Percent")
+                    {
+                        discountAmount = totalAmount * discountValue / 100;
+                    }
+                    else
+                    {
+                        discountAmount = discountValue;
+                    }
+
+                    finalTotal = totalAmount - discountAmount;
                 }
-            </td>
-        </tr>
-        <a asp-controller="Order" asp-action="Index" class="btn btn-warning btn-sm">Back</a>
-    </tbody>
-</table>
+            }
+
+            @if (discountValue > 0)
+            {
+                <tr>
+                    <td colspan="7" class="text-end fw-bold">Giảm Giá:</td>
+                    <td class="fw-bold text-danger">
+                        @discountAmount.ToString("#,##0 VNĐ")
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7" class="text-end fw-bold">Tổng Thành Tiền Sau Giảm:</td>
+                    <td class="fw-bold text-success">@finalTotal.ToString("#,##0 VNĐ")</td>
+                </tr>
+            }
+            <tr>
+                <td>
+                    @if (@ViewBag.Status != 3)
+                    {
+                        <select class="form-control select-update-order">
+                            <option value="1">Đã Đặt Hàng</option>
+                            <option value="2">Đã Giao Hàng</option>
+                            <option value="0">Đã Huỷ</option>
+                        </select>
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 @section Scripts {
     <script>

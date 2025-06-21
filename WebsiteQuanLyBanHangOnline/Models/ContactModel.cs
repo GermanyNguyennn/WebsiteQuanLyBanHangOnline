@@ -15,6 +15,7 @@ namespace WebsiteQuanLyBanHangOnline.Models
         public string Map {  get; set; }
         public string Email { get; set; }
         public string Phone {  get; set; }
+        public string Address { get; set; }
         [NotMapped]
         [FileExtention]
         public IFormFile? ImageUpload { get; set; }

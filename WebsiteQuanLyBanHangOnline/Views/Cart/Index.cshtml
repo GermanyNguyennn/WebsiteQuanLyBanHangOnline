@@ -2,156 +2,193 @@
 
 @{
 	ViewData["Title"] = "Cart";
+
+	var isInfoIncomplete = string.IsNullOrWhiteSpace(Model.FullName) ||
+							string.IsNullOrWhiteSpace(Model.Email) ||
+							string.IsNullOrWhiteSpace(Model.PhoneNumber) ||
+							string.IsNullOrWhiteSpace(Model.Information?.Address) ||
+							string.IsNullOrWhiteSpace(Model.Information?.City) ||
+							string.IsNullOrWhiteSpace(Model.Information?.District) ||
+							string.IsNullOrWhiteSpace(Model.Information?.Ward);
 }
 
 <style>
-	th, td {
-		max-width: 250px !important;
+	td {
+		max-width: 300px !important;
 		vertical-align: middle !important;
 	}
 </style>
 
 <section id="cart_items">
 	<div class="container">
-		<div class="breadcrumbs">
-			<ol class="breadcrumb">
-				<li><a asp-controller="Home" asp-action="Index">Home</a></li>
-				<li class="active">Shopping Cart</li>
-			</ol>
-		</div>
-
 		@if (Model.Cart.Count > 0)
 		{
-			<h5><i class="fa fa-map-marker"></i> Shipping Address</h5>
-			<div class="form-group">
-				<label for="Address">Street Address</label>
-				<input type="text" class="form-control" id="Address" name="Information.Address" value="@Model.Information?.Address" readonly>
-			</div>
-			<div class="form-group">
-				<label for="Ward">Ward</label>
-				<input type="text" class="form-control" id="Ward" name="Information.Ward" value="@Model.Information?.Ward" readonly>
-			</div>
-			<div class="form-group">
-				<label for="District">District</label>
-				<input type="text" class="form-control" id="District" name="Information.District" value="@Model.Information?.District" readonly>
-			</div>
-			<div class="form-group">
-				<label for="City">City</label>
-				<input type="text" class="form-control" id="City" name="Information.City" value="@Model.Information?.City" readonly>
-			</div>
+			<h4><i class="fa fa-map-marker"></i> Thông Tin Cá Nhân</h4>
+
+			<table class="table table-bordered">
+				<tr>
+					<th>Họ Và Tên</th>
+					<td>@Model.FullName</td>
+				</tr>
+				<tr>
+					<th>Email</th>
+					<td>@Model.Email</td>
+				</tr>
+				<tr>
+					<th>Số Điện Thoại</th>
+					<td>@Model.PhoneNumber</td>
+				</tr>
+				<tr>
+					<th>Địa Chỉ Cụ Thể</th>
+					<td>@Model.Information?.Address</td>
+				</tr>
+				<tr>
+					<th>Phường / Xã</th>
+					<td>@Model.Information?.Ward</td>
+				</tr>
+				<tr>
+					<th>Quận / Huyện</th>
+					<td>@Model.Information?.District</td>
+				</tr>
+				<tr>
+					<th>Tỉnh / Thành Phố</th>
+					<td>@Model.Information?.City</td>
+				</tr>
+			</table>
+
+			<h4><i class="fa fa-tags"></i> Giảm Giá</h4>
+			<form asp-action="ApplyCoupon" asp-controller="Cart" method="POST">
+				<table class="table table-bordered">
+					<tr>
+						<th style="vertical-align: middle;"><label for="CouponCode">Mã Giảm Giá:</label></th>
+						<td><input type="text" name="CouponCode" id="CouponCode" class="form-control" /></td>
+						<td><button type="submit" class="btn btn-warning">Áp Dụng</button></td>
+					</tr>
+				</table>
+			</form>
+
+			<h4><i class="fa fa-shopping-cart"></i> Giỏ Hàng</h4>
 
 			<div class="table-responsive cart_info">
-				<table class="table table-condensed">
-					<thead>
-						<tr class="cart_menu">
-							<th scope="col" class="image">Product Image</th>
-							<th scope="col" class="name">Product Name</th>
-							<th scope="col" class="price">Product Price</th>
-							<th scope="col" class="quantity" colspan="3">Product Quantity</th>
-							<th scope="col" class="total">Product Total</th>
-							<th scope="col"></th>
+				<table class="table table-bordered text-center align-middle">
+					<thead class="thead-dark">
+						<tr>
+							<th class="text-center">Ảnh Sản Phẩm</th>
+							<th class ="text-center">Tên Sản Phẩm</th>
+							<th class="text-center">Đơn Giá</th>
+							<th class="text-center" colspan="3">Số Lượng</th>
+							<th class="text-center">Thành Tiền</th>
+							<th class="text-center">Xoá</th>
 						</tr>
 					</thead>
-					<tbody>					
+					<tbody>
 						@foreach (var item in Model.Cart)
 						{
 							<tr>
-								<td class="cart_product">
-									<img src="~/media/products/@item.Image" alt="@item.ProductName" width="70%" height="70%" />
-								</td>
-								<td class="cart_description">
-									<h5><a asp-controller="Product" asp-action="Detail" asp-route-Id="@item.ProductId">@item.ProductName</a></h5>
-								</td>
-								<td class="cart_total">
-									<h5 class="">@item.Price.ToString("#,##0 VNĐ")</h5>
-								</td>							
 								<td>
-									<a class="btn btn-default btn-sm" asp-controller="Cart" asp-action="Decrease" asp-route-Id="@item.ProductId">-</a>
+									<img src="~/media/products/@item.Image" alt="@item.ProductName" style="max-width: 150px; height: auto;" />
 								</td>
-								<td class="cart_quantity">
-									<input class="cart_quantity_input btn btn-default btn-sm" type="text" name="quantity" value="@item.Quantity" autocomplete="off" size="1" readonly>
-								</td>
+
 								<td>
-									<a class="btn btn-default btn-sm" asp-controller="Cart" asp-action="Increase" asp-route-Id="@item.ProductId">+</a>
+									<a asp-controller="Product" asp-action="Detail" asp-route-Id="@item.ProductId">@item.ProductName</a>
 								</td>
-								<td class="cart_total">
-									<h5 class="">@Model.Cart.Where(x => x.ProductId == item.ProductId).Sum(x => x.Quantity * x.Price).ToString("#,##0 VNĐ")</h5>
+
+								<td>@item.Price.ToString("#,##0 VNĐ")</td>
+
+								<td>
+									<a class="btn btn-sm btn-outline-secondary" asp-controller="Cart" asp-action="Decrease" asp-route-Id="@item.ProductId">-</a>
 								</td>
-								<td class="cart_delete">
-									<a class="cart_quantity_delete" asp-controller="Cart" asp-action="Delete" asp-route-Id="@item.ProductId" ><i class="fa fa-times"></i></a>									
-								</td>								
+
+								<td>
+									<input class="form-control text-center" type="text" value="@item.Quantity" readonly style="width: 50px; display: inline-block;" />
+								</td>
+
+								<td>
+									<a class="btn btn-sm btn-outline-secondary" asp-controller="Cart" asp-action="Increase" asp-route-Id="@item.ProductId">+</a>
+								</td>
+
+								<td>@((item.Quantity * item.Price).ToString("#,##0 VNĐ"))</td>
+
+								<td>
+									<a class="text-danger" asp-controller="Cart" asp-action="Delete" asp-route-Id="@item.ProductId">
+										<i class="fa fa-trash"></i> Xoá
+									</a>
+								</td>
 							</tr>
 						}
-						<tr>									
-							<td colspan="6"></td>
-							<td>
-								Grand Total: <h5 class="">@Model.GrandTotal.ToString("#,##0 VNĐ")</h5>
-							</td>
+
+						<tr>
+							<td colspan="6" class="text-left"><strong>Tổng Thành Tiền:</strong></td>
+							<td colspan="2" class="text-right"><strong>@Model.TotalAmount.ToString("#,##0 VNĐ")</strong></td>
 						</tr>
-						@if (!string.IsNullOrEmpty(Model.CouponCode))
+
+						@if (!string.IsNullOrEmpty(Model.CouponCode) && Model.DiscountAmount > 0)
 						{
-							<tr>
-								<td colspan="6"></td>
-								<td>
-									Coupon (@Model.CouponCode): <h5 class="">-@Model.DiscountAmount.ToString("#,##0 VNĐ")</h5>
-								</td>
+							<tr class="text-warning">
+								<td colspan="6" class="text-left"><strong>Giảm Giá (@Model.CouponCode):</strong></td>
+								<td colspan="2" class="text-right"><strong>- @Model.DiscountAmount.ToString("#,##0 VNĐ")</strong></td>
 							</tr>
-							<tr>
-								<td colspan="6"></td>
-								<td>
-									Total After Discount: <h5 class="">@Model.TotalAfterDiscount.ToString("#,##0 VNĐ")</h5>
-								</td>
+							<tr class="text-success">
+								<td colspan="6" class="text-left"><strong>Tổng Thành Tiền Sau Khi Giảm Giá:</strong></td>
+								<td colspan="2" class="text-right"><strong>@Model.TotalAfterDiscount.ToString("#,##0 VNĐ")</strong></td>
 							</tr>
 						}
-						<tr>
-							<td colspan="6"></td>
-							<td>
-								<form asp-action="ApplyCoupon" asp-controller="Cart" method="POST">
-									<div class="form-group">
-										<label for="CouponCode">Coupon:</label>
-										<input type="text" name="CouponCode" id="CouponCode" class="form-control" />
-										<button type="submit" class="btn btn-primary">Apply</button>
-									</div>
-								</form>
-							</td>
-						</tr>
-						<tr>
-							<td colspan="7"></td>
-							<td>
-								<form method="POST" asp-action="CreatePaymentUrlMoMo" asp-controller="Payment">
-									<input type="hidden" name="Amount" value="@Model.TotalAfterDiscount" />
-									<input type="hidden" name="OrderInfo" value="Thanh Toán Bằng MoMo" />
-
-									<button class="btn btn-primary" name="PayUrl" type="submit">Pay With MoMo</button>
-								</form>
-								
-								<form method="POST" asp-action="CreatePaymentUrlVnPay" asp-controller="Payment">
-									<input type="hidden" name="Amount" value="@Model.TotalAfterDiscount" />
-									<input type="hidden" name="OrderInfo" value="Thanh Toán Bằng VnPay" />
-									<input type="hidden" name="OrderType" value="other" />
-
-									<button class="btn btn-primary" type="submit">Pay With VnPay</button>
-								</form>
-								<form asp-action="Checkout" asp-controller="Checkout" method="GET">
-									<input type="hidden" name="PaymentMethod" value="COD" />
-									<input type="hidden" name="PaymentId" value="" />
-
-									<button class="btn btn-primary" type="submit">Pay With Cash</button>
-								</form>
-							</td>
-						</tr>						
 					</tbody>
 				</table>
+			</div>
+
+			<div class="row mt-3">
+				@if (!isInfoIncomplete)
+				{
+					<div class="col-md-4 col-sm-12 mb-2">
+						<form method="POST" asp-action="CreatePaymentUrlMoMo" asp-controller="Payment">
+							<input type="hidden" name="Amount" value="@Model.TotalAfterDiscount" />
+							<input type="hidden" name="OrderInfo" value="Thanh Toán Bằng MoMo" />
+							<button class="btn btn-warning btn-block w-100" type="submit" name="PayUrl">
+								<i class="fa fa-mobile"></i> Thanh Toán Bằng MoMo
+							</button>
+						</form>
+					</div>
+
+					<div class="col-md-4 col-sm-12 mb-2">
+						<form method="POST" asp-action="CreatePaymentUrlVnPay" asp-controller="Payment">
+							<input type="hidden" name="Amount" value="@Model.TotalAfterDiscount" />
+							<input type="hidden" name="OrderInfo" value="Thanh Toán Bằng VNPay" />
+							<input type="hidden" name="OrderType" value="other" />
+							<button class="btn btn-warning btn-block w-100" type="submit">
+								<i class="fa fa-credit-card"></i> Thanh Toán Bằng VNPay
+							</button>
+						</form>
+					</div>
+
+					<div class="col-md-4 col-sm-12 mb-2">
+						<form asp-action="Checkout" asp-controller="Checkout" method="GET">
+							<input type="hidden" name="PaymentMethod" value="COD" />
+							<input type="hidden" name="PaymentId" value="" />
+							<button class="btn btn-warning btn-block w-100" type="submit">
+								<i class="fa fa-truck"></i> Thanh Toán Khi Nhận Hàng
+							</button>
+						</form>
+					</div>
+				}
+				else
+				{
+					<div class="col-12 text-center text-danger">
+						<i class="fa fa-exclamation-triangle"></i> Thông Tin Thanh Toán Chưa Đầy Đủ. Không Thể Thanh Toán.
+					</div>
+				}
 			</div>
 		}
 		else
 		{
-			<h5>Your Cart Is Empty. <a asp-action="Index" asp-controller="Home">Go To Home Page To Buy.</a></h5>
+			<img src="" />
+			<h5>Giỏ Hàng Của Bạn Trống. <a asp-action="Index" asp-controller="Home">Đi Đến Trang Chủ Để Mua Hàng</a>.</h5>
 		}
 	</div>
-</section> <!--/#cart_items-->
+</section>
+
 @section Scripts {
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}	
-}   
+	}
+}

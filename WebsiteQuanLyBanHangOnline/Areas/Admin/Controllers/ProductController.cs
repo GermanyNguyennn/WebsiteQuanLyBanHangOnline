@@ -180,7 +180,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AddQuantity(int Id)
+        public async Task<IActionResult> IndexQuantity(int Id)
         {
             ViewBag.ProductByQuantity = await _dataContext.ProductQuantities
                 .Where(pq => pq.ProductId == Id)
@@ -192,7 +192,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateQuantity(ProductQuantityModel productQuantityModel)
+        public async Task<IActionResult> AddQuantity(ProductQuantityModel productQuantityModel)
         {
             var product = await _dataContext.Products.FindAsync(productQuantityModel.ProductId);
             if (product == null) return NotFound();
@@ -206,5 +206,35 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             TempData["success"] = "Quantity Updated Successfully!!!";
             return RedirectToAction("AddQuantity", new { Id = productQuantityModel.ProductId });
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteQuantity(int id)
+        {
+            var quantityEntry = await _dataContext.ProductQuantities.FindAsync(id);
+            if (quantityEntry == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _dataContext.Products.FindAsync(quantityEntry.ProductId);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            product.Quantity -= quantityEntry.Quantity;
+            if (product.Quantity < 0)
+            {
+                product.Quantity = 0;
+            }
+
+            _dataContext.ProductQuantities.Remove(quantityEntry);
+            await _dataContext.SaveChangesAsync();
+
+            TempData["success"] = "Xoá số lượng thành công!";
+            return RedirectToAction("IndexQuantity", new { Id = quantityEntry.ProductId });
+        }
+
     }
 }

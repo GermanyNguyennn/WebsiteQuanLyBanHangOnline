@@ -1,25 +1,26 @@
 ﻿@model CategoryModel
 @{
-    ViewData["Title"] = "Add Category";
+    ViewData["Title"] = "Thêm Danh Mục";
 }
 
+<div class="container">
 <form asp-action="Add" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group">
-        <label>Name</label>
+        <label>Tên Danh Mục</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger" />
     </div>
 
     <div class="form-group">
-        <label>Description</label>
+        <label>Mô Tả</label>
         <textarea asp-for="Description" class="form-control"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Status</label>
+        <label>Trạng Thái</label>
         <select asp-for="Status" class="form-control">
             <option value="1">Hiển Thị</option>
             <option value="0">Ẩn</option>
@@ -28,10 +29,11 @@
     </div>
 
     <div class="form-group">
-        <button class="btn btn-warning btn-sm">Add</button>
-        <a asp-action="Index" asp-controller="Category" class="btn btn-warning btn-sm">Back</a>
+        <button class="btn btn-warning btn-sm">Thêm Danh Mục</button>
+        <a asp-action="Index" asp-controller="Category" class="btn btn-warning btn-sm">Quay Lại</a>
     </div>
 </form>
+</div>
 
 @section Scripts {
     @{

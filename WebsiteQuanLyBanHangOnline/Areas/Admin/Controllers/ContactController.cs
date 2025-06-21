@@ -82,6 +82,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             existedContact.Map = contactModel.Map;
             existedContact.Email = contactModel.Email;
             existedContact.Phone = contactModel.Phone;
+            existedContact.Address = contactModel.Address;
 
             _dataContext.Update(existedContact);
             await _dataContext.SaveChangesAsync();

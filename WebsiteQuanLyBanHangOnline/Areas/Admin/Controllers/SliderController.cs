@@ -32,6 +32,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
                 .ToListAsync();
 
             ViewBag.Pager = pager;
+            ViewBag.Sliders = data;
             return View(data);
         }
         [HttpGet]

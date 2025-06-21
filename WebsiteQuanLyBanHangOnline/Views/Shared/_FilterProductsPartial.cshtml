@@ -2,13 +2,12 @@
     var currentUrl = Url.ActionContext.HttpContext.Request.Path;
 }
 
-
 <div class="container">
     <div class="row">
         <div class="col-md-2">
             <h5>Sắp Xếp Theo</h5>
             <select class="form-control" id="sort_by">
-                <option value="">---</option>
+                <option value=""></option>
                 <option value="@currentUrl?sort_by=price_increase">Giá Tăng dần</option>
                 <option value="@currentUrl?sort_by=price_decrease">Giá Giảm dần</option>
                 <option value="@currentUrl?sort_by=price_newest">Mới Nhất</option>

@@ -174,6 +174,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -301,6 +304,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -332,6 +338,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CouponCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -343,9 +352,6 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -383,7 +389,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Information");
                 });
@@ -451,16 +459,37 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("CouponCode")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("CouponId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("District")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OrderCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PaymentMethod")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
@@ -469,7 +498,12 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Ward")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CouponId");
 
                     b.ToTable("Orders");
                 });
@@ -591,18 +625,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Property<string>("OrderInfo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PaymentId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PaymentMethod")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TransactionId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.ToTable("VnPays");
+                    b.ToTable("VNPays");
                 });
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.WishlistModel", b =>
@@ -691,8 +716,8 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.InformationModel", b =>
                 {
                     b.HasOne("WebsiteQuanLyBanHangOnline.Models.AppUserModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                        .WithOne("Information")
+                        .HasForeignKey("WebsiteQuanLyBanHangOnline.Models.InformationModel", "UserId");
 
                     b.Navigation("User");
                 });
@@ -706,6 +731,15 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderModel", b =>
+                {
+                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.CouponModel", "Coupon")
+                        .WithMany()
+                        .HasForeignKey("CouponId");
+
+                    b.Navigation("Coupon");
                 });
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.ProductModel", b =>
@@ -747,6 +781,11 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.AppUserModel", b =>
+                {
+                    b.Navigation("Information");
                 });
 #pragma warning restore 612, 618
         }

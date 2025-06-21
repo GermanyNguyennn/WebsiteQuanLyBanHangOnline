@@ -2,7 +2,7 @@
 @model IEnumerable<SliderModel>
 
 @{
-    ViewData["title"] = "Slider List";
+    ViewData["title"] = "Danh Sách Banner";
 
     Paginate pager = new Paginate();
 
@@ -16,16 +16,16 @@
     }
 }
 
-<a asp-controller="Slider" asp-action="Add" class="btn btn-warning btn-sm">Add Slider</a>
-<table class="table" id="myTable">
+<div class="container">
+<p><a asp-controller="Slider" asp-action="Add" class="btn btn-warning btn-sm">Thêm Banner</a></p>
+<table class="table table-bordered table-hover" id="myTable">
     <thead>
         <tr>
             <th scope="col">Id</th>
-            <th scope="col">Slider Name</th>
-            <th scope="col">Slider Image</th>
-            <th scope="col">Slider Description</th>
-            <th scope="col">Slider Status</th>
-            <th scope="col">Slider Manager</th>
+            <th scope="col">Tên Banner</th>
+            <th scope="col">Ảnh</th>
+            <th scope="col">Mô Tả</th>
+            <th scope="col">Trạng Thái</th>
         </tr>
     </thead>
     <tbody>
@@ -47,11 +47,12 @@
                     }
                 </td>
                 <td>
-                    <a class="btn btn-warning btn-sm" asp-action="Edit" asp-controller="Slider" asp-route-Id="@item.Id">Edit</a>
-                    <a class="btn btn-warning btn-sm confirmDeletion" asp-action="Delete" asp-controller="Slider" asp-route-Id="@item.Id">Delete</a>
+                    <a class="btn btn-warning btn-sm" asp-action="Edit" asp-controller="Slider" asp-route-Id="@item.Id">Sửa</a>
+                    <a class="btn btn-warning btn-sm confirmDeletion" asp-action="Delete" asp-controller="Slider" asp-route-Id="@item.Id">Xoá</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 <partial name="_Paging" model="@pager" />
+</div>

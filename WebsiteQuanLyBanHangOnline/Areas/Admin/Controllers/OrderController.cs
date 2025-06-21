@@ -1,10 +1,14 @@
 ﻿using Azure;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using WebsiteQuanLyBanHangOnline.Models;
+using WebsiteQuanLyBanHangOnline.Models.ViewModels;
 using WebsiteQuanLyBanHangOnline.Repository;
+using WebsiteQuanLyBanHangOnline.Services.Location;
 
 namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 {
@@ -14,9 +18,13 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
     public class OrderController : Controller
     {
         private readonly DataContext _dataContext;
-        public OrderController(DataContext context)
+        private readonly UserManager<AppUserModel> _userManager;
+        private readonly ILocationService _locationService;
+        public OrderController(DataContext context, UserManager<AppUserModel> userManager, ILocationService locationService)
         {
             _dataContext = context;
+            _userManager = userManager;
+            _locationService = locationService;
         }
 
         public async Task<IActionResult> Index(int page = 1)
@@ -45,7 +53,8 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
                 return BadRequest("Invalid Order Code.");
 
             var order = await _dataContext.Orders
-                .FirstOrDefaultAsync(o => o.OrderCode == orderCode);
+            .Include(o => o.Coupon)
+            .FirstOrDefaultAsync(o => o.OrderCode == orderCode);
 
             if (order == null)
                 return NotFound("Order Not Found.");
@@ -57,6 +66,17 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
             ViewBag.Status = order.Status;
             ViewBag.OrderCode = orderCode;
+
+            if (order.Coupon != null)
+            {
+                ViewBag.DiscountValue = order.Coupon.DiscountValue;
+                ViewBag.DiscountType = order.Coupon.DiscountType.ToString();
+            }
+            else
+            {
+                ViewBag.DiscountValue = 0;
+                ViewBag.DiscountType = null;
+            }
             return View(orderDetails);
         }
 
@@ -99,17 +119,44 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> PaymentVnPayOrder(string orderId)
+        public async Task<IActionResult> PaymentVNPayOrder(string orderId)
         {
             if (string.IsNullOrWhiteSpace(orderId))
                 return BadRequest("Order ID Is Required.");
 
-            var vnPay = await _dataContext.VnPays.FirstOrDefaultAsync(x => x.OrderId == orderId);
+            var vnPay = await _dataContext.VNPays.FirstOrDefaultAsync(x => x.OrderId == orderId);
 
             if (vnPay == null)
                 return NotFound("VnPay Payment Info Not Found.");
 
             return View(vnPay);
+        }
+
+        public async Task<IActionResult> CustomerInformation(string orderCode)
+        {
+            if (string.IsNullOrEmpty(orderCode))
+                return NotFound();
+
+            var order = await _dataContext.Orders.FirstOrDefaultAsync(o => o.OrderCode == orderCode);
+
+            if (order == null)
+                return NotFound();
+
+            var viewModel = new CartViewModel
+            {
+                FullName = order.FullName,
+                Email = order.Email,
+                PhoneNumber = order.PhoneNumber,
+                Information = new InformationViewModel
+                {
+                    Address = order.Address,
+                    City = order.City,
+                    District = order.District,
+                    Ward = order.Ward
+                }
+            };
+
+            return View(viewModel);
         }
     }
 }

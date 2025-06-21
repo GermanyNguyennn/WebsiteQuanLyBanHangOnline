@@ -1,32 +1,33 @@
 ﻿@model ContactModel
 @{
-    ViewData["Title"] = "Edit Contact";
+    ViewData["Title"] = "Sửa Liên Hệ";
 }
 
+<div class="container">
 <form asp-action="Edit" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group">
-        <label>Name</label>
+        <label>Tên Liên Hệ</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger" />
     </div>
 
     <div class="form-group">
-        <label>LogoImage</label>
+        <label>Ảnh</label>
         <input asp-for="ImageUpload" class="form-control" />
         <span asp-validation-for="ImageUpload" class="text-danger" />
         <img id="imgpreview" class="pt-2" />
     </div>
 
     <div class="form-group">
-        <label>Description</label>
+        <label>Mô Tả</label>
         <textarea asp-for="Description" class="form-control"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Map</label>
+        <label>Địa Chỉ</label>
         <textarea asp-for="Map" class="form-control"></textarea>
         <span asp-validation-for="Map" class="text-danger"></span>
     </div>
@@ -38,16 +39,23 @@
     </div>
 
     <div class="form-group">
-        <label>Phone</label>
+        <label>Số Điện Thoại</label>
         <input asp-for="Phone" class="form-control" />
         <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <button class="btn btn-warning btn-sm">Edit</button>
-        <a asp-action="Index" asp-controller="Contact" class="btn btn-warning btn-sm">Back</a>
+        <label>Địa Chỉ</label>
+        <textarea asp-for="Address" class="form-control"></textarea>
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-warning btn-sm">Sửa</button>
+        <a asp-action="Index" asp-controller="Contact" class="btn btn-warning btn-sm">Quay Lại</a>
     </div>
 </form>
+</div>
 
 @section Scripts {
     @{

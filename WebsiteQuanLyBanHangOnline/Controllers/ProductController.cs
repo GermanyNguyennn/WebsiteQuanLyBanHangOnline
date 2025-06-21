@@ -43,7 +43,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                TempData["error"] = "Please Enter Search Keyword!!!";
+                TempData["error"] = "Vui Lòng Nhập Từ Khoá Tìm Kiếm.";
                 return RedirectToAction("Index", "Product");
             }
 

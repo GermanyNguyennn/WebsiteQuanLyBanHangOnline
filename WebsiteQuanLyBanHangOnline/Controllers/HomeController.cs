@@ -13,10 +13,10 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         private readonly DataContext _dataContext;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, DataContext context)
+        public HomeController(ILogger<HomeController> logger, DataContext dataContext)
         {
             _logger = logger;
-            _dataContext = context;
+            _dataContext = dataContext;
         }
         public async Task<IActionResult> Index(string sort_by = "", string startprice = "", string endprice = "")
         {

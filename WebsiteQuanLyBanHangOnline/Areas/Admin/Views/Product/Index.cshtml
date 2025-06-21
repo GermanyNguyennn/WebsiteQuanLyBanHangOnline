@@ -15,51 +15,53 @@
     }
 }
 
-<a asp-controller="Product" asp-action="Add" class="btn btn-warning btn-sm">Add Product</a>
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Product Name</th>
-            <th scope="col">Product Image</th>
-            @* <th scope="col">Product Description</th> *@
-            <th scope="col">Product Price</th>
-            <th scope="col">Product Import Price</th>
-            <th scope="col">Product Quantity</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Sold</th>
-            <th scope="col">Product Slug</th>
-            <th scope="col">Product Category</th>
-            <th scope="col">Product Brand</th>
-
-        </tr>
-    </thead>
-    <tbody>
-        @foreach(var item in Model)
-        {
+<div class="container">
+    <p><a asp-controller="Product" asp-action="Add" class="btn btn-warning btn-sm">Thêm Sản Phẩm</a></p>
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <td>@item.Id</td>
-                <td>@item.Name</td>
-                <td><img src="~/media/products/@item.Image" width="70%" height="70%"/></td>
-                @* <td>@Html.Raw(@item.Description)</td> *@
-                <td>@item.Price.ToString("#,##0 VNĐ")</td>
-                <td>@item.ImportPrice.ToString("#,##0 VNĐ")</td>
-                <td><a asp-action="AddQuantity" asp-controller="Product" asp-route-Id="@item.Id">Add</a></td>
-                <td>@item.Quantity</td>
-                <td>@item.Sold</td>
-                <td>@item.Slug</td>
-                <td>@item.Category.Name</td>
-                <td>@item.Brand.Name</td>
-                <td>
-                    <a asp-controller="Product" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
-                    @* <a asp-controller="Product" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Delete</a> *@
-                </td>
-                <td>
-                    @* <a asp-controller="Product" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Edit</a> *@
-                    <a asp-controller="Product" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Delete</a>
-                </td>
+                <th scope="col">Id</th>
+                <th scope="col">Tên Sản Phẩm</th>
+                <th scope="col">Ảnh</th> 
+                @* <th scope="col">Mô Tả</th> *@
+                <th scope="col">Giá Bán</th>
+                <th scope="col">Giá Nhập</th>
+                <th scope="col">Thêm Số Lượng</th>
+                <th scope="col">Số Lượng Tồn Kho</th>
+                <th scope="col">Đã Bán</th>
+                @* <th scope="col">Slug</th> *@
+                <th scope="col">Danh Mục</th>
+                <th scope="col">Thương Hiệu</th>
+
             </tr>
-        }
-    </tbody>
-</table>
-<partial name="_Paging" model="@pager" />
+        </thead>
+        <tbody>
+            @foreach(var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td><img src="~/media/products/@item.Image" width="70%" height="70%"/></td>
+                    @* <td>@Html.Raw(@item.Description)</td> *@
+                    <td>@item.Price.ToString("#,##0 VNĐ")</td>
+                    <td>@item.ImportPrice.ToString("#,##0 VNĐ")</td>
+                    <td><a asp-controller="Product" asp-action="IndexQuantity" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Thêm</a></td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Sold</td>
+                    @* <td>@item.Slug</td> *@
+                    <td>@item.Category.Name</td>
+                    <td>@item.Brand.Name</td>
+                    <td>
+                        <a asp-controller="Product" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Sửa</a>
+                        @* <a asp-controller="Product" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Delete</a> *@
+                    </td>
+                    <td>
+                        @* <a asp-controller="Product" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Edit</a> *@
+                        <a asp-controller="Product" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Xoá</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <partial name="_Paging" model="@pager" />
+</div>

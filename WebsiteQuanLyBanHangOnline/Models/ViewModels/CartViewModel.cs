@@ -3,14 +3,13 @@
     public class CartViewModel
     {
         public List<CartModel> Cart { get; set; }
-        public decimal GrandTotal { get; set; }
-        public InformationViewModel Information { get; set; } = new();
-
-        // Thêm thuộc tính để nhập mã giảm giá
+        public string FullName { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public decimal TotalAmount { get; set; }
+        public InformationViewModel Information { get; set; }
         public string? CouponCode { get; set; }
-
-        // Thêm thông tin giảm giá áp dụng (nếu có)
         public decimal DiscountAmount { get; set; }
-        public decimal TotalAfterDiscount => GrandTotal - DiscountAmount;
+        public decimal TotalAfterDiscount => TotalAmount - DiscountAmount;
     }
 }

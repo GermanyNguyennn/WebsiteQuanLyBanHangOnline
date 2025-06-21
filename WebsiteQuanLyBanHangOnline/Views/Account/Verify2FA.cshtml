@@ -2,16 +2,15 @@
     ViewData["Title"] = "Xác Thực Hai Bước";
 }
 
-<h2>Two-Factor Authentication (2FA)</h2>
-<p>Please Open The Authenticator App And Enter The Authentication Code:</p>
+<div class="container">
+    <h4>Xác Thực Hai Bước (2FA)</h4>
+    <p>Vui Lòng Mở Ứng Dụng Authenticator Và Nhập Mã Xác Thực:</p>
 
-<form method="POST" asp-action="Verify2FA">
-    <div class="form-group">
-        <label for="verificationCode">Authentication Code:</label>
+    <form method="POST" asp-action="Verify2FA">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <label for="verificationCode">Mã Xác Thực:</label>
         <input type="text" name="verificationCode" class="form-control" required />
-    </div>
-
-    <div asp-validation-summary="All" class="text-danger"></div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+        <p><button type="submit" class="btn btn-primary">Xác Thực</button></p>
+    </form>
+    <p><a asp-controller="Account" asp-action="Reset2FA">Ấn Vào Đây Để Reset Xác Thực 2 Bước</a>.</p>
+</div>

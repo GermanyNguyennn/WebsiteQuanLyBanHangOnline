@@ -9,6 +9,5 @@
         public string NotifyUrl { get; set; }
         public string PartnerCode { get; set; }
         public string RequestType { get; set; }
-
     }
 }

@@ -12,7 +12,7 @@ namespace WebsiteQuanLyBanHangOnline.Libraries
         private readonly SortedList<string, string> _requestData = new SortedList<string, string>(new VnPayCompare());
         private readonly SortedList<string, string> _responseData = new SortedList<string, string>(new VnPayCompare());
 
-        public PaymentResponseModel GetFullResponseData(IQueryCollection collection, string hashSecret)
+        public VNPayResponseModel GetFullResponseData(IQueryCollection collection, string hashSecret)
         {
             var vnPay = new VnPayLibrary();
             foreach (var (key, value) in collection)
@@ -31,14 +31,14 @@ namespace WebsiteQuanLyBanHangOnline.Libraries
             var vnPaySecureHash = collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value;        
             var checkSignature = vnPay.ValidateSignature(vnPaySecureHash, hashSecret);
             if (!checkSignature)
-                return new PaymentInformationModel()
+                return new VNPayResponseModel()
                 {
                     Success = false
                 };
-            return new PaymentInformationModel()
+            return new VNPayResponseModel()
             {
                 Success = true,
-                PaymentMethod = "VnPay",
+                PaymentMethod = "VNPay",
                 OrderInfo = vnPayOrderInfo,
                 OrderId = vnPayOrderId.ToString(),
                 PaymentId = vnPayTransactionId.ToString(),
@@ -46,7 +46,6 @@ namespace WebsiteQuanLyBanHangOnline.Libraries
                 Amount = vnPayAmount,
                 Token = vnPaySecureHash,
                 VnPayResponseCode = vnPayResponseCode,
-                CreatedDate = DateTime.Now
             };
         }
 

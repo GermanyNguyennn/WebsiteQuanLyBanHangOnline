@@ -3,53 +3,55 @@
     ViewData["Title"] = "History Order List" + @ViewBag.UserEmail;
 }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Order Code</th>
-            <th scope="col">User Name</th>
-            <th scope="col">Created Date</th>
-            <th scope="col">Status</th>
-            <th scope="col">Payment Method</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="container">
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <td>@item.Id</td>
-                <td>@item.OrderCode</td>
-                <td>@item.UserName</td>
-                <td>@item.CreatedDate</td>
-                <td>
-                    @if (item.Status == 1)
-                    {
-                        <span class="text text-warning">Đã Đặt Hàng</span>
-                    }
-                    else if (item.Status == 2)
-                    {
-                        <span class="text text-success">Đã Giao Hàng</span>
-                    }
-                    else
-                    {
-                        <span class="text text-danger">Đã Huỷ</span>
-                    }
-                </td>
-                <td>
-                    @if (item.PaymentMethod != null && item.PaymentMethod.StartsWith("COD"))
-                    {
-                        <span class="text text-primary">@item.PaymentMethod</span>
-                    }
-                    else if (item.PaymentMethod != "COD")
-                    {
-                        <span class="text text-primary">@item.PaymentMethod</span>
-                    }
-                </td>
-                <td>
-                    <a asp-controller="Account" asp-action="View" asp-route-OrderCode="@item.OrderCode" class="btn btn-primary btn-sm">View</a>
-                </td>
+                <th scope="col">Id</th>
+                <th scope="col">Mã Đơn Hàng</th>
+                <th scope="col">Tài Khoản</th>
+                <th scope="col">Ngày Mua</th>
+                <th scope="col">Trạng Thái</th>
+                <th scope="col">Phương Thức Thanh Toán</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.OrderCode</td>
+                    <td>@item.UserName</td>
+                    <td>@item.CreatedDate</td>
+                    <td>
+                        @if (item.Status == 1)
+                        {
+                            <span class="text text-warning">Đã Đặt Hàng</span>
+                        }
+                        else if (item.Status == 2)
+                        {
+                            <span class="text text-success">Đã Giao Hàng</span>
+                        }
+                        else
+                        {
+                            <span class="text text-danger">Đã Huỷ</span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.PaymentMethod != null && item.PaymentMethod.StartsWith("COD"))
+                        {
+                            <span class="text text-primary">@item.PaymentMethod</span>
+                        }
+                        else if (item.PaymentMethod != "COD")
+                        {
+                            <span class="text text-primary">@item.PaymentMethod</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-controller="Account" asp-action="View" asp-route-OrderCode="@item.OrderCode" class="btn btn-warning btn-sm">Xem</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

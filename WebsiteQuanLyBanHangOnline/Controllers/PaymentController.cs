@@ -27,7 +27,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             if (response == null)
             {
-                TempData["error"] = "MoMo không phản hồi.";
+                TempData["error"] = "MoMo Không Phản Hồi.";
                 return RedirectToAction("Cart", "Index");
             }
 
@@ -39,7 +39,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
             if (string.IsNullOrEmpty(response.PayUrl))
             {
-                TempData["error"] = "Không nhận được đường dẫn thanh toán từ MoMo.";
+                TempData["error"] = "Không Nhận Được Đường Dẫn Thanh Toán Từ MoMo.";
                 return RedirectToAction("Cart", "Index");
             }
 
@@ -47,13 +47,13 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePaymentUrlVnPay(PaymentInformationModel model)
+        public async Task<IActionResult> CreatePaymentUrlVnPay(VNPayInformationModel model)
         {
             var response = await _vnPayService.CreatePaymentAsync(model, HttpContext);
 
             if (string.IsNullOrEmpty(response))
             {
-                TempData["error"] = "Cannot Pay With VnPay.";
+                TempData["error"] = "Không Nhận Được Đường Dẫn Thanh Toán Từ VNPay.";
                 return RedirectToAction("Cart", "Index");
             }
 

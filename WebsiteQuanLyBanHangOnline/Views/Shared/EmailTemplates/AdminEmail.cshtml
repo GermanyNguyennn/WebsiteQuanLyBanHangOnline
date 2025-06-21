@@ -2,17 +2,21 @@
 @model EmailOrderViewModel
 @using System.Globalization
 
-
-
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>New Order Notification</title>
+    <title>Thông Tin Đặt Hàng</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
         table {
-            border-collapse: collapse;
             width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
         th, td {
@@ -26,6 +30,7 @@
         }
 
         h2, h3 {
+            color: #2a7ae2;
             margin-bottom: 5px;
         }
 
@@ -35,20 +40,20 @@
     </style>
 </head>
 <body>
-    <h2>🛒 New Order Received</h2>
+    <h2>🛒 Bạn Có Đơn Hàng Mới!</h2>
 
-    <p><strong>User:</strong> @Model.UserName</p>
-    <p><strong>Order Code:</strong> #@Model.OrderCode</p>
-    <p><strong>Date:</strong> @Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</p>
+    <p><strong>Tài Khoản:</strong> @Model.UserName</p>
+    <p><strong>Mã Đơn Hàng:</strong> #@Model.OrderCode</p>
+    <p><strong>Ngày Mua:</strong> @Model.CreatedDate.ToString()</p>
 
-    <h3>🧾 Order Items:</h3>
+    <h3>🧾 Sản Phẩm Đặt Hàng:</h3>
     <table>
         <thead>
             <tr>
-                <th>Product</th>
-                <th style="text-align:center;">Quantity</th>
-                <th style="text-align:right;">Price</th>
-                <th style="text-align:right;">Subtotal</th>
+                <th>Tên Sản Phẩm</th>
+                <th style="text-align:center;">Số Lượng</th>
+                <th style="text-align:right;">Đơn Giá</th>
+                <th style="text-align:right;">Thành Tiền</th>
             </tr>
         </thead>
         <tbody>
@@ -58,17 +63,36 @@
                 <tr>
                     <td>@item.ProductName</td>
                     <td style="text-align:center;">@item.Quantity</td>
-                    <td style="text-align:right;">@item.Price.ToString("C0", new CultureInfo("vi-VN"))</td>
-                    <td style="text-align:right;">@subtotal.ToString("C0", new CultureInfo("vi-VN"))</td>
+                    <td style="text-align:right;">@item.Price.ToString("#,##0 VNĐ")</td>
+                    <td style="text-align:right;">@subtotal.ToString("#,##0 VNĐ")</td>
                 </tr>
             }
-
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="3" style="text-align:right;"><strong>Total:</strong></td>
-                <td style="text-align:right;"><strong>@Model.TotalAmount.ToString("C0", new CultureInfo("vi-VN"))</strong></td>
+                <td colspan="3" style="text-align:right;"><strong>Tổng Thành Tiền:</strong></td>
+                <td style="text-align:right;"><strong>@Model.TotalAmount.ToString("#,##0 VNĐ")</strong></td>
             </tr>
+
+            @if (!string.IsNullOrEmpty(Model.CouponCode) && Model.DiscountAmount > 0)
+            {
+                <tr>
+                    <td colspan="3" style="text-align:right;"><strong>Mã Giảm Giá:</strong></td>
+                    <td style="text-align:right;"><strong>@Model.CouponCode</strong></td>
+                </tr>
+
+                <tr>
+                    <td colspan="3" style="text-align:right;"><strong>Số Tiền Giảm:</strong></td>
+                    <td style="text-align:right;"><strong>@Model.DiscountAmount.ToString("#,##0 VNĐ")</strong></td>
+                </tr>
+
+                <tr>
+                    <td colspan="3" style="text-align:right; color: green;"><strong>Tổng Thành Tiền Sau Giảm:</strong></td>
+                    <td style="text-align:right; color: green;">
+                        <strong>@Model.TotalAfterDiscount.ToString("#,##0 VNĐ")</strong>
+                    </td>
+                </tr>
+            }
         </tfoot>
     </table>
 </body>

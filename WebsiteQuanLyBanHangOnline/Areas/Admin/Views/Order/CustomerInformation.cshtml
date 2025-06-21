@@ -1,0 +1,43 @@
+﻿@using WebsiteQuanLyBanHangOnline.Models.ViewModels
+@model CartViewModel
+
+@{
+    ViewData["Title"] = "Thông Tin Khách Hàng";
+}
+
+<div class="container">
+<p><a asp-controller="Order" asp-action="Index" class="btn btn-warning btn-sm">Quay Lại</a></p>
+
+<h4><i class="fa fa-user"></i> Thông Tin Khách Hàng</h4>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>Họ Và Tên</th>
+            <td>@Model.FullName</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>@Model.Email</td>
+        </tr>
+        <tr>
+            <th>Số Điện Thoại</th>
+            <td>@Model.PhoneNumber</td>
+        </tr>
+        <tr>
+            <th>Địa Chỉ Cụ Thể</th>
+            <td>@Model.Information?.Address</td>
+        </tr>
+        <tr>
+            <th>Phường / Xã</th>
+            <td>@Model.Information?.Ward</td>
+        </tr>
+        <tr>
+            <th>Quận / Huyện</th>
+            <td>@Model.Information?.District</td>
+        </tr>
+        <tr>
+            <th>Tỉnh / Thành Phố</th>
+            <td>@Model.Information?.City</td>
+        </tr>
+    </table>
+</div>

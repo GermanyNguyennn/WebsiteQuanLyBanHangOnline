@@ -1,0 +1,16 @@
+﻿@model Reset2FAViewModel
+@{
+    ViewData["Title"] = "Reset 2FA";
+}
+
+<div class="container">
+    <h4>Reset Xác Thực Hai Bước (2FA)</h4>
+    <form asp-action="Reset2FA" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <label>Email</label>
+            <input asp-for="Email" class="form-control" placeholder="Nhập Email Để Reset 2FA" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+            <p><button type="submit" class="btn btn-primary">Gửi</button></p>
+    </form>
+</div>

@@ -1,7 +1,7 @@
 ﻿@using WebsiteQuanLyBanHangOnline.Repository
 @model IEnumerable<BrandModel>
 @{
-    ViewData["Title"] = "Brand List";
+    ViewData["Title"] = "Danh Sách Thương Hiệu";
 
     Paginate pager = new Paginate();
 
@@ -14,16 +14,16 @@
         pageNo = pager.CurrentPage;
     }
 }
-
-<a asp-controller="Brand" asp-action="Add" class="btn btn-warning btn-sm">Add Brand</a>
-<table class="table">
+<div class="container">
+<p><a asp-controller="Brand" asp-action="Add" class="btn btn-warning btn-sm">Thêm Thương Hiệu</a></p>
+<table class="table table-bordered table-hover">
     <thead>
         <tr>
             <th scope="col">Id</th>
-            <th scope="col">Brand Name</th>
-            <th scope="col">Brand Description</th>
-            <th scope="col">Brand Slug</th>
-            <th scope="col">Brand Status</th>
+            <th scope="col">Tên Thương Hiệu</th>
+            <th scope="col">Mô Tả</th>
+            @* <th scope="col">Slug</th> *@
+            <th scope="col">Trạng Thái</th>
         </tr>
     </thead>
     <tbody>
@@ -33,7 +33,7 @@
                 <td>@item.Id</td>
                 <td>@item.Name</td>
                 <td>@Html.Raw(@item.Description)</td>
-                <td>@item.Slug</td>
+                @* <td>@item.Slug</td> *@
                 <td>
                     @if (item.Status == 1)
                     {
@@ -45,11 +45,12 @@
                     }
                 </td>
                 <td>
-                    <a asp-controller="Brand" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
-                    <a asp-controller="Brand" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Delete</a>
+                    <a asp-controller="Brand" asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-warning btn-sm">Sửa</a>
+                    <a asp-controller="Brand" asp-action="Delete" asp-route-Id="@item.Id" class="btn btn-warning btn-sm confirmDeletion">Xoá</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 <partial name="_Paging" model="@pager" />
+</div>
