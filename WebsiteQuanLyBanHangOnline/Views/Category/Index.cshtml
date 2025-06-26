@@ -18,7 +18,7 @@
 					<div class="single-products">
 						<div class="productinfo text-center">
 							<a asp-controller="Product" asp-action="Detail" asp-route-Id="@item.Id">
-								<img src="~/media/products/@item.Image" alt="@item.Name" />
+								<img src="@Url.Content($"~/media/products/{item.Image}")" alt="@item.Name" />
 								<p><h5>@item.Name</h5></p>
 								<p><h2>@item.Price.ToString("#,##0 VNĐ")</h2></p>
 							</a>

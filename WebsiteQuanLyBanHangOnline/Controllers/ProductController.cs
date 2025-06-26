@@ -13,12 +13,16 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             _dataContext = context;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var products = _dataContext.Products
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
-                .ToList();
+                .ToArrayAsync();
+
+            ViewBag.Sliders = await _dataContext.Sliders
+               .Where(s => s.Status == 1)
+               .ToListAsync();
 
             return View(products);
         }
@@ -43,17 +47,19 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                TempData["error"] = "Vui Lòng Nhập Từ Khoá Tìm Kiếm.";
-                return RedirectToAction("Index", "Product");
+                return RedirectToAction("Index", "Home");
             }
 
             var products = await _dataContext.Products
                 .Where(p => p.Name.Contains(searchTerm))
                 .ToListAsync();
 
+            ViewBag.Sliders = await _dataContext.Sliders
+               .Where(s => s.Status == 1)
+               .ToListAsync();
+
             ViewBag.Keyword = searchTerm;
             return View(products);
         }
-
     }
 }

@@ -12,8 +12,8 @@ using WebsiteQuanLyBanHangOnline.Repository;
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250620085637_20062025")]
-    partial class _20062025
+    [Migration("20250625120940_25062025_1")]
+    partial class _25062025_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -307,6 +307,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -432,6 +435,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Property<string>("OrderCode")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -445,6 +451,8 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
@@ -724,11 +732,19 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderDetailModel", b =>
                 {
+                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.OrderModel", "Order")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Order");
 
                     b.Navigation("Product");
                 });
@@ -786,6 +802,11 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.AppUserModel", b =>
                 {
                     b.Navigation("Information");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderModel", b =>
+                {
+                    b.Navigation("OrderDetails");
                 });
 #pragma warning restore 612, 618
         }

@@ -78,7 +78,7 @@
 							<th class="text-center">Đơn Giá</th>
 							<th class="text-center" colspan="3">Số Lượng</th>
 							<th class="text-center">Thành Tiền</th>
-							<th class="text-center">Xoá</th>
+							<th></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -86,7 +86,7 @@
 						{
 							<tr>
 								<td>
-									<img src="~/media/products/@item.Image" alt="@item.ProductName" style="max-width: 150px; height: auto;" />
+									<img src="@Url.Content($"~/media/products/{item.Image}")" alt="@item.ProductName" style="max-width: 100px; max-height: 100px;" />
 								</td>
 
 								<td>
@@ -116,7 +116,6 @@
 								</td>
 							</tr>
 						}
-
 						<tr>
 							<td colspan="6" class="text-left"><strong>Tổng Thành Tiền:</strong></td>
 							<td colspan="2" class="text-right"><strong>@Model.TotalAmount.ToString("#,##0 VNĐ")</strong></td>

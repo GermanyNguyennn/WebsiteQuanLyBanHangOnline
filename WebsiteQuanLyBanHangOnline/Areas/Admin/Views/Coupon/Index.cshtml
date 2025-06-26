@@ -1,5 +1,6 @@
 ﻿@using WebsiteQuanLyBanHangOnline.Repository
-@model CouponModel
+@model List<WebsiteQuanLyBanHangOnline.Models.CouponModel>
+
 @{
     ViewData["Title"] = "Danh Sách Mã Giảm Giá";
 
@@ -13,71 +14,69 @@
 
         pageNo = pager.CurrentPage;
     }
-
-    var coupons = ViewBag.Coupons as List<CouponModel>;
 }
 
-<div class="container">
-<p><a asp-controller="Coupon" asp-action="Add" class="btn btn-warning btn-sm">Thêm Mã Giảm Giá</a></p>
-<table class="table table-bordered table-hover">
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Mã Giảm Giá</th>
-            <th scope="col">Mô Tả</th>
-            <th scope="col">Loại Giảm Giá</th>
-            <th scope="col">Giá Trị Giảm</th>
-            <th scope="col">Ngày Bắt Đầu</th>
-            <th scope="col">Ngày Kết Thúc</th>
-            <th scope="col">Số Lượng</th>
-            <th scope="col">Tình Trạng</th>
-            <th scope="col">Trạng Thái</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var coupon in coupons)
-        {
+<div class="">
+    <p><a asp-controller="Coupon" asp-action="Add" class="btn btn-warning btn-sm">Thêm Mã Giảm Giá</a></p>
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <td>@coupon.Id</td>
-                <td>@coupon.CouponCode</td>
-                <td>@coupon.Description</td>
-                <td>@coupon.DiscountType</td>
-                <td>@(coupon.DiscountType == DiscountType.Percent ? coupon.DiscountValue + "%" : coupon.DiscountValue.ToString("#,##0 VNĐ"))</td>
-                <td>@coupon.StartDate.ToString("dd/MM/yyyy")</td>
-                <td>@coupon.EndDate.ToString("dd/MM/yyyy")</td>
-                <td>@coupon.Quantity</td>
-                <td>
-                    <form asp-action="ToggleStatus" method="POST" style="display:inline;">
-                        <input type="hidden" name="Id" value="@coupon.Id" />
-                        <button type="submit" class="btn btn-sm @(coupon.Status == 1 ? "btn-success btn-sm" : "btn-danger btn-sm")">
-                            @(coupon.Status == 1 ? "ON" : "OFF")
-                        </button>
-                    </form>
-                </td>
-                <td>
-                    @if (coupon.EndDate < DateTime.Now)
-                    {
-                        <span class="text-danger">Expired</span>
-                    }
-                    else
-                    {
-                        int daysLeft = (coupon.EndDate - DateTime.Now).Days;
-                        <span class="text-success">@daysLeft Day Left</span>
-                    }
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Sửa</a>
-                    @* <a asp-action="Delete" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Delete</a> *@
-                </td>
-                <td>
-                    @* <a asp-action="Edit" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Edit</a> *@
-                    <a asp-action="Delete" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Xoá</a>
-                </td>
+                <th scope="col">Id</th>
+                <th scope="col">Mã Giảm Giá</th>
+                <th scope="col">Mô Tả</th>
+                <th scope="col">Loại Giảm Giá</th>
+                <th scope="col">Giá Trị Giảm</th>
+                <th scope="col">Ngày Bắt Đầu</th>
+                <th scope="col">Ngày Kết Thúc</th>
+                <th scope="col">Số Lượng</th>
+                <th scope="col">Tình Trạng</th>
+                <th scope="col">Trạng Thái</th>
             </tr>
-        }
-    </tbody>
-</table>
-<partial name="_Paging" model="@pager" />
+        </thead>
+        <tbody>
+            @foreach (var coupon in Model)
+            {
+                <tr>
+                    <td>@coupon.Id</td>
+                    <td>@coupon.CouponCode</td>
+                    <td>@coupon.Description</td>
+                    <td>@coupon.DiscountType</td>
+                    <td>@(coupon.DiscountType == DiscountType.Percent ? coupon.DiscountValue + "%" : coupon.DiscountValue.ToString("#,##0 VNĐ"))</td>
+                    <td>@coupon.StartDate.ToString("dd/MM/yyyy")</td>
+                    <td>@coupon.EndDate.ToString("dd/MM/yyyy")</td>
+                    <td>@coupon.Quantity</td>
+                    <td>
+                        <form asp-action="ToggleStatus" method="POST" style="display:inline;">
+                            <input type="hidden" name="Id" value="@coupon.Id" />
+                            <button type="submit" class="btn btn-sm @(coupon.Status == 1 ? "btn-success btn-sm" : "btn-danger btn-sm")">
+                                @(coupon.Status == 1 ? "ON" : "OFF")
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        @if (coupon.EndDate < DateTime.Now)
+                        {
+                            <span class="text-danger">Expired</span>
+                        }
+                        else
+                        {
+                            int daysLeft = (coupon.EndDate - DateTime.Now).Days;
+                            <span class="text-success">@daysLeft Day Left</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Sửa</a>
+                        @* <a asp-action="Delete" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Delete</a> *@
+                    </td>
+                    <td>
+                        @* <a asp-action="Edit" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Edit</a> *@
+                        <a asp-action="Delete" asp-controller="Coupon" asp-route-Id="@coupon.Id" class="btn btn-warning btn-sm">Xoá</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <partial name="_Paging" model="@pager" />
 </div>
 
 @section Scripts {

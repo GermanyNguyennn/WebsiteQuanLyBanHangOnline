@@ -4,123 +4,209 @@
 
 @{
     ViewData["Title"] = "Thống Kê Doanh Thu";
-
-    var productNamesWrapped = Model.Statistics.Select(x =>
-        x.ProductName.Length > 22
-            ? x.ProductName.Chunk(22).Select(c => new string(c)).ToArray()
-            : new string[] { x.ProductName }
-    );
+    var revenueChartData = ViewBag.RevenueChartData as List<RevenueChartModel> ?? new();
+    var selectedCategory = ViewBag.SelectedCategory as int?;
+    var selectedBrand = ViewBag.SelectedBrand as int?;
 }
 
-<div class="container">
-    <!-- FORM LỌC THEO NGÀY -->
+<style>
+    .vertical-middle {
+        vertical-align: middle;
+    }
+</style>
+
+<div class="">
+    <!-- FORM LỌC -->
     <form method="GET" class="mb-4">
-        <table class="table table-bordered">
+        <table class="table table-bordered w-auto">
             <tr>
-                <th><label asp-for="FromDate" class="form-label">Từ Ngày:</label></th>
+                <th class="vertical-middle"><label>Từ Ngày:</label></th>
                 <td><input asp-for="FromDate" type="date" class="form-control" /></td>
-            </tr>
-            <tr>
-                <th><label asp-for="ToDate" class="form-label">Đến Ngày:</label></th>
+                <th class="vertical-middle"><label>Đến Ngày:</label></th>
                 <td><input asp-for="ToDate" type="date" class="form-control" /></td>
             </tr>
             <tr>
+                <th class="vertical-middle">Danh Mục:</th>
                 <td>
-                    <button type="submit" class="btn btn-warning mt-2">Lọc</button>
+                    <select name="CategoryId" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        @foreach (var cat in ViewBag.Categories as List<CategoryModel>)
+                        {
+                            <option value="@cat.Id" selected="@(selectedCategory == cat.Id ? "selected" : null)">@cat.Name</option>
+                        }
+                    </select>
                 </td>
+                <th class="vertical-middle">Thương Hiệu:</th>
+                <td>
+                    <select name="BrandId" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        @foreach (var br in ViewBag.Brands as List<BrandModel>)
+                        {
+                            <option value="@br.Id" selected="@(selectedBrand == br.Id ? "selected" : null)">@br.Name</option>
+                        }
+                    </select>
+                </td>
+                <td><button type="submit" class="btn btn-warning">Lọc</button></td>
             </tr>
         </table>
     </form>
 
+    <!-- CHỌN KIỂU THỐNG KÊ -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <label for="statisticType">Loại Thống Kê:</label>
+            <select id="statisticType" class="form-select d-inline-block w-auto ms-2">
+                <option value="day">Theo Ngày</option>
+                <option value="month">Theo Tháng</option>
+                <option value="year">Theo Năm</option>
+            </select>
+        </div>
+    </div>
 
-    <!-- BIỂU ĐỒ DOANH THU -->
+    <!-- BIỂU ĐỐ -->
     <div class="mb-5">
         <canvas id="revenueChart" height="100"></canvas>
+        <div id="yearSummary" class="mt-2 text-center text-muted"></div>
     </div>
+</div>
 
     <!-- BẢNG THỐNG KÊ -->
     <table class="table table-bordered table-hover">
         <thead class="table-dark">
             <tr>
-                <th>Ảnh</th>
-                <th>Tên Sản Phẩm</th>
-                <th>Số Lượng Đã Bán</th>
-                <th>Doanh Thu</th>
-                <th>Giá Vốn</th>
-                <th>Lợi Nhuận</th>
-                <th>Ngày Bán Đầu</th>
-                <th>Ngày Bán Cuối</th>
+                <th class="vertical-middle">Ảnh</th>
+                <th class="vertical-middle">Tên Sản Phẩm</th>
+                <th class="vertical-middle">Số Lượng Đã Bán</th>
+                <th class="vertical-middle text-success">Có Mã Giảm Giá</th>
+                <th class="vertical-middle text-danger">Không Có Mã Giảm Giá</th>
+                <th class="vertical-middle">Doanh Thu</th>
+                <th class="vertical-middle text-success">Doanh Thu Có Mã Giảm Giá</th>
+                <th class="vertical-middle text-danger">Doanh Thu Không Có Mã Giảm Giá</th>
+                <th class="vertical-middle text-primary">Doanh Thu Mất Do Giảm Giá</th>
+                <th class="vertical-middle">Giá Vốn</th>
+                <th class="vertical-middle">Lợi Nhuận</th>
+                <th class="vertical-middle text-success">Lợi Nhuận Có Mã Giảm Giá</th>
+                <th class="vertical-middle text-danger">Lợi Nhuận Không Có Mã Giảm Giá</th>
+                <th class="vertical-middle text-warning">Lợi Nhuận Mất Do Giảm Giá</th>             
+                <th class="vertical-middle">Ngày Bán Đầu</th>
+                <th class="vertical-middle">Ngày Bán Cuối</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in Model.Statistics)
             {
                 <tr>
-                    <td><img src="~/media/products/@item.Image" width="50%" height="50%" /></td>
+                    <td><img src="@Url.Content($"~/media/products/{item.Image}")" style="max-width: 70px; max-height: 70px;" /></td>
                     <td>@item.ProductName</td>
                     <td>@item.TotalQuantitySold</td>
+                    <td class="text-success fw-bold">@item.QuantityWithCoupon</td>
+                    <td class="text-danger fw-bold">@item.QuantityWithoutCoupon</td>
                     <td>@item.TotalRevenue.ToString("#,##0 VNĐ")</td>
+                    <td class="text-success">@item.RevenueWithCoupon.ToString("#,##0 VNĐ")</td>
+                    <td class="text-danger">@item.RevenueWithoutCoupon.ToString("#,##0 VNĐ")</td>
+                    <td class="text-primary fw-bold">@item.TotalDiscountCoupon.ToString("#,##0 VNĐ")</td>
                     <td>@item.TotalCost.ToString("#,##0 VNĐ")</td>
                     <td>@item.TotalProfit.ToString("#,##0 VNĐ")</td>
-                    <td>@item.FirstSoldDate.ToString()</td>
+                    <td class="text-success fw-bold">@item.ProfitWithCoupon.ToString("#,##0 VNĐ")</td>
+                    <td class="text-danger fw-bold">@item.ProfitWithoutCoupon.ToString("#,##0 VNĐ")</td>
+                <td class="text-warning fw-bold">@item.LostProfitDueToDiscount.ToString("#,##0 VNĐ")</td>
+                <td>@item.FirstSoldDate.ToString()</td>
                     <td>@item.LastSoldDate.ToString()</td>
                 </tr>
             }
         </tbody>
     </table>
-</div>
-<!-- THƯ VIỆN CHART.JS -->
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- SCRIPT VẼ BIỂU ĐỒ -->
 <script>
-    const productNames = @Html.Raw(JsonSerializer.Serialize(productNamesWrapped));
-    const revenues = @Html.Raw(JsonSerializer.Serialize(Model.Statistics.Select(x => x.TotalRevenue)));
+    const chartTypeSelect = document.getElementById("statisticType");
+    const ctx = document.getElementById("revenueChart").getContext("2d");
 
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-    const revenueChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: productNames,
-            datasets: [{
-                label: 'Doanh Thu (VNĐ)',
-                data: revenues,
-                backgroundColor: 'rgba(255, 159, 64, 0.6)',
-                borderColor: 'rgba(255, 159, 64, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let value = context.raw || 0;
-                            return value.toLocaleString('vi-VN') + ' VNĐ';
-                        }
+    const dailyData = {
+        labels: @Html.Raw(JsonSerializer.Serialize(revenueChartData.Select(x => x.Date.ToString("yyyy-MM-dd")))),
+        before: @Html.Raw(JsonSerializer.Serialize(revenueChartData.Select(x => x.RevenueBeforeDiscount))),
+        after: @Html.Raw(JsonSerializer.Serialize(revenueChartData.Select(x => x.RevenueAfterDiscount)))
+    };
+
+    const monthlyData = {
+        labels: @Html.Raw(JsonSerializer.Serialize(ViewBag.MonthlyChartLabels)),
+        before: @Html.Raw(JsonSerializer.Serialize(ViewBag.MonthlyRevenueBefore)),
+        after: @Html.Raw(JsonSerializer.Serialize(ViewBag.MonthlyRevenueAfter))
+    };
+
+    const yearlyData = {
+        labels: @Html.Raw(JsonSerializer.Serialize(ViewBag.YearlyChartLabels)),
+        before: @Html.Raw(JsonSerializer.Serialize(ViewBag.YearlyRevenueBefore)),
+        after: @Html.Raw(JsonSerializer.Serialize(ViewBag.YearlyRevenueAfter))
+    };
+
+    const yearSummaryDiv = document.getElementById("yearSummary");
+    let chart;
+
+    function renderChart(type) {
+        const data = type === "day" ? dailyData : type === "month" ? monthlyData : yearlyData;
+        const title = type === "day" ? "Doanh thu theo ngày" : type === "month" ? "Doanh thu theo tháng" : "Doanh thu theo năm";
+
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [
+                    {
+                        label: 'Trước giảm giá',
+                        data: data.before,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Sau giảm giá',
+                        data: data.after,
+                        backgroundColor: 'rgba(255, 205, 86, 0.6)',
+                        borderColor: 'rgba(255, 205, 86, 1)',
+                        borderWidth: 1
                     }
-                }
+                ]
             },
-            scales: {
-                x: {
-                    ticks: {
-                        maxRotation: 0,
-                        minRotation: 0,
-                        align: 'center',
-                        padding: 5
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return context.dataset.label + ': ' +
+                                    (context.raw ?? 0).toLocaleString('vi-VN') + ' VNĐ';
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'top'
                     }
                 },
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('vi-VN') + ' VNĐ';
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return value.toLocaleString('vi-VN') + ' VNĐ';
+                            }
                         }
                     }
                 }
             }
-        }
+        });
+    }
+
+    chartTypeSelect.addEventListener("change", () => {
+        renderChart(chartTypeSelect.value);
     });
+
+    renderChart("day");
 </script>

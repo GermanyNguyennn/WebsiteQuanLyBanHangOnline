@@ -12,8 +12,8 @@ using WebsiteQuanLyBanHangOnline.Repository;
 namespace WebsiteQuanLyBanHangOnline.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250621105405_21062025")]
-    partial class _21062025
+    [Migration("20250625120525_25062025")]
+    partial class _25062025
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -441,6 +441,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ProductId1")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -450,6 +453,8 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductId1");
 
                     b.ToTable("OrderDetails");
                 });
@@ -727,11 +732,17 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderDetailModel", b =>
                 {
-                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
-                        .WithMany()
+                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.OrderModel", "Order")
+                        .WithMany("OrderDetails")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId1");
+
+                    b.Navigation("Order");
 
                     b.Navigation("Product");
                 });
@@ -789,6 +800,11 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.AppUserModel", b =>
                 {
                     b.Navigation("Information");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderModel", b =>
+                {
+                    b.Navigation("OrderDetails");
                 });
 #pragma warning restore 612, 618
         }

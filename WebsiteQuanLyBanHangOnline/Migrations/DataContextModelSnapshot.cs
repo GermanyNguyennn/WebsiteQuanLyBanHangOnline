@@ -432,6 +432,9 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                     b.Property<string>("OrderCode")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -445,6 +448,8 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
@@ -724,11 +729,19 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
 
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderDetailModel", b =>
                 {
+                    b.HasOne("WebsiteQuanLyBanHangOnline.Models.OrderModel", "Order")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WebsiteQuanLyBanHangOnline.Models.ProductModel", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Order");
 
                     b.Navigation("Product");
                 });
@@ -786,6 +799,11 @@ namespace WebsiteQuanLyBanHangOnline.Migrations
             modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.AppUserModel", b =>
                 {
                     b.Navigation("Information");
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyBanHangOnline.Models.OrderModel", b =>
+                {
+                    b.Navigation("OrderDetails");
                 });
 #pragma warning restore 612, 618
         }

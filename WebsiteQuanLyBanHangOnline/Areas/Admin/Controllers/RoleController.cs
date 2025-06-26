@@ -7,26 +7,39 @@ using WebsiteQuanLyBanHangOnline.Repository;
 namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class RoleController : Controller
     {
         private readonly DataContext _dataContext;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public RoleController(DataContext context, RoleManager<IdentityRole> roleManager)
+
+        public RoleController(RoleManager<IdentityRole> roleManager, DataContext dataContext)
         {
-            _dataContext = context;
             _roleManager = roleManager;
+            _dataContext = dataContext;
         }
-        public async Task<IActionResult> Index()
+
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var roles = await _dataContext.Roles.OrderByDescending(p => p.Id).ToListAsync();
+            const int pageSize = 10;
+            int count = await _dataContext.Roles.CountAsync();
+            var pager = new Paginate(count, page, pageSize);
+
+            var roles = await _dataContext.Roles
+                .OrderByDescending(r => r.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.Pager = pager;
             return View(roles);
         }
+
 
         [HttpGet]
         public IActionResult Add()
         {
-            return View();
+            return View(new IdentityRole());
         }
 
         [HttpPost]
@@ -35,26 +48,26 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         {
             if (string.IsNullOrWhiteSpace(model?.Name))
             {
-                TempData["success"] = "Role Name Is Required!!!";
+                TempData["error"] = "Tên vai trò không được để trống.";
                 return View(model);
             }
 
-            if (!await _roleManager.RoleExistsAsync(model.Name))
+            if (await _roleManager.RoleExistsAsync(model.Name))
             {
-                var result = await _roleManager.CreateAsync(new IdentityRole(model.Name));
-                if (result.Succeeded)
-                {
-                    TempData["success"] = "Role Added Successfully!!!";
-                    return RedirectToAction("Index");
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
+                TempData["error"] = "Vai trò đã tồn tại.";
+                return View(model);
             }
-            else
+
+            var result = await _roleManager.CreateAsync(new IdentityRole(model.Name));
+            if (result.Succeeded)
             {
-                TempData["error"] = "Role Already Exists!!!";
+                TempData["success"] = "Thêm vai trò thành công.";
+                return RedirectToAction("Index");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
             }
 
             return View(model);
@@ -63,7 +76,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
-            if (string.IsNullOrEmpty(id)) return NotFound();
+            if (string.IsNullOrWhiteSpace(id)) return NotFound();
 
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null) return NotFound();
@@ -75,7 +88,11 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, IdentityRole model)
         {
-            if (!ModelState.IsValid) return View(model ?? new IdentityRole { Id = id });
+            if (!ModelState.IsValid)
+            {
+                TempData["error"] = "Dữ liệu không hợp lệ.";
+                return View(model);
+            }
 
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null) return NotFound();
@@ -85,7 +102,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var result = await _roleManager.UpdateAsync(role);
             if (result.Succeeded)
             {
-                TempData["success"] = "Role Updated Successfully!!!";
+                TempData["success"] = "Cập nhật vai trò thành công.";
                 return RedirectToAction("Index");
             }
 
@@ -100,7 +117,7 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(string id)
         {
-            if (string.IsNullOrEmpty(id)) return NotFound();
+            if (string.IsNullOrWhiteSpace(id)) return NotFound();
 
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null) return NotFound();
@@ -108,11 +125,11 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             var result = await _roleManager.DeleteAsync(role);
             if (result.Succeeded)
             {
-                TempData["success"] = "Role Deleted Successfully!!!";
+                TempData["success"] = "Xóa vai trò thành công.";
             }
             else
             {
-                TempData["error"] = "Unable To Delete Role!";
+                TempData["error"] = "Không thể xóa vai trò.";
             }
 
             return RedirectToAction("Index");

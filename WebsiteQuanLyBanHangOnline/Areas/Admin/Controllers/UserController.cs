@@ -3,16 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Numerics;
 using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Models.ViewModels;
 using WebsiteQuanLyBanHangOnline.Repository;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize]
     [Authorize(Roles = "Admin, Employee")]
     public class UserController : Controller
     {
@@ -22,23 +19,35 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
         public UserController(DataContext dataContext, UserManager<AppUserModel> userManager, RoleManager<IdentityRole> roleManager)
         {
+            _dataContext = dataContext;
             _userManager = userManager;
             _roleManager = roleManager;
-            _dataContext = dataContext;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var usersWithRoles = await (from u in _dataContext.Users
-                                        join ur in _dataContext.UserRoles on u.Id equals ur.UserId
-                                        join r in _dataContext.Roles on ur.RoleId equals r.Id
-                                        select new UserWithRoleViewModel
-                                        {
-                                            User = u,
-                                            RoleName = r.Name
-                                        }).ToListAsync();
+            const int pageSize = 10;
+            var usersWithRolesQuery = from u in _dataContext.Users
+                                      join ur in _dataContext.UserRoles on u.Id equals ur.UserId
+                                      join r in _dataContext.Roles on ur.RoleId equals r.Id
+                                      select new UserWithRoleViewModel
+                                      {
+                                          User = u,
+                                          RoleName = r.Name
+                                      };
 
+            int count = await usersWithRolesQuery.CountAsync();
+            var pager = new Paginate(count, page, pageSize);
+
+            var usersWithRoles = await usersWithRolesQuery
+                .OrderByDescending(x => x.User.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.Pager = pager;
             return View(usersWithRoles);
         }
 
@@ -52,37 +61,38 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(AppUserModel appUserModel, string selectedRoleId)
+        public async Task<IActionResult> Add(AppUserModel model, string selectedRoleId)
         {
-            if (ModelState.IsValid)
+            ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Id", "Name", selectedRoleId);
+
+            if (!ModelState.IsValid)
             {
-                var createUserResult = await _userManager.CreateAsync(appUserModel, appUserModel.PasswordHash);
-                if (createUserResult.Succeeded)
-                {
-                    var role = await _roleManager.FindByIdAsync(selectedRoleId);
-                    if (role != null)
-                    {
-                        var addToRoleResult = await _userManager.AddToRoleAsync(appUserModel, role.Name);
-                        if (!addToRoleResult.Succeeded)
-                        {
-                            foreach (var error in addToRoleResult.Errors)
-                                ModelState.AddModelError(string.Empty, error.Description);
-
-                            ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Id", "Name", selectedRoleId);
-                            return View(appUserModel);
-                        }
-                    }
-
-                    TempData["success"] = "User Added Successfully!!!";
-                    return RedirectToAction("Index");
-                }
-
-                foreach (var error in createUserResult.Errors)
-                    ModelState.AddModelError(string.Empty, error.Description);
+                TempData["error"] = "Dữ liệu không hợp lệ.";
+                return View(model);
             }
 
-            ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Id", "Name", selectedRoleId);
-            return View(appUserModel);
+            var createResult = await _userManager.CreateAsync(model, model.PasswordHash);
+            if (!createResult.Succeeded)
+            {
+                foreach (var error in createResult.Errors)
+                    ModelState.AddModelError("", error.Description);
+                return View(model);
+            }
+
+            var role = await _roleManager.FindByIdAsync(selectedRoleId);
+            if (role != null)
+            {
+                var roleResult = await _userManager.AddToRoleAsync(model, role.Name);
+                if (!roleResult.Succeeded)
+                {
+                    foreach (var error in roleResult.Errors)
+                        ModelState.AddModelError("", error.Description);
+                    return View(model);
+                }
+            }
+
+            TempData["success"] = "Thêm người dùng thành công.";
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -94,48 +104,45 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             if (user == null) return NotFound();
 
             var currentRoleName = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-            var currentRole = currentRoleName == null ? null : await _roleManager.FindByNameAsync(currentRoleName);
+            var currentRole = currentRoleName != null ? await _roleManager.FindByNameAsync(currentRoleName) : null;
 
-            ViewBag.Roles = new SelectList(_roleManager.Roles.ToList(), "Id", "Name", currentRole?.Id);
-            ViewBag.CurrentRoleId = currentRole?.Id;
-
+            ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Id", "Name", currentRole?.Id);
             return View(user);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, AppUserModel appUserModel, string selectedRoleId)
+        public async Task<IActionResult> Edit(string id, AppUserModel model, string selectedRoleId)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
 
-            if (ModelState.IsValid)
+            ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Id", "Name", selectedRoleId);
+
+            if (!ModelState.IsValid) return View(model);
+
+            user.UserName = model.UserName;
+            user.Email = model.Email;
+            user.PhoneNumber = model.PhoneNumber;
+
+            // Cập nhật role
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+            var role = await _roleManager.FindByIdAsync(selectedRoleId);
+            if (role != null)
+                await _userManager.AddToRoleAsync(user, role.Name);
+
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
             {
-                user.UserName = appUserModel.UserName;
-                user.Email = appUserModel.Email;
-                user.PhoneNumber = appUserModel.PhoneNumber;
-
-                var currentRoles = await _userManager.GetRolesAsync(user);
-                if (currentRoles.Any())
-                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
-
-                var newRole = await _roleManager.FindByIdAsync(selectedRoleId);
-                if (newRole != null)
-                    await _userManager.AddToRoleAsync(user, newRole.Name);
-
-                var result = await _userManager.UpdateAsync(user);
-                if (result.Succeeded)
-                {
-                    TempData["success"] = "User Updated Successfully!!!";
-                    return RedirectToAction("Index");
-                }
-
-                foreach (var error in result.Errors)
-                    ModelState.AddModelError(string.Empty, error.Description);
+                foreach (var error in updateResult.Errors)
+                    ModelState.AddModelError("", error.Description);
+                return View(model);
             }
 
-            ViewBag.Roles = new SelectList(_roleManager.Roles.ToList(), "Id", "Name", selectedRoleId);
-            return View(appUserModel);
+            TempData["success"] = "Cập nhật người dùng thành công.";
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -147,9 +154,13 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             if (user == null) return NotFound();
 
             var deleteResult = await _userManager.DeleteAsync(user);
-            if (!deleteResult.Succeeded) return View("Error");
+            if (!deleteResult.Succeeded)
+            {
+                TempData["error"] = "Không thể xoá người dùng.";
+                return RedirectToAction("Index");
+            }
 
-            TempData["success"] = "User Deleted Successfully!!!";
+            TempData["success"] = "Xoá người dùng thành công.";
             return RedirectToAction("Index");
         }
     }

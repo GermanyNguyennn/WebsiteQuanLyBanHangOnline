@@ -16,52 +16,52 @@
     }
 }
 
-<div class="container">
-<form asp-action="AddQuantity" asp-controller="Product" enctype="multipart/form-data">
-    <input type="hidden" name="ProductId" value="@ViewBag.ProductId" />
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="">
+    <form asp-action="AddQuantity" asp-controller="Product" enctype="multipart/form-data">
+        <input type="hidden" name="ProductId" value="@ViewBag.ProductId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="form-group">
-        <label>Số Lượng</label>
-        <input min="1" value="1" asp-for="Quantity" class="form-control" />
-        <span asp-validation-for="Quantity" class="text-danger" />
-    </div>
+        <div class="form-group">
+            <label>Số Lượng</label>
+            <input min="1" value="1" asp-for="Quantity" class="form-control" />
+            <span asp-validation-for="Quantity" class="text-danger" />
+        </div>
 
-    <div class="form-group">
-        <button class="btn btn-warning btn-sm">Thêm</button>
-        <a asp-action="Index" asp-controller="Product" class="btn btn-warning btn-sm">Back</a>
-    </div>
-</form>
+        <div class="form-group">
+            <button class="btn btn-warning btn-sm">Thêm</button>
+            <a asp-action="Index" asp-controller="Product" class="btn btn-warning btn-sm">Quay Lại</a>
+        </div>
+    </form>
 
-<table class="table table-bordered table-hover">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Số Lượng</th>
-            <th>Ngày Tạo</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var productByQuantity in ViewBag.ProductByQuantity)
-        {
-            total_quantities += productByQuantity.Quantity;
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <td>@productByQuantity.Id</td>
-                <td>@productByQuantity.Quantity</td>
-                <td>@productByQuantity.CreatedDate</td>
-                <td>
-                    <form asp-action="DeleteQuantity" asp-controller="Product" method="POST" asp-route-id="@productByQuantity.Id">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-warning btn-sm">Xoá</button>
-                    </form>
-                </td>
+                <th>Id</th>
+                <th>Số Lượng</th>
+                <th>Ngày Tạo</th>
             </tr>
-        }
-        <tr>
-            <td>Tổng Số Lượng: @total_quantities</td>
-        </tr>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var productByQuantity in ViewBag.ProductByQuantity)
+            {
+                total_quantities += productByQuantity.Quantity;
+                <tr>
+                    <td>@productByQuantity.Id</td>
+                    <td>@productByQuantity.Quantity</td>
+                    <td>@productByQuantity.CreatedDate</td>
+                    <td>
+                        <form asp-action="DeleteQuantity" asp-controller="Product" method="POST" asp-route-id="@productByQuantity.Id">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-warning btn-sm">Xoá</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td>Tổng Số Lượng: @total_quantities</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 @section Scripts {

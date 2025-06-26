@@ -1,37 +1,37 @@
 ﻿@model InformationViewModel
 @{
-    ViewData["Title"] = "Update Information";
+    ViewData["Title"] = "Cập Nhật Thông Tin";
 }
 
 <div class="container">
     <form asp-action="Information" asp-controller="Account" method="POST" enctype="multipart/form-data">
         <input type="hidden" asp-for="Id" />
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
         <table class="table table-bordered">
             <tr>
-                <th>Họ Và Tên</th>
+                <th style ="vertical-align: middle;">Họ Và Tên :</th>
                 <td>
                     <input asp-for="FullName" required class="form-control" />
                     <span asp-validation-for="FullName" class="text-danger"></span>
                 </td>
             </tr>
             <tr>
-                <th>Email</th>
+                <th style="vertical-align: middle;">Email :</th>
                 <td>
                     <input asp-for="Email" required class="form-control" />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </td>
             </tr>
             <tr>
-                <th>Số Điện Thoại</th>
+                <th style="vertical-align: middle;">Số Điện Thoại :</th>
                 <td>
                     <input asp-for="PhoneNumber" required class="form-control" />
                     <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                 </td>
             </tr>
             <tr>
-                <th>Tỉnh / Thành Phố</th>
+                <th style="vertical-align: middle;">Tỉnh / Thành Phố :</th>
                 <td>
                     <select class="css_select form-control" id="tinh" name="City" data-selected="@Model.City" title="Chọn Tỉnh / Thành">
                         <option value="">Tỉnh Thành</option>
@@ -39,7 +39,7 @@
                 </td>
             </tr>
             <tr>
-                <th>Quận / Huyện</th>
+                <th style="vertical-align: middle;">Quận / Huyện :</th>
                 <td>
                     <select class="css_select form-control" id="quan" name="District" data-selected="@Model.District" title="Chọn Quận / Huyện">
                         <option value="">Quận Huyện</option>
@@ -47,7 +47,7 @@
                 </td>
             </tr>
             <tr>
-                <th>Phường / Xã</th>
+                <th style="vertical-align: middle;">Phường / Xã :</th>
                 <td>
                     <select class="css_select form-control" id="phuong" name="Ward" data-selected="@Model.Ward" title="Chọn Phường / Xã">
                         <option value="">Phường Xã</option>
@@ -55,7 +55,7 @@
                 </td>
             </tr>
             <tr>
-                <th>Địa Chỉ</th>
+                <th style="vertical-align: middle;">Địa Chỉ :</th>
                 <td>
                     <input asp-for="Address" required class="form-control" />
                     <span asp-validation-for="Address" class="text-danger"></span>

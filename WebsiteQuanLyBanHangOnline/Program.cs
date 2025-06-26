@@ -97,12 +97,12 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "Category",
-    pattern: "/category/{slug?}",
+    pattern: "category/{slug?}",
     defaults: new { controller = "Category", action = "Index" });
 
 app.MapControllerRoute(
     name: "Brand",
-    pattern: "/brand/{slug?}",
+    pattern: "brand/{slug?}",
     defaults: new { controller = "Brand", action = "Index" });
 
 app.MapControllerRoute(

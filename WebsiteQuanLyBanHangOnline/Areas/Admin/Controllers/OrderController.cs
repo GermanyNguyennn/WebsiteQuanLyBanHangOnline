@@ -1,10 +1,7 @@
-﻿using Azure;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 using WebsiteQuanLyBanHangOnline.Models;
 using WebsiteQuanLyBanHangOnline.Models.ViewModels;
 using WebsiteQuanLyBanHangOnline.Repository;
@@ -13,13 +10,13 @@ using WebsiteQuanLyBanHangOnline.Services.Location;
 namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize]
     [Authorize(Roles = "Admin")]
     public class OrderController : Controller
     {
         private readonly DataContext _dataContext;
         private readonly UserManager<AppUserModel> _userManager;
         private readonly ILocationService _locationService;
+
         public OrderController(DataContext context, UserManager<AppUserModel> userManager, ILocationService locationService)
         {
             _dataContext = context;
@@ -35,29 +32,28 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
             int count = await _dataContext.Orders.CountAsync();
             var pager = new Paginate(count, page, pageSize);
 
-            var data = await _dataContext.Orders
-            .OrderBy(c => c.Id)
+            var orders = await _dataContext.Orders
+                .OrderBy(o => o.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
             ViewBag.Pager = pager;
-            return View(data);
+            return View(orders);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> View(string orderCode)
         {
             if (string.IsNullOrWhiteSpace(orderCode))
-                return BadRequest("Invalid Order Code.");
+                return BadRequest("Mã đơn hàng không hợp lệ.");
 
             var order = await _dataContext.Orders
-            .Include(o => o.Coupon)
-            .FirstOrDefaultAsync(o => o.OrderCode == orderCode);
+                .Include(o => o.Coupon)
+                .FirstOrDefaultAsync(o => o.OrderCode == orderCode);
 
             if (order == null)
-                return NotFound("Order Not Found.");
+                return NotFound("Không tìm thấy đơn hàng.");
 
             var orderDetails = await _dataContext.OrderDetails
                 .Include(od => od.Product)
@@ -66,41 +62,33 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
             ViewBag.Status = order.Status;
             ViewBag.OrderCode = orderCode;
+            ViewBag.DiscountValue = order.Coupon?.DiscountValue ?? 0;
+            ViewBag.DiscountType = order.Coupon?.DiscountType.ToString();
 
-            if (order.Coupon != null)
-            {
-                ViewBag.DiscountValue = order.Coupon.DiscountValue;
-                ViewBag.DiscountType = order.Coupon.DiscountType.ToString();
-            }
-            else
-            {
-                ViewBag.DiscountValue = 0;
-                ViewBag.DiscountType = null;
-            }
             return View(orderDetails);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateView(string orderCode, int status)
         {
             if (string.IsNullOrWhiteSpace(orderCode))
-                return BadRequest(new { success = false, message = "Order Code is Required." });
+                return BadRequest(new { success = false, message = "Thiếu mã đơn hàng." });
 
             var order = await _dataContext.Orders.FirstOrDefaultAsync(o => o.OrderCode == orderCode);
-
             if (order == null)
-                return NotFound(new { success = false, message = "Order Not Found." });
+                return NotFound(new { success = false, message = "Không tìm thấy đơn hàng." });
 
             order.Status = status;
 
             try
             {
                 await _dataContext.SaveChangesAsync();
-                return Ok(new { success = true, message = "Status Updated Successfully!!!" });
+                return Ok(new { success = true, message = "Cập nhật trạng thái thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Failed To Update Status.", error = ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi khi cập nhật trạng thái.", error = ex.Message });
             }
         }
 
@@ -108,12 +96,11 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         public async Task<IActionResult> PaymentMoMoOrder(string orderId)
         {
             if (string.IsNullOrWhiteSpace(orderId))
-                return BadRequest("Order ID Is Required.");
+                return BadRequest("Thiếu mã đơn hàng.");
 
             var moMo = await _dataContext.MoMos.FirstOrDefaultAsync(x => x.OrderId == orderId);
-
             if (moMo == null)
-                return NotFound("MoMo Payment Info Not Found.");
+                return NotFound("Không tìm thấy thông tin thanh toán MoMo.");
 
             return View(moMo);
         }
@@ -122,25 +109,24 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
         public async Task<IActionResult> PaymentVNPayOrder(string orderId)
         {
             if (string.IsNullOrWhiteSpace(orderId))
-                return BadRequest("Order ID Is Required.");
+                return BadRequest("Thiếu mã đơn hàng.");
 
             var vnPay = await _dataContext.VNPays.FirstOrDefaultAsync(x => x.OrderId == orderId);
-
             if (vnPay == null)
-                return NotFound("VnPay Payment Info Not Found.");
+                return NotFound("Không tìm thấy thông tin thanh toán VnPay.");
 
             return View(vnPay);
         }
 
+        [HttpGet]
         public async Task<IActionResult> CustomerInformation(string orderCode)
         {
             if (string.IsNullOrEmpty(orderCode))
-                return NotFound();
+                return NotFound("Thiếu mã đơn hàng.");
 
             var order = await _dataContext.Orders.FirstOrDefaultAsync(o => o.OrderCode == orderCode);
-
             if (order == null)
-                return NotFound();
+                return NotFound("Không tìm thấy đơn hàng.");
 
             var viewModel = new CartViewModel
             {

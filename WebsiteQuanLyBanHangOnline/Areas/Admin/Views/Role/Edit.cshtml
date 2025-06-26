@@ -5,21 +5,21 @@
     ViewData["title"] = "Sửa Vai Trò";
 }
 
-<div class="container">
-<form asp-action="Edit" enctype="multipart/form-data">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="">
+    <form asp-action="Edit" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="form-group">
-        <label>Vai Trò</label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger" />
-    </div>
+        <div class="form-group">
+            <label>Vai Trò</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger" />
+        </div>
 
-    <div class="form-group">
-        <button class="btn btn-warning btn-sm">Sửa</button>
-        <a asp-action="Index" asp-controller="Role" class="btn btn-warning btn-sm">Quay Lại</a>
-    </div>
-</form>
+        <div class="form-group">
+            <button class="btn btn-warning btn-sm">Sửa</button>
+            <a asp-action="Index" asp-controller="Role" class="btn btn-warning btn-sm">Quay Lại</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

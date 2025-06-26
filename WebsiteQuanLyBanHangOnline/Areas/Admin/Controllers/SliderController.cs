@@ -12,29 +12,29 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
     {
         private readonly DataContext _dataContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
+
         public SliderController(DataContext dataContext, IWebHostEnvironment webHostEnvironment)
         {
             _dataContext = dataContext;
             _webHostEnvironment = webHostEnvironment;
         }
+
         public async Task<IActionResult> Index(int page = 1)
         {
             const int pageSize = 10;
-            if (page < 1) page = 1;
-
             int count = await _dataContext.Sliders.CountAsync();
             var pager = new Paginate(count, page, pageSize);
 
-            var data = await _dataContext.Sliders
-                .OrderBy(c => c.Id)
+            var sliders = await _dataContext.Sliders
+                .OrderBy(s => s.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
             ViewBag.Pager = pager;
-            ViewBag.Sliders = data;
-            return View(data);
+            return View(sliders);
         }
+
         [HttpGet]
         public IActionResult Add()
         {
@@ -43,97 +43,107 @@ namespace WebsiteQuanLyBanHangOnline.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(SliderModel sliderModel)
+        public async Task<IActionResult> Add(SliderModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                if (sliderModel.ImageUpload != null)
-                {
-                    string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/sliders");
-                    string imageName = Guid.NewGuid() + "_" + sliderModel.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadsDir, imageName);
-
-                    using (var fs = new FileStream(filePath, FileMode.Create))
-                    {
-                        await sliderModel.ImageUpload.CopyToAsync(fs);
-                    }
-
-                    sliderModel.Image = imageName;
-                }
-
-                _dataContext.Add(sliderModel);
-                await _dataContext.SaveChangesAsync();
-                TempData["success"] = "Slider Added Successfully!!!";
-                return RedirectToAction("Index");
+                TempData["error"] = "Dữ liệu không hợp lệ.";
+                return View(model);
             }
 
-            TempData["error"] = "Models Have Some Problems!!!";
-            return BadRequest(string.Join("\n", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+            if (model.ImageUpload != null)
+            {
+                model.Image = await SaveImageAsync(model.ImageUpload);
+            }
+
+            _dataContext.Sliders.Add(model);
+            await _dataContext.SaveChangesAsync();
+
+            TempData["success"] = "Thêm slider thành công.";
+            return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Edit(int Id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            var sliderModel = await _dataContext.Sliders.FindAsync(Id);
-            return View(sliderModel);
-        }
+            var slider = await _dataContext.Sliders.FindAsync(id);
+            if (slider == null) return NotFound();
 
+            return View(slider);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(SliderModel sliderModel)
+        public async Task<IActionResult> Edit(SliderModel model)
         {
-            var slider_existed = await _dataContext.Sliders.FindAsync(sliderModel.Id);
-            if (slider_existed == null) return NotFound();
+            var existing = await _dataContext.Sliders.FindAsync(model.Id);
+            if (existing == null) return NotFound();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                if (sliderModel.ImageUpload != null)
-                {
-                    string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/sliders");
-                    string imageName = Guid.NewGuid() + "_" + sliderModel.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadsDir, imageName);
-
-                    using (var fs = new FileStream(filePath, FileMode.Create))
-                    {
-                        await sliderModel.ImageUpload.CopyToAsync(fs);
-                    }
-
-                    slider_existed.Image = imageName;
-                }
-
-                slider_existed.Name = sliderModel.Name;
-                slider_existed.Description = sliderModel.Description;
-                slider_existed.Status = sliderModel.Status;
-
-                _dataContext.Update(slider_existed);
-                await _dataContext.SaveChangesAsync();
-                TempData["success"] = "Slider Updated Successfully!!!";
-                return RedirectToAction("Index");
+                TempData["error"] = "Dữ liệu không hợp lệ.";
+                return View(model);
             }
 
-            TempData["error"] = "Models Have Some Problems!!!";
-            return BadRequest(string.Join("\n", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+            if (model.ImageUpload != null)
+            {
+                // Xóa ảnh cũ
+                await DeleteImageAsync(existing.Image);
+
+                // Lưu ảnh mới
+                existing.Image = await SaveImageAsync(model.ImageUpload);
+            }
+
+            existing.Name = model.Name;
+            existing.Description = model.Description;
+            existing.Status = model.Status;
+
+            _dataContext.Update(existing);
+            await _dataContext.SaveChangesAsync();
+
+            TempData["success"] = "Cập nhật slider thành công.";
+            return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Delete(int Id)
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
         {
-            var sliderModel = await _dataContext.Sliders.FindAsync(Id);
-            if (sliderModel == null) return NotFound();
+            var slider = await _dataContext.Sliders.FindAsync(id);
+            if (slider == null) return NotFound();
 
-            if (!string.Equals(sliderModel.Image, "null.jpg", StringComparison.OrdinalIgnoreCase))
+            await DeleteImageAsync(slider.Image);
+
+            _dataContext.Sliders.Remove(slider);
+            await _dataContext.SaveChangesAsync();
+
+            TempData["success"] = "Xoá slider thành công.";
+            return RedirectToAction("Index");
+        }
+
+        private async Task<string> SaveImageAsync(IFormFile file)
+        {
+            var folder = Path.Combine(_webHostEnvironment.WebRootPath, "media/sliders");
+            var fileName = Guid.NewGuid() + "_" + Path.GetFileName(file.FileName);
+            var filePath = Path.Combine(folder, fileName);
+
+            using (var fs = new FileStream(filePath, FileMode.Create))
             {
-                string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/sliders");
-                string oldfilePath = Path.Combine(uploadsDir, sliderModel.Image);
-                if (System.IO.File.Exists(oldfilePath))
-                {
-                    System.IO.File.Delete(oldfilePath);
-                }
+                await file.CopyToAsync(fs);
             }
 
-            _dataContext.Sliders.Remove(sliderModel);
-            await _dataContext.SaveChangesAsync();
-            TempData["success"] = "Slider Deleted Successfully!!!";
-            return RedirectToAction("Index");
+            return fileName;
+        }
+
+        private async Task DeleteImageAsync(string imageName)
+        {
+            if (string.IsNullOrEmpty(imageName) || imageName.Equals("null.jpg", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            var path = Path.Combine(_webHostEnvironment.WebRootPath, "media/sliders", imageName);
+            if (System.IO.File.Exists(path))
+            {
+                await Task.Run(() => System.IO.File.Delete(path));
+            }
         }
     }
 }

@@ -16,7 +16,7 @@
     }
 }
 
-<div class="container">
+<div class="">
     <p><a asp-controller="Role" asp-action="Add" class="btn btn-warning btn-sm">Thêm Vai Trò</a></p>
     <table class="table table-bordered table-hover">
         <thead>
@@ -41,4 +41,5 @@
             }
         </tbody>
     </table>
+    <partial name="_Paging" model="@pager" />
 </div>

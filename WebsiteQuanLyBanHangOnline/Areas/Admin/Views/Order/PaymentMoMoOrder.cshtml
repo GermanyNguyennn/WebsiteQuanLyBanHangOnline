@@ -15,27 +15,27 @@
     }
 }
 
-<div class="container">
-<table class="table table-bordered table-hover">
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Mã Giao Dịch</th>
-            <th scope="col">Nội Dung Giao Dịch</th>
-            <th scope="col">Số Tiền Giao Dịch</th>
-            <th scope="col">Ngày Giao Dịch</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>@Model.Id</td>
-            <td>@Model.OrderId</td>
-            <td>@Model.OrderInfo</td>
-            <td>@Model.Amount.ToString("#,##0 VND")</td>
-            <td>@Model.CreatedDate.ToString()</td>
-        </tr>
-        <a asp-controller="Order" asp-action="Index" class="btn btn-warning btn-sm">Quay Lại</a>
-    </tbody> 
-</table>
-<partial name="_Paging" model="@pager" />
+<div class="">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Mã Giao Dịch</th>
+                <th scope="col">Nội Dung Giao Dịch</th>
+                <th scope="col">Số Tiền Giao Dịch</th>
+                <th scope="col">Ngày Giao Dịch</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Model.Id</td>
+                <td>@Model.OrderId</td>
+                <td>@Model.OrderInfo</td>
+                <td>@Model.Amount.ToString("#,##0 VND")</td>
+                <td>@Model.CreatedDate.ToString()</td>
+            </tr>
+            <a asp-controller="Order" asp-action="Index" class="btn btn-warning btn-sm">Quay Lại</a>
+        </tbody> 
+    </table>
+    <partial name="_Paging" model="@pager" />
 </div>

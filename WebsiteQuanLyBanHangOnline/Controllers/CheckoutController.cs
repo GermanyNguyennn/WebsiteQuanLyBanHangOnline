@@ -13,6 +13,7 @@ using WebsiteQuanLyBanHangOnline.Services.Email;
 using WebsiteQuanLyBanHangOnline.Services.Location;
 using WebsiteQuanLyBanHangOnline.Services.MoMo;
 using WebsiteQuanLyBanHangOnline.Services.VnPay;
+
 namespace WebsiteQuanLyBanHangOnline.Controllers
 {
     public class CheckoutController : Controller
@@ -25,7 +26,10 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
         private readonly EmailTemplateRenderer _emailRenderer;
         private readonly UserManager<AppUserModel> _userManager;
         private readonly ILocationService _locationService;
-        public CheckoutController(DataContext context, IEmailSender emailSender, IMoMoService moMoService, IVnPayService vnPayService, IWebHostEnvironment webHostEnvironment, EmailTemplateRenderer emailTemplateRenderer, UserManager<AppUserModel> userManager, ILocationService locationService)
+
+        public CheckoutController(DataContext context, IEmailSender emailSender, IMoMoService moMoService, IVnPayService vnPayService,
+            IWebHostEnvironment webHostEnvironment, EmailTemplateRenderer emailTemplateRenderer,
+            UserManager<AppUserModel> userManager, ILocationService locationService)
         {
             _dataContext = context;
             _emailSender = emailSender;
@@ -36,31 +40,21 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             _userManager = userManager;
             _locationService = locationService;
         }
-        public IActionResult Index()
-        {
-            return View();
-        }
+
+        public IActionResult Index() => View();
 
         public async Task<IActionResult> Checkout(string PaymentMethod, string PaymentId)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             var userName = User.FindFirstValue(ClaimTypes.Name);
-            if (userEmail == null)
-                return RedirectToAction("Login", "Account");
+            if (userEmail == null) return RedirectToAction("Login", "Account");
 
             var cart = HttpContext.Session.GetJson<List<CartModel>>("Cart") ?? new();
-
             var orderCode = Guid.NewGuid().ToString();
             var couponCode = HttpContext.Session.GetString("AppliedCoupon");
-            var discountAmountStr = HttpContext.Session.GetString("DiscountAmount");
-
-            decimal discountAmount = 0;
+            var discountAmount = decimal.TryParse(HttpContext.Session.GetString("DiscountAmount"), out var parsedDiscount) ? parsedDiscount : 0;
             int? couponId = null;
 
-            if (!string.IsNullOrEmpty(discountAmountStr) && decimal.TryParse(discountAmountStr, out var parsed))
-                discountAmount = parsed;
-
-            // Truy vấn coupon nếu có mã
             if (!string.IsNullOrEmpty(couponCode))
             {
                 var coupon = await _dataContext.Coupons.FirstOrDefaultAsync(c =>
@@ -74,13 +68,8 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 }
             }
 
-            var user = await _userManager.Users
-           .Include(u => u.Information)
-           .FirstOrDefaultAsync(u => u.UserName == userName);
-
-            string cityName = await _locationService.GetCityNameById(user.Information?.City ?? "");
-            string districtName = await _locationService.GetDistrictNameById(user.Information?.City ?? "", user.Information?.District ?? "");
-            string wardName = await _locationService.GetWardNameById(user.Information?.District ?? "", user.Information?.Ward ?? "");
+            var user = await _userManager.Users.Include(u => u.Information).FirstOrDefaultAsync(u => u.UserName == userName);
+            var info = user?.Information;
 
             var orderItem = new OrderModel
             {
@@ -91,17 +80,17 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 Status = 1,
                 CouponCode = couponCode,
                 CouponId = couponId,
-
-                FullName = user.FullName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                Address = user.Information?.Address ?? "",
-                City = cityName,
-                District = districtName,
-                Ward = wardName
+                FullName = user?.FullName,
+                Email = user?.Email,
+                PhoneNumber = user?.PhoneNumber,
+                Address = info?.Address ?? "",
+                City = await _locationService.GetCityNameById(info?.City ?? ""),
+                District = await _locationService.GetDistrictNameById(info?.City ?? "", info?.District ?? ""),
+                Ward = await _locationService.GetWardNameById(info?.District ?? "", info?.Ward ?? "")
             };
 
             _dataContext.Orders.Add(orderItem);
+            await _dataContext.SaveChangesAsync();
 
             var orderDetails = new List<OrderDetailModel>();
             var emailItems = new List<EmailOrderItemViewModel>();
@@ -121,6 +110,7 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
                 orderDetails.Add(new OrderDetailModel
                 {
+                    OrderId = orderItem.Id,
                     OrderCode = orderCode,
                     UserName = userName,
                     ProductId = item.ProductId,
@@ -141,18 +131,25 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             _dataContext.OrderDetails.AddRange(orderDetails);
             await _dataContext.SaveChangesAsync();
 
-            // Xoá giỏ hàng và mã giảm giá khỏi session
             HttpContext.Session.Remove("Cart");
             HttpContext.Session.Remove("AppliedCoupon");
             HttpContext.Session.Remove("DiscountAmount");
 
-            // Gửi mail
+            await SendOrderEmails(userEmail, userName, orderCode, emailItems, totalAmount, couponCode, discountAmount);
+
+            TempData["success"] = "Thanh Toán Thành công!";
+            return RedirectToAction("Index", "Home");
+        }
+
+        private async Task SendOrderEmails(string userEmail, string userName, string orderCode, List<EmailOrderItemViewModel> items,
+            decimal totalAmount, string? couponCode, decimal discountAmount)
+        {
             var viewModel = new EmailOrderViewModel
             {
                 OrderCode = orderCode,
                 UserName = userName,
                 CreatedDate = DateTime.Now,
-                Items = emailItems,
+                Items = items,
                 TotalAmount = totalAmount,
                 CouponCode = couponCode,
                 DiscountAmount = discountAmount
@@ -167,9 +164,6 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 var adminHtml = await _emailRenderer.RenderAsync("AdminEmail.cshtml", viewModel);
                 await _emailSender.SendEmailAsync(admin.Email, "Đơn Hàng Mới", adminHtml);
             }
-
-            TempData["success"] = "Thanh Toán Thành công!";
-            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
@@ -181,12 +175,10 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
             var orderInfo = query["orderInfo"];
             var amount = decimal.Parse(query["amount"]);
 
-            // Parse response
-            var response = _moMoService.PaymentExecuteAsync(query);
+            _ = _moMoService.PaymentExecuteAsync(query);
 
             if (resultCode != "0")
             {
-                // Lưu vào CSDL
                 var momoModel = new MoMoModel
                 {
                     OrderId = orderId,
@@ -200,34 +192,26 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
 
                 await Checkout("MoMo", orderId);
 
-                // Trả về View với MoMoInformationModel
-                var viewModel = new MoMoInformationModel
+                return View(new MoMoInformationModel
                 {
                     OrderId = orderId,
                     OrderInfo = orderInfo,
                     Amount = (double)amount,
                     CreatedDate = momoModel.CreatedDate
-                };
+                });
+            }
 
-                return View(viewModel);
-            }
-            else
-            {
-                TempData["error"] = "Thanh Toán Bằng MoMo Không Thành Công.";
-                return RedirectToAction("Index", "Home");
-            }
+            TempData["error"] = "Thanh Toán Bằng MoMo Không Thành Công.";
+            return RedirectToAction("Index", "Home");
         }
-
 
         [HttpGet]
         public async Task<IActionResult> PaymentCallBackVNPay()
         {
-            var query = HttpContext.Request.Query;
-            var response = await _vnPayService.PaymentExecuteAsync(query);
+            var response = await _vnPayService.PaymentExecuteAsync(HttpContext.Request.Query);
 
             if (response.VnPayResponseCode == "00")
             {
-                // ✅ Lưu vào CSDL bằng VnPayModel
                 var vnPayModel = new VnPayModel
                 {
                     OrderId = response.OrderId,
@@ -239,25 +223,19 @@ namespace WebsiteQuanLyBanHangOnline.Controllers
                 _dataContext.Add(vnPayModel);
                 await _dataContext.SaveChangesAsync();
 
-                // ✅ Gọi xử lý đơn hàng nếu cần
                 await Checkout(response.PaymentMethod, response.OrderId);
 
-                // ✅ Trả về View dùng đúng model
-                var viewModel = new VNPayInformationModel
+                return View(new VNPayInformationModel
                 {
                     OrderId = response.OrderId,
                     OrderInfo = response.OrderInfo,
                     Amount = response.Amount,
                     CreatedDate = vnPayModel.CreatedDate
-                };
+                });
+            }
 
-                return View(viewModel);
-            }
-            else
-            {
-                TempData["error"] = "Thanh Toán Bằng VNPay Không Thành Công.";
-                return RedirectToAction("Index", "Home");
-            }
+            TempData["error"] = "Thanh Toán Bằng VNPay Không Thành Công.";
+            return RedirectToAction("Index", "Home");
         }
     }
 }

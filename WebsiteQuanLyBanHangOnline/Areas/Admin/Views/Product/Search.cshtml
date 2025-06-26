@@ -22,7 +22,7 @@
             <tr>
                 <th scope="col">Id</th>
                 <th scope="col">Tên Sản Phẩm</th>
-                <th scope="col">Ảnh</th> 
+                <th scope="col">Ảnh</th>
                 @* <th scope="col">Mô Tả</th> *@
                 <th scope="col">Giá Bán</th>
                 <th scope="col">Giá Nhập</th>
@@ -36,12 +36,12 @@
             </tr>
         </thead>
         <tbody>
-            @foreach(var item in Model)
+            @foreach (var item in Model)
             {
                 <tr>
                     <td>@item.Id</td>
                     <td>@item.Name</td>
-                    <td><img src="@Url.Content($"~/media/products/{item.Image}")" style="max-width: 100px; max-height: 100px;" /></td>
+                    <td><img src="~/media/products/@item.Image" width="70%" height="70%" /></td>
                     @* <td>@Html.Raw(@item.Description)</td> *@
                     <td>@item.Price.ToString("#,##0 VNĐ")</td>
                     <td>@item.ImportPrice.ToString("#,##0 VNĐ")</td>
